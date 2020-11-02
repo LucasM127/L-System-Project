@@ -16,8 +16,9 @@ void main()
     float Z = (gl_Position.z / gl_Position.w);// * 3.14159;/2.0;
 //    Z = 1.2 * sin(sin(sqrt(1-Z)));
     //Z = sin(sqrt(1-Z));
-    Z = 2 - (atan(Z) + 1);
+    //Z = 2 - (atan(Z) + 1);
 //    Z = sqrt(Z);
-    Z = sin(Z);
+    //Z = sin(Z);
+    Z = 1.2 * sin(1 - atan(Z-0.2)) - 0.2;
     vcolor = vec3(color.r * Z, color.g * Z, color.b);//color *Z;
 }
