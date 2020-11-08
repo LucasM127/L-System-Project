@@ -66,6 +66,27 @@ std::map<char, int> EvalLoader::opPriorityMap
 	{'(',	-1}//so will apply
 };
 
+//fix the while loop parsing... for this...
+std::map<char, bool> EvalLoader::opLeftAssociativityMap =
+{
+	{ 0 ,	true},// ==
+	{ 1 ,	true},// >=
+	{ 2 ,   true},// <=
+	{'+',	true},
+	{'-',	true},
+	{'*',	true},
+	{'/',	true},
+	{'^',	false},//ie 2^3^4 != (2^3)^4 4096 = 2,14e29
+	{ 3 ,   false},//unary operators 3-10
+	{ 4 ,   false},
+	{ 5 ,   false},
+	{ 6 ,   false},
+	{ 7 ,   false},
+	{ 8 ,   false},
+	{ 9 ,   false},
+	{ 10,   false}
+};
+
 std::map<void(*)(std::stack<float>&), std::string> EvalLoader::reverseOpMap = 
 {
 	{Evaluator::add							,"+"},

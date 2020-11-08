@@ -109,6 +109,7 @@ private:
 	static std::vector<std::pair<std::string, char> > tokenStringReplaceVector;
 	static std::map<char, std::string> reverseTokenMapToCFunction;
 	static std::map<void(*)(std::stack<float>&), std::string> reverseOpMap;
+	static std::map<char, bool> opLeftAssociativityMap;
 	static std::map<char, int> opPriorityMap;
     bool simplifyBinary(void(*)(std::stack<float>&));
 	bool simplifyUnary (void(*)(std::stack<float>&));

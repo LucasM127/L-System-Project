@@ -86,6 +86,434 @@ bool next(const std::string &string, const unsigned int index, char &c)
 void expand(const std::vector<Number*> &numList, const std::vector< void(*)(std::stack<float>&) > &opList, const std::vector<bool> &isNextStepAPop,
 			std::vector<Number*> &numListFinal, std::vector< void(*)(std::stack<float>&) > &opListFinal, std::vector<bool> &isPopListFinal);
 
+typedef std::map<char, VarIndice> VarIndiceMap;
+typedef void(*opFnPtr)(std::stack<float>&);
+
+Evaluator* EvalLoader::load(const std::string &expression, VarIndiceMap &varIndiceMap, unsigned int depth)
+{
+    while(!numListStack.empty()) numListStack.pop();
+	while(!opListStack.empty())  opListStack.pop();
+	while(!isNextStepAPopStack.empty()) isNextStepAPopStack.pop();
+
+    numListStack.push(std::vector<Number*>());
+    opListStack.push(std::vector<opFnPtr>());
+    isNextStepAPopStack.push(std::vector<bool>());
+
+    auto numList = &numListStack.top();
+    auto opList  = &opListStack.top();
+    auto isPopList = &isNextStepAPopStack.top();
+
+    m_expression = expression;
+    findAndReplace(m_expression, tokenStringReplaceVector);
+
+    bool lastWasANumber = false;
+
+    std::stringstream sstream;
+    sstream<<m_expression;
+
+    std::stack<char> opStack;
+//nextOphasPriority (next, last)
+//return(opPriorityMap[nextOp] > opPriorityMap[lastOp]);
+
+    auto tryPush = [&](char op) -> void
+    {
+        if(!opStack.empty())
+        {
+            char lastOp = opStack.top();
+            int lastPriority = opPriorityMap[lastOp];
+            int nextPriority = opPriorityMap[op];
+            bool isLeftAssociative = opLeftAssociativityMap[op];
+            while((isLeftAssociative && lastPriority >= nextPriority) ||
+                  (!isLeftAssociative && lastPriority > nextPriority))
+            {
+				if(lastOp == '(') break;
+                evaluate(opStack);
+                if(opStack.empty()) break;
+                lastOp = opStack.top();
+            }
+        }
+        opStack.push(op);
+    };
+
+    auto pushNumber = [&](Number *numPtr) -> void
+    {
+        numList->push_back(numPtr);
+        if(lastWasANumber)
+            tryPush('*');
+        isPopList->push_back(false);
+        lastWasANumber = true;
+    };
+
+    auto popStacks = [&]() -> void
+    {
+        numListStack.pop();
+        opListStack.pop();
+        isNextStepAPopStack.pop();
+
+        numList = &numListStack.top();
+        opList = &opListStack.top();
+        isPopList = &isNextStepAPopStack.top();
+    };
+
+    auto pushStacks = [&]() -> void
+    {
+        numListStack.push(std::vector<Number*>());
+        opListStack.push( std::vector<opFnPtr>());
+        isNextStepAPopStack.push( std::vector<bool>());
+
+        numList = &numListStack.top();
+        opList = &opListStack.top();
+        isPopList = &isNextStepAPopStack.top();
+    };
+
+    auto isUnary = [&](char op) -> bool
+    {
+        return (unaryOpMap.find(op) != unaryOpMap.end());
+    };
+
+    auto isVariable = [&](char c) -> bool
+    {
+        return (varIndiceMap.find(c) != varIndiceMap.end());
+    };
+
+
+    while (true)
+    {
+        char next = sstream.peek();
+
+        if(next == EOF)
+            break;
+        
+        if(next == ' ')
+        {
+            sstream.get(next);
+            continue;
+        }
+
+        if(next == '(')
+        {
+            if(lastWasANumber)
+                tryPush('*');
+
+            opStack.push('(');
+            pushStacks();
+
+            sstream>>next;
+            lastWasANumber = false;
+        }
+        else if(next == ')')
+        {
+            //evaluate out -> assumed is a '(' at least before the ')' in expression
+            while (true)
+            {
+                if(opStack.top() == '(')
+                {
+                    opStack.pop();
+                    break;
+                }
+                evaluate(opStack);
+            }
+            
+            Number * numPtr;
+            if(isPopList->size() > 1)
+                numPtr = new ComplexNumber(*numList, *opList, *isPopList);
+            else
+                numPtr = numList->back();
+            
+            popStacks();
+
+            //convert unary of complex # to a complex Number
+            //same as in variable...
+            //use a while loop...
+            //output push number pop the commands as found sin(cos(x)) => x, X=cosx, sinX
+            if(!numPtr->isConstant() && !opStack.empty() && isUnary(opStack.top()))
+            {
+                std::vector<opFnPtr> tempList;
+                std::vector<bool> tempPopList = {false};
+                while(!opStack.empty() && isUnary(opStack.top()))
+                {
+                    tempList.push_back(unaryOpMap[opStack.top()]);
+                    tempPopList.push_back(true);
+                    opStack.pop();
+                }
+                numPtr = new ComplexNumber({numPtr}, tempList, tempPopList);
+            }
+
+            numList->push_back(numPtr);
+            isPopList->push_back(false);
+            lastWasANumber = true;
+
+            sstream>>next;
+        }
+        else if(isAnOp(next))
+        {
+            if(isUnary(next) && lastWasANumber == true)
+                tryPush('*');
+            if(lastWasANumber == false)
+            {
+                if(next == '-')
+                    next = 10;//unary negate operator
+                if(next == '+')
+                {
+                    sstream>>next;
+                    continue;//unary positive operator does nothing
+                }
+            }
+
+            //shouldn't need unary right associativ test with our improved while loop
+            tryPush(next);
+            lastWasANumber = false;
+
+            sstream>>next;
+        }
+        else if(isVariable(next))
+        {
+            Number * numPtr = new LVariable(varIndiceMap[next]);
+
+            if(!opStack.empty() && isUnary(opStack.top()))
+            {
+                std::vector<opFnPtr> tempList;
+                std::vector<bool> tempPopList = {false};
+                while(!opStack.empty() && isUnary(opStack.top()))
+                {
+                    tempList.push_back(unaryOpMap[opStack.top()]);
+                    tempPopList.push_back(true);
+                    opStack.pop();
+                }
+                numPtr = new ComplexNumber({numPtr}, tempList, tempPopList);
+            }
+
+            if(lastWasANumber)
+                tryPush('*');
+            
+            numList->push_back(numPtr);
+            isPopList->push_back(false);
+            lastWasANumber = true;
+
+            sstream>>next;
+        }
+        else//assumed is a numeric value
+        {
+            if(!isdigit(next) && next != '.')
+			{
+				std::stringstream s;
+				s<<"invalid token "<<next<<" ... can't prep expression "<<expression<<std::endl;
+				throw std::runtime_error(s.str());
+			}
+            float number;
+			sstream>>number;//float
+			Number * numPtr = new Constant(number);
+
+            if(lastWasANumber)
+                tryPush('*');
+            
+			numList->push_back(numPtr);
+            isPopList->push_back(false);
+            lastWasANumber = true;
+        }
+
+        //printout
+        std::cout<<"After processing char "<<next<<"\n";
+        printout(*numList, *opList, *isPopList);
+    }
+
+    while(!opStack.empty())
+        evaluate(opStack);
+    
+    std::vector<Number*> numListFinal;
+	std::vector<opFnPtr> opListFinal;
+	std::vector<bool> isPopListFinal;
+
+    expand(*numList, *opList, *isPopList, numListFinal, opListFinal, isPopListFinal);
+	std::cout<<"Final sorting:\n";
+    printout(numListFinal, opListFinal, isPopListFinal);
+    
+    if((isPopListFinal.size() == 1))
+		return new SimpleEvaluator(expression, depth, numListFinal[0]);
+	else
+        return new ComplexEvaluator(expression,depth,numListFinal,opListFinal,isPopListFinal);
+}
+
+void expand(const std::vector<Number*> &numList, const std::vector< void(*)(std::stack<float>&) > &opList, const std::vector<bool> &isNextStepAPop,
+			std::vector<Number*> &numListFinal, std::vector< void(*)(std::stack<float>&) > &opListFinal, std::vector<bool> &isPopListFinal)
+{
+	uint numIt = 0;
+	uint opIt = 0;
+	for(bool isPop : isNextStepAPop)
+	{
+		if(isPop)
+		{
+			//pop it...
+			opListFinal.push_back(opList[opIt++]);
+			isPopListFinal.push_back(isPop);
+		}
+		else
+		{
+			Number *N = numList[numIt++];
+			if(N->isComplex())
+			{
+				ComplexNumber *CN = dynamic_cast<ComplexNumber*>(N);
+				expand(CN->numList, CN->opList, CN->isNextStepAPop, numListFinal, opListFinal, isPopListFinal);
+				//delete N;
+			}
+			else
+			{
+				numListFinal.push_back(N);
+				isPopListFinal.push_back(isPop);
+			}
+		}
+	}
+}
+
+Evaluator* EvalLoader::load(const float value)
+{
+    Number* numPtr = new Constant(value);
+    return new SimpleEvaluator("default value",0,numPtr);
+}
+
+//simplify functions simplify the expression if the operation is acting on constants only, to reduce number of steps
+bool EvalLoader::simplifyBinary(void(*op)(std::stack<float>& ))
+{
+	auto &numList = numListStack.top();
+	auto &isNextStepAPop = isNextStepAPopStack.top();
+
+    int size = numList.size();
+    Number* rhsNum = numList[size-1];
+    Number* lhsNum = numList[size-2];
+    if(rhsNum->isConstant() && lhsNum->isConstant())
+    {
+		std::cout<<"Simplifying binary op: ";
+        stackNum.push(lhsNum->getVal());
+        stackNum.push(rhsNum->getVal());
+        op(stackNum);
+        Number* newNum = new Constant( stackNum.top() );
+        stackNum.pop();
+        delete rhsNum;
+        delete lhsNum;
+        numList[size-2] = newNum;
+        numList.resize(size-1);
+        isNextStepAPop.resize(isNextStepAPop.size()-1);//had pushed two values for this op to pop, but now we won't need to.
+        return true;
+    }
+    return false;
+}
+
+bool EvalLoader::simplifyUnary (void(*op)(std::stack<float>& ))
+{
+	auto &numList = numListStack.top();
+
+    int size = numList.size();
+    Number* oldNum = numList[size-1];
+    if(oldNum->isConstant())
+    {
+		std::cout<<"Simplifying unary op: ";
+        stackNum.push(oldNum->getVal());
+        op(stackNum);
+        Number* newNum = new Constant( stackNum.top() );
+        stackNum.pop();
+        delete oldNum;
+        numList[size-1] = newNum;
+        return true;
+    }
+    return false;
+}
+
+//push the numbers in the stack only once, pull as needed...
+//associativity map???... is Left or right associative...
+void EvalLoader::evaluate(std::stack<char>& stackOp)
+{
+	auto &opList = opListStack.top();
+	auto &isNextStepAPop = isNextStepAPopStack.top();
+	//use reverse stack to ... for 5x3 => 15x or x15
+	char operation = stackOp.top();
+	stackOp.pop();
+	char lastOp = operation;//INITIALIZED from visual studio runtime error
+	if(stackOp.size()) lastOp = stackOp.top();//lastOp or is it nextOp?
+
+	bool wasSimplified = false;
+
+	auto opMapIt = binaryOpMap.find(operation);
+	if(opMapIt != binaryOpMap.end())
+    {
+        //only try and simplify if is priority, otherwise ie) (x+1)*2 will try and simplify 1*2 even though need to add x+1 first with x being a variable
+		//we have higher priority than ( though???
+        if(opPriorityMap[operation]>=opPriorityMap[lastOp])//!nextOpHasPriority(operation,lastOp))
+        {
+            if(!simplifyBinary(opMapIt->second)) opList.push_back(opMapIt->second);
+            else wasSimplified = true;
+        }
+        else
+        {
+            opList.push_back(opMapIt->second);
+        }
+    }
+    else
+    {
+        opMapIt = unaryOpMap.find(operation);
+        if(opMapIt == unaryOpMap.end())
+        {
+            std::stringstream s;
+            s<<"Invalid operator "<<operation<<" in: "<<m_expression<<std::endl;
+            throw std::runtime_error(s.str());
+        }
+        //Unary ops if can be simplified won't mess up the priority I don't think?
+        if(!simplifyUnary(opMapIt->second)) opList.push_back(opMapIt->second);
+        else wasSimplified = true;
+    }
+
+	if(!wasSimplified) isNextStepAPop.push_back(true);
+}
+
+//other option just assign op priority ranking values to the ops
+//next * last '(' 3 > 99 false
+//should always return true
+bool EvalLoader::nextOpHasPriority(char nextOp, char lastOp)
+{
+//less than, else if >= will push it and store it, not evaluate as we find, (5-(3-2)=>4 instead of (5-3)-2)
+	return(opPriorityMap[nextOp] > opPriorityMap[lastOp]);//use >= for right associativity
+
+	if(lastOp == '(') return true;//so should never have to evaluate to left of it until is cleared by ')'
+	if((nextOp == '*' || nextOp == '/') && (lastOp == '+' || lastOp == '-')) return true;
+	if(nextOp == '^') return true;//raise the exponent and then multiply it out
+	if(lastOp == '<' || lastOp ==  '>' || lastOp ==  '=') return true;//everything else has priority...
+	//if(lastOp == 'S') return false;//redundant? Unary ops we just evaluate as is
+	return false;
+}
+
+bool EvalLoader::isAnOp(const char& op)// + - * / ^ S C T = < > R <- CurrentOpList
+{
+    if(binaryOpMap.find(op)!= binaryOpMap.end() ||
+       unaryOpMap.find(op) != unaryOpMap.end() )
+        return true;
+    return false;
+}
+
+
+void EvalLoader::printout(const std::vector<Number*> &numList, std::vector< void(*)(std::stack<float>&) > &opList, const std::vector<bool> &popList)
+{
+	std::cout<<"NumList: ";
+	for(auto N : numList)
+	{
+		if(N->isConstant()) std::cout<<N->getVal()<<" ";
+		else std::cout<<"X ";
+	}
+	std::cout<<"\nOpList: ";
+	for(auto O : opList)
+	{
+		std::cout<<reverseOpMap[O]<<" ";
+	}
+	std::cout<<"\npopList: ";
+	for(auto B : popList)
+	{
+		if(B) std::cout<<"pop ";
+		else std::cout<<"push ";
+	}
+	std::cout<<"\n";
+}
+
+/****************
+
+//NEXT OLDEST ITERATION
 //unary of a variable is a complex number too
 Evaluator* EvalLoader::load(const std::string &expression, std::map<char, VarIndice> &varIndiceMap, unsigned int depth)
 {
@@ -330,28 +758,7 @@ Evaluator* EvalLoader::load(const std::string &expression, std::map<char, VarInd
 
 	printout(*numList, *opList, *isNextStepAPop);
 	printout(numListFinal, opListFinal, isPopListFinal);
-	/*
-	//EXPAND IT OUT AT THE END
-	//ALMOST LIKE A FAKE EVALUATOR...
-	std::vector<bool> isPopF;
-	std::stack< void(*)(std::stack<float>&) > opStackF;
-	std::stack<Number*> numStackF;
 
-	//recursively
-	//how many times....
-	//numList, opList... shouldn't we just copy it over instead???
-	//expand(isNextStepAPop, opStack, numStack, isPopF, opStackF, numStackF)
-	{
-		for(auto pop : isPopF)
-		{
-			if(pop)
-			{
-				opStackF.push(opStack->top());
-				opStack->pop();
-			}
-		}
-	}
-	*/
 
 	//create our corresponding evaluator
 	if((isNextStepAPop->size() == 1))
@@ -362,182 +769,8 @@ Evaluator* EvalLoader::load(const std::string &expression, std::map<char, VarInd
 //	else return new ComplexEvaluator(expression,depth,*numList,*opList,*isNextStepAPop);
 	else return new ComplexEvaluator(expression,depth,numListFinal,opListFinal,isPopListFinal);
 }
-
-void expand(const std::vector<Number*> &numList, const std::vector< void(*)(std::stack<float>&) > &opList, const std::vector<bool> &isNextStepAPop,
-			std::vector<Number*> &numListFinal, std::vector< void(*)(std::stack<float>&) > &opListFinal, std::vector<bool> &isPopListFinal)
-{
-	uint numIt = 0;
-	uint opIt = 0;
-	for(bool isPop : isNextStepAPop)
-	{
-		if(isPop)
-		{
-			//pop it...
-			opListFinal.push_back(opList[opIt++]);
-			isPopListFinal.push_back(isPop);
-		}
-		else
-		{
-			Number *N = numList[numIt++];
-			if(N->isComplex())
-			{
-				ComplexNumber *CN = dynamic_cast<ComplexNumber*>(N);
-				expand(CN->numList, CN->opList, CN->isNextStepAPop, numListFinal, opListFinal, isPopListFinal);
-			}
-			else
-			{
-				numListFinal.push_back(N);
-				isPopListFinal.push_back(isPop);
-			}
-		}
-	}
-}
-
-Evaluator* EvalLoader::load(const float value)
-{
-    Number* numPtr = new Constant(value);
-    return new SimpleEvaluator("default value",0,numPtr);
-}
-
-//simplify functions simplify the expression if the operation is acting on constants only, to reduce number of steps
-bool EvalLoader::simplifyBinary(void(*op)(std::stack<float>& ))
-{
-	auto &numList = numListStack.top();
-	auto &isNextStepAPop = isNextStepAPopStack.top();
-
-    int size = numList.size();
-    Number* rhsNum = numList[size-1];
-    Number* lhsNum = numList[size-2];
-    if(rhsNum->isConstant() && lhsNum->isConstant())
-    {
-		std::cout<<"Simplifying binary op: ";
-        stackNum.push(lhsNum->getVal());
-        stackNum.push(rhsNum->getVal());
-        op(stackNum);
-        Number* newNum = new Constant( stackNum.top() );
-        stackNum.pop();
-        delete rhsNum;
-        delete lhsNum;
-        numList[size-2] = newNum;
-        numList.resize(size-1);
-        isNextStepAPop.resize(isNextStepAPop.size()-1);//had pushed two values for this op to pop, but now we won't need to.
-        return true;
-    }
-    return false;
-}
-
-bool EvalLoader::simplifyUnary (void(*op)(std::stack<float>& ))
-{
-	auto &numList = numListStack.top();
-
-    int size = numList.size();
-    Number* oldNum = numList[size-1];
-    if(oldNum->isConstant())
-    {
-		std::cout<<"Simplifying unary op: ";
-        stackNum.push(oldNum->getVal());
-        op(stackNum);
-        Number* newNum = new Constant( stackNum.top() );
-        stackNum.pop();
-        delete oldNum;
-        numList[size-1] = newNum;
-        return true;
-    }
-    return false;
-}
-
-//push the numbers in the stack only once, pull as needed...
-void EvalLoader::evaluate(std::stack<char>& stackOp)
-{
-	auto &opList = opListStack.top();
-	auto &isNextStepAPop = isNextStepAPopStack.top();
-	//use reverse stack to ... for 5x3 => 15x or x15
-	char operation = stackOp.top();
-	stackOp.pop();
-	char lastOp = operation;//INITIALIZED from visual studio runtime error
-	if(stackOp.size()) lastOp = stackOp.top();//lastOp or is it nextOp?
-
-	bool wasSimplified = false;
-
-	auto opMapIt = binaryOpMap.find(operation);
-	if(opMapIt != binaryOpMap.end())
-    {
-        //only try and simplify if is priority, otherwise ie) (x+1)*2 will try and simplify 1*2 even though need to add x+1 first with x being a variable
-		//we have higher priority than ( though???
-        if(opPriorityMap[operation]>=opPriorityMap[lastOp])//!nextOpHasPriority(operation,lastOp))
-        {
-            if(!simplifyBinary(opMapIt->second)) opList.push_back(opMapIt->second);
-            else wasSimplified = true;
-        }
-        else
-        {
-            opList.push_back(opMapIt->second);
-        }
-    }
-    else
-    {
-        opMapIt = unaryOpMap.find(operation);
-        if(opMapIt == unaryOpMap.end())
-        {
-            std::stringstream s;
-            s<<"Invalid operator "<<operation<<" in: "<<m_expression<<std::endl;
-            throw std::runtime_error(s.str());
-        }
-        //Unary ops if can be simplified won't mess up the priority I don't think?
-        if(!simplifyUnary(opMapIt->second)) opList.push_back(opMapIt->second);
-        else wasSimplified = true;
-    }
-
-	if(!wasSimplified) isNextStepAPop.push_back(true);
-}
-
-//other option just assign op priority ranking values to the ops
-//next * last '(' 3 > 99 false
-//should always return true
-bool EvalLoader::nextOpHasPriority(char nextOp, char lastOp)
-{
-//less than, else if >= will push it and store it, not evaluate as we find, (5-(3-2)=>4 instead of (5-3)-2)
-	return(opPriorityMap[nextOp] > opPriorityMap[lastOp]);//use >= for right associativity
-
-	if(lastOp == '(') return true;//so should never have to evaluate to left of it until is cleared by ')'
-	if((nextOp == '*' || nextOp == '/') && (lastOp == '+' || lastOp == '-')) return true;
-	if(nextOp == '^') return true;//raise the exponent and then multiply it out
-	if(lastOp == '<' || lastOp ==  '>' || lastOp ==  '=') return true;//everything else has priority...
-	//if(lastOp == 'S') return false;//redundant? Unary ops we just evaluate as is
-	return false;
-}
-
-bool EvalLoader::isAnOp(const char& op)// + - * / ^ S C T = < > R <- CurrentOpList
-{
-    if(binaryOpMap.find(op)!= binaryOpMap.end() ||
-       unaryOpMap.find(op) != unaryOpMap.end() )
-        return true;
-    return false;
-}
-
-
-void EvalLoader::printout(const std::vector<Number*> &numList, std::vector< void(*)(std::stack<float>&) > &opList, const std::vector<bool> &popList)
-{
-	std::cout<<"NumList: ";
-	for(auto N : numList)
-	{
-		if(N->isConstant()) std::cout<<N->getVal()<<" ";
-		else std::cout<<"X ";
-	}
-	std::cout<<"\nOpList: ";
-	for(auto O : opList)
-	{
-		std::cout<<reverseOpMap[O]<<" ";
-	}
-	std::cout<<"\npopList: ";
-	for(auto B : popList)
-	{
-		if(B) std::cout<<"pop ";
-		else std::cout<<"push ";
-	}
-	std::cout<<"\n";
-}
-
+*******************/
+//OLDEST ITERATION
 /*
 Evaluator* EvalLoader::load(const std::string& expression, std::map<char, VarIndice>& varIndiceMap, unsigned int depth)
 {
