@@ -1,3 +1,5 @@
 *.o
 *.so
 test
+Parsing/test.ls
+Parsing/.vscode
