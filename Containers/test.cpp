@@ -2,7 +2,7 @@
 
 int main()
 {
-    Alphabet vm;
+    LSYSTEM::Alphabet vm;
 
     return 0;
 }
