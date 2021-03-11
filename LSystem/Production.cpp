@@ -9,12 +9,13 @@ Product::Product(const std::string &_productString, float w) : product(_productS
 
 Product::Product(ParametricProduct *P, const std::string &_productString) : product(_productString) {}
 
-//push back method is not likey though
-void Product::apply(LSentence &newlsentence, const float * V)
+//non parametric
+void Product::apply(LSentence &lsentence, const float * V)
 {
     for(auto c : product)
-        newlsentence.push_backSimple(c);
-//        newlsentence.emplace_back(c,0,0);
+    {
+        lsentence.push_back(c,0);
+    }
 }
 
 StochasticProductChooser::StochasticProductChooser(std::vector<Product*>& _products):ProductChooser(_products), m_weightTotal(0.f)
@@ -55,7 +56,7 @@ BasicProduction::~BasicProduction()
     //delete m_chooser;
 }
 
-//maybe in the lsentence.. have a counter, 'num' letters mmmm
+//FIX THIS! STATE SHOULD NOT BE HELD HERE
 ProductionContext::ProductionContext(const std::string &lc, const std::string &rc, const std::set<char> &_skippableLetters)
                                     : lContext(lc), rContext(rc), skippableLetters(_skippableLetters)
 {
@@ -73,23 +74,24 @@ bool isSkippable(char c, const std::set<char> &skippableLetters)
 {
     return skippableLetters.count(c) > 0;
 }
-
-bool last(const std::vector<char> &lsentence, const unsigned int loc, const std::set<char> &skippableLetters, unsigned int &indice)
+/*
+//why is this even here????
+bool last(const std::vector<char> &string, const unsigned int loc, const std::set<char> &skippableLetters, unsigned int &indice)
 {
-    if(lsentence.size() <= loc) return false;//invalid index
+    if(string.size() <= loc) return false;//invalid index
 
     unsigned int i = 1;
     while(loc >= i)
     {
         indice = loc - i;
-        char c_last = lsentence[loc - i];
+        char c_last = string[loc - i];
         if(isSkippable(c_last, skippableLetters))
             i++;
         else return true;
     }
     return false;
 }
-
+*/
 //YAY
 //lContext.size() == now sum of letter paramNum + num Letters == constant (uses pnm though to calculate)
 bool ProductionContext::passLContext(const LSentence &lsentence, const unsigned int curLetterIndex)
@@ -102,7 +104,7 @@ bool ProductionContext::passLContext(const LSentence &lsentence, const unsigned 
     if(lContext.size() == 0) return true;
     if(lContext.size() > curLetterIndex) return false;//not enough space to the left
 
-    while(lsentence.last(curIndex, curIndex))
+    while((curIndex = lsentence.last(curIndex)) < lsentence.size())//lsentence.last(curIndex, curIndex))
     {
         if ( curIndex < i ) return false;//not enough space to left
         curChar = lsentence[curIndex].id;
@@ -116,7 +118,7 @@ bool ProductionContext::passLContext(const LSentence &lsentence, const unsigned 
             if( curChar == ']' ) curLvl++;//skip over to left
             while(curLvl > 0)
             {
-                lsentence.last(curIndex, curIndex);
+                curIndex = lsentence.last(curIndex);
                 if(lsentence[curIndex].id == ']') curLvl++;
                 else if(lsentence[curIndex].id == '[') curLvl--;
             }
@@ -154,13 +156,13 @@ bool ProductionContext::passRContext(const LSentence &lsentence, const unsigned 
         curLvl++;
         while(curLvl > 0)
         {
-            lsentence.next(curIndex, curIndex);
+            curIndex = lsentence.next(curIndex);
             if(lsentence[curIndex].id == ']') --curLvl;
             else if(lsentence[curIndex].id == '[') ++curLvl;
         }
     };
 
-    while(lsentence.next(curIndex, curIndex))
+    while((curIndex = lsentence.next(curIndex)) < lsentence.size())// lsentence.next(curIndex, curIndex))
     {
         curChar = lsentence[curIndex].id;
         if( isSkippable(curChar, skippableLetters) )

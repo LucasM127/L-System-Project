@@ -1,24 +1,14 @@
 #include "LSentence.hpp"
+#include <iostream>
+//Sentence has its own 'local' alphabet
+//Each LSystem Production algorithm set has its own 'local' alphabet
+//if they speak the same language they can work together, if not they can't
 
 //TODO Fix cut algorithm
 //returning the next index to be out of range.
 //Never 'tested' it properly anyways
 using namespace LSYSTEM;
 
-void foo(const Alphabet abc)
-{
-    LSentence L(abc);
-}
-
-int main()
-{
-    Alphabet abc;
-    foo(abc);
-
-    return 0;
-}
-
-/*
 int main()
 {
     std::string string = "ABC[DE][SG[HI[JK]L][xX]MNO]";
@@ -29,17 +19,21 @@ int main()
     abc['['] = 2;
     abc[']'] = 1;
     abc['E'] = 4;
-    LSYSTEM::LSentence S(abc);
-    LSYSTEM::LSentence lS(abc);
-    LSYSTEM::LSentence rS(abc);
+    LSYSTEM::VLSentence S("A(4,5)BA(3.33,2)B");
+    std::cout<<S<<std::endl;
+    //LSYSTEM::LSentence S(abc);
+    //LSYSTEM::LSentence lS(abc);
+    //LSYSTEM::LSentence rS(abc);
     //abc['A'] = 3;
-    S.loadSimple(string);
-    lS.loadSimple(lstring);
-    rS.loadSimple(rstring);
-    std::set<char> skipSet;
+    //S.loadSimple(string);
+    //lS.loadSimple(lstring);
+    //rS.loadSimple(rstring);
+    //std::set<char> skipSet;
 
-    S.print();
+    //S.print();
     //printS(S);
+
+    /*
     
     LSYSTEM::ProductionContext PC(lstring,rstring,skipSet);
     unsigned int i = 17;//13;
@@ -50,7 +44,7 @@ int main()
 
     LSYSTEM::LSystemData data;
     LSYSTEM::LSystem L(data);
-    /*
+    
 //    for(i = 0; i < S.size(); ++i)
     {
         bool Pleft = PC.passLContext(S, i);
@@ -69,7 +63,6 @@ int main()
         else
             std::cout<<i<<" "<<S[i].id<<" Fail\n";
     }
-    
+    */
    return 0;
 }
-*/

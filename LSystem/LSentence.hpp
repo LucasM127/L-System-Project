@@ -28,40 +28,65 @@ union L32
     L32(float f);
 };
 
+typedef std::vector<L32> LString;
+
+bool compatible(const Alphabet &a, const Alphabet &b);
+//b = a + b
+//for use iff compatible
+void combine(const Alphabet &a, Alphabet &b);
+
+//For Internal use of LSystem
 class LSentence
 {
-    friend std::ostream &operator<<(std::ostream &os, const LSentence &s);
+    friend class LSystem;
+    friend class VLSentence;
 public:
+    LSentence();
     ~LSentence();
-    //LSentence();
-    LSentence(const Alphabet &a);
-    LSentence(const Alphabet &a, const std::string &string);
-    void loadSimple(const std::string &string);
-    //remove???
-    bool next(const uint letterIndex, uint &nextIndex) const;
     uint next(const uint i) const;
-    bool last(const uint letterIndex, uint &lastIndex) const;
-    void push_back(char c, uint &letterIndex);
-    void push_back(char c);
+    uint last(const uint i) const;
+    uint back() const;
+    void push_back(char c, uint numParams);
     void push_back(float f);
-    void pop_back();
-    void push_backSimple(char c);
     L32 &operator[](const uint i);
     const L32 &operator[](const uint i) const;
-    uint getLastNumParams() const;
     uint size() const;
-    uint getNumLetters() const;
-    bool getLastLetterIndex(uint &i) const;
-    bool compatible(const Alphabet &abc) const;
     void clear();
 private:
-    const Alphabet &abc;
-    std::vector<L32> m_sentence;
+    LString m_lstring;
     uint m_lastNumParams;
-    uint m_numLetters;
-//#ifdef DEBUG
-    uint m_paramCtr;
-//#endif
+    uint m_paramCtr;//just for debug
+};
+
+//Should I put in Containers?  Same qualities ostream<< and parsing to load...
+//Validated LSentence
+//External of LSystem.  Can input user defined axiom string, validates
+class VLSentence
+{
+    friend class LSystem;
+    friend class LSReinterpreter;
+    friend std::ostream &operator<<(std::ostream &os, const VLSentence &vlsentence);
+public:
+    VLSentence();
+    VLSentence(const std::string &string);
+    void operator=(const std::string &string);
+    const L32 &operator[](const uint i) const;
+    void setLetter(const uint i, char c);
+    void setParam(const uint i, const uint paramNum, float f);
+private:
+    bool isValid;//
+    void parse(const std::string &string);
+    Alphabet m_alphabet;
+    LSentence m_lsentence;
+};
+
+struct LModule
+{
+    LModule();
+    LModule(LSentence &sentence, uint i);
+    char id;
+    float * vals;
+    uint numVals;
 };
 
 } //namespace LSYSTEM

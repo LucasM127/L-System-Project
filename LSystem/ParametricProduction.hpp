@@ -13,7 +13,7 @@ class ParametricProduct : public Product
 public:
     ParametricProduct(const ProductData &pd, const Alphabet &pnm, VarIndiceMap &varIndiceMap, EvalLoader &ev, const unsigned int arrayDepth);
     ~ParametricProduct(){}
-    void apply(LSentence &newLSentence, const float * V) override;
+    void apply(LSentence &lsentence, const float * V) override;
     const float calcWeight(const float *) override;
     bool isValid(const float *) override;
     bool fixedWeight(){return stochasticWeightEvaluator->isConst;}

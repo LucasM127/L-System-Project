@@ -19,182 +19,190 @@ L32::L32(float f) : value(f) {}
 
 LSentence::~LSentence(){}
 
-//LSentence::LSentence() : abc(*new Alphabet){}
-
-LSentence::LSentence(const Alphabet &abc_) : abc(abc_), m_lastNumParams(0), m_numLetters(0)
-//#ifdef DEBUG
-, m_paramCtr(0)
-//#endif
-{}
-//need a way to just push back a sequence...
-LSentence::LSentence(const Alphabet &a, const std::string &string) : abc(a), m_lastNumParams(0), m_numLetters(0)
-//#ifdef DEBUG
-, m_paramCtr(0)
-//#endif
-{
-    std::stringstream sstream;
-    sstream << string;
-    char c;
-    float f;
-    uint numParams;
-    while(sstream >> c)
-    {
-        push_back(c);
-        numParams = abc.at(c);
-
-        if(numParams)
-        {
-            sstream >> c; //the '(' symbol
-            for (uint i = 0; i < numParams; i++)
-            {
-                sstream >> f;
-                push_back(f);
-                sstream >> c; //the ',' symbol or the ')' symbol
-            }
-        }
-    }
-}
-
-//Doesn't really check the alphabet... !!!!!
-//WHY SHOULD WE ???
-//NOT SURE ABOUT THIS GUY .. BLEGH
-//Why can't we just load it... 
-void LSentence::loadSimple(const std::string &string)
-{
-    for(auto c : string)
-    {
-        push_back(c);
-        for(uint i = 0; i < m_lastNumParams; ++i)
-        {
-            float f = i;
-            push_back(f);
-        }
-    }
-}
-
-L32 &LSentence::operator[](const uint i){return m_sentence[i];}
-
-const L32 &LSentence::operator[](const uint i) const {return m_sentence[i];}
-
-bool LSentence::next(const uint letterIndex, uint &nextIndex) const
-{
-    nextIndex = letterIndex + m_sentence[letterIndex].numParams + 1;
-    return nextIndex < m_sentence.size();
-}
+LSentence::LSentence() : m_lastNumParams(0), m_paramCtr(0) {}
 
 uint LSentence::next(const uint i) const
 {
-    return i + m_sentence[i].numParams + 1;
+    return i + m_lstring[i].numParams + 1;
 }
 
-bool LSentence::last(const uint letterIndex, uint &lastIndex) const
+uint LSentence::last(const uint i) const
 {
-    lastIndex = letterIndex - m_sentence[letterIndex].lastNumParams - 1;
-    return lastIndex < m_sentence.size();
+    return i - m_lstring[i].lastNumParams - 1;
 }
 
-void LSentence::push_back(char c)
+uint LSentence::back() const
+{
+    return m_lstring.size() - m_lastNumParams - 1;
+}
+
+//pass by r reference?
+void LSentence::push_back(char c, uint numParams)
 {
 //#ifdef DEBUG
     assert(m_paramCtr == m_lastNumParams);
     m_paramCtr = 0;
 //#endif
-    uint numParams = abc.at(c);
-    m_sentence.emplace_back(c,numParams,m_lastNumParams);
+    m_lstring.emplace_back(c, numParams, m_lastNumParams);
     m_lastNumParams = numParams;
-    ++m_numLetters;
 }
 
 void LSentence::push_back(float f)
 {
 //#ifdef DEBUG
-    //assert(m_paramCtr < m_lastNumParams);
     ++m_paramCtr;
 //#endif
-    //can do an assertion for debugging
-    m_sentence.emplace_back(f);
+    m_lstring.emplace_back(f);
 }
 
-void LSentence::push_backSimple(char c)
-{
-    m_sentence.emplace_back(c,0,0);
-}
+L32 &LSentence::operator[](const uint i){return m_lstring[i];}
 
-void LSentence::push_back(char c, uint &letterIndex)
-{
-    letterIndex = m_sentence.size();
-    push_back(c);
-    for(uint i = 0; i < m_lastNumParams; ++i)
-        push_back(0.f);
-}
-
-void LSentence::pop_back()
-{
-    if(m_sentence.size()==0) return;
-    for(uint i = 0; i < m_lastNumParams; ++i)
-        m_sentence.pop_back();
-    m_lastNumParams = m_sentence.back().lastNumParams;
-    m_sentence.pop_back();
-}
-
-uint LSentence::getLastNumParams() const
-{
-    return m_lastNumParams;
-}
-
-uint LSentence::getNumLetters() const
-{
-    return m_numLetters;
-}
+const L32 &LSentence::operator[](const uint i) const {return m_lstring[i];}
 
 uint LSentence::size() const
 {
-    return m_sentence.size();
+    return m_lstring.size();
 }
 
 void LSentence::clear()
 {
-    m_sentence.clear();
+    m_lstring.clear();
     m_lastNumParams = 0;
     m_paramCtr = 0;
 }
 
-bool LSentence::getLastLetterIndex(uint &i) const
+bool compatible(const Alphabet &a, const Alphabet &b)
 {
-    i = m_sentence.size() - m_lastNumParams - 1;
-    return i < m_sentence.size();
-}
-
-bool LSentence::compatible(const Alphabet &abc_) const
-{
-    for(auto &pair : abc)
+    for(auto &pair : a)
     {
-        if(abc_.find(pair.first) == abc_.end())
+        if(b.find(pair.first) == b.end())
+            continue;
+        if(b.at(pair.first) != pair.second)
             return false;
-        if(abc_.at(pair.first) != pair.second)
+    }
+    for(auto &pair : b)
+    {
+        if(a.find(pair.first) == a.end())
+            continue;
+        if(a.at(pair.first) != pair.second)
             return false;
     }
     return true;
 }
 
-std::ostream &operator<<(std::ostream &os, const LSentence &s)
+//REALLY THINK SHOULD PUT IN CONTAINERS
+void combine(const Alphabet &a, Alphabet &b)
 {
-    for(uint i = 0; i < s.m_sentence.size(); ++i)
+    for(auto &pair : a)
+        b[pair.first] = pair.second;
+}
+
+VLSentence::VLSentence() {}
+
+VLSentence::VLSentence(const std::string &string)
+{
+    parse(string);
+}
+
+void VLSentence::operator=(const std::string &string)
+{
+    m_alphabet.clear();
+    m_lsentence.clear();
+    parse(string);
+}
+
+const L32 &VLSentence::operator[](const uint i) const
+{
+    return m_lsentence[i];
+}
+
+//only thing IS, I do not know if it 'is' a letter
+void VLSentence::setLetter(const uint i, char c)
+{
+    if(i >= m_lsentence.size()) return;
+    m_lsentence[i].id = c;
+    isValid = false;
+}
+
+//or if it 'is' a value
+void VLSentence::setParam(const uint i, const uint paramNum, float f)
+{
+    if(i >= m_lsentence.size()) return;
+    if(paramNum > m_lsentence[i].numParams ) return;//throw?
+    m_lsentence[i].value = f;
+}
+
+std::ostream &operator<<(std::ostream &os, const VLSentence &l)
+{
+    for(uint i = 0; i < l.m_lsentence.size(); ++i)
     {
-        os<<s.m_sentence[i].id;
-        if(s.m_sentence[i].numParams)
+        os<<l.m_lsentence[i].id;
+        if(l.m_lsentence[i].numParams)
         {
-            os<<"("<<s.m_sentence[i+1].value;
-            for(uint j = 1; j < s.m_sentence[i].numParams; ++j)
+            os<<"("<<l.m_lsentence[i+1].value;
+            for(uint j = 1; j < l.m_lsentence[i].numParams; ++j)
             {
-                os<<","<<s.m_sentence[i+j+1].value;
+                os<<","<<l.m_lsentence[i+j+1].value;
             }
             os<<")";
-            i += s.m_sentence[i].numParams;
+            i += l.m_lsentence[i].numParams;
         }
     }
 
     return os;
 }
 
+LModule::LModule(){}
+LModule::LModule(LSentence &sentence, uint i) : id(sentence[i].id), vals((float*)&sentence[i+1]), numVals(sentence[i].numParams)
+{}
+
 } //namespace LSYSTEM
+//if I put in namespace LSYSTEM won't work :?
+//Parsing Function
+//friend function so can put in Parsing?
+#include "../Parsing/ParsingFuncs.hpp"
+void LSYSTEM::VLSentence::parse(const std::string &string)
+{
+    uint i = -1;
+    char c, c_next;
+    const std::string errorString = "Invalid syntax. Expected comma separated numeric values between brackets.";
+    std::vector<float> vals;
+    while(LSPARSE::next(string, i, c))
+    {
+        if(c == ' ')
+        {
+            ++i;
+            continue;
+        }
+
+        vals.clear();
+        
+        if(LSPARSE::next(string, i+1, c_next) && c_next == '(')
+        {
+            i += 3;
+            float number;
+            if(!LSPARSE::readNumber(string, i, number))
+                throw std::runtime_error(errorString);
+            vals.emplace_back(number);
+            while(LSPARSE::next(string, i, c_next) && c_next == ',')
+            {
+                i += 2;
+                if(!LSPARSE::readNumber(string, i, number))
+                    throw std::runtime_error(errorString);
+                vals.emplace_back(number);
+            }
+            if(!LSPARSE::next(string, i, c_next))
+                throw std::runtime_error(errorString);
+            else if(c_next != ')')
+                throw std::runtime_error(errorString);
+        }
+        uint numParams = vals.size();
+        m_lsentence.push_back(c, numParams);
+        for(auto f : vals)
+            m_lsentence.push_back(f);
+        if(m_alphabet.find(c) != m_alphabet.end() && m_alphabet.at(c) != numParams)
+            throw std::runtime_error("Uneven number of parameters for letter '"+std::string(&c,1)+"'");
+        m_alphabet[c] = numParams;
+        ++i;
+    }
+}

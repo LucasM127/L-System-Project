@@ -34,14 +34,15 @@ enum class SkipBranchType
     DOUBLE_RIGHT_CUT_BRANCH
 };
 
-class GridInterpreter : public LSInterpreterSimple<std::vector<GridInfo> >
+class GridInterpreter : public LSYSTEM::LSInterpreter//LSInterpreterSimple<std::vector<GridInfo> >
 {
 public:
     GridInterpreter(GridTurtle T, const CoordMapper &mapper);
     ~GridInterpreter();
+    std::vector<GridInfo> &data(){return m_data;}
 private:
     void reset() override;
-    void interpret(const LSYSTEM::LSentence &sentence, const uint i) override;
+    void interpret(const LSYSTEM::LModule &&M) override;//const LSYSTEM::LSentence &sentence, const uint i) override;
 
     const GridTurtle m_startTurtle;
     
@@ -55,6 +56,8 @@ private:
     char m_lastDirChar;
     std::stack<SkipBranchType> m_skipBranchTypeStack;//zero
     SkipBranchType m_skipBranchType;
+
+    std::vector<GridInfo> m_data;
 };
 
 #endif //GRID_INTERPRETER_HPP

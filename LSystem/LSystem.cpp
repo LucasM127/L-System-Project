@@ -148,6 +148,77 @@ LSystem::~LSystem()
     delete[] m_valArray;
 }
 
+void LSystem::iterate(const VLSentence &oldSentence, VLSentence &newSentence)
+{
+    if(!compatible(oldSentence.m_alphabet, alphabet))
+        throw std::runtime_error("LSentence Incompatible with production alphabet");
+    combine(alphabet, newSentence.m_alphabet);
+
+    const LSentence &oldLSentence = oldSentence.m_lsentence;
+    LSentence &newLSentence = newSentence.m_lsentence;
+
+    LSentence tempSentence;
+
+    for(uint i = 0; i < oldLSentence.size(); i = oldLSentence.next(i))
+    {
+//        applyCut(oldSentence,newSentence, curIndex);
+//        if(curIndex >= oldSentence.lstring.size()) break;
+        tempSentence.clear();
+        applyProduct(oldLSentence, tempSentence, i, m_productionMap, m_valArray);
+        decompose(tempSentence, newLSentence, m_valArray);
+    }
+}
+
+void LSystem::interpret(VLSentence &vlsentence, LSInterpreter &I, LSReinterpreter &R)
+{
+    if(!compatible(vlsentence.m_alphabet, alphabet))
+        throw;
+    combine(alphabet, vlsentence.m_alphabet);
+
+    R.contract(vlsentence);
+
+    I.reset();
+
+    LSentence &lsentence = vlsentence.m_lsentence;
+    LSentence tempLSentence;
+
+    for(uint i = 0; i < lsentence.size(); i = lsentence.next(i))
+    {
+        tempLSentence.clear();
+        applyProductionRecursively(lsentence, i, tempLSentence, m_homomorphismMap, m_valArray);
+        for(uint j = 0; j < tempLSentence.size(); j = tempLSentence.next(j))
+            I.interpret({tempLSentence, j});//tempLSentence, j);
+        R.reinterpret(lsentence, i, vlsentence);
+    }
+}
+
+void LSystem::interpret(VLSentence &vlsentence, LSInterpreter &I)
+{
+    if(!compatible(vlsentence.m_alphabet, alphabet))
+        throw;
+    combine(alphabet, vlsentence.m_alphabet);
+
+    I.reset();
+
+    LSentence &lsentence = vlsentence.m_lsentence;
+    LSentence tempLSentence;
+
+    for(uint i = 0; i < lsentence.size(); i = lsentence.next(i))
+    {
+        tempLSentence.clear();
+        applyProductionRecursively(lsentence, i, tempLSentence, m_homomorphismMap, m_valArray);
+        for(uint j = 0; j < tempLSentence.size(); j = tempLSentence.next(j))
+            I.interpret({tempLSentence, j});//tempLSentence, j);
+    }
+}
+
+void LSystem::contract(LSYSTEM::VLSentence &vlsentence)
+{
+    if(!compatible(alphabet, vlsentence.m_alphabet))
+        throw std::runtime_error("Incompatible alphabets");
+    combine(alphabet, vlsentence.m_alphabet);
+}
+
 Product* LSystem::findMatch(const unsigned int i, const LSentence &refLS, std::unordered_map<char, std::vector<BasicProduction*> > &productionMap, float *V)
 {
     char c = refLS[i].id;
@@ -169,39 +240,9 @@ Product* LSystem::findMatch(const unsigned int i, const LSentence &refLS, std::u
     return nullptr;
 }
 
-//tempsent idea
-void LSystem::iterate(const LSentence &oldSentence, LSentence &newSentence)
-{
-    if(!oldSentence.compatible(alphabet) || !newSentence.compatible(alphabet))
-        throw std::runtime_error("LSentence Incompatible with production alphabet");
-
-    LSentence tempSentence(alphabet);
-
-    //unsigned int curIndex = 0;
-    for(uint curIndex = 0; curIndex < oldSentence.size(); curIndex = oldSentence.next(curIndex))
-    {
-        applyCut(oldSentence,newSentence, curIndex);//curIndex could be out of bounds now after the cut?
-        if(curIndex >= oldSentence.size()) break;
-        tempSentence.clear();
-        applyProduct(oldSentence, tempSentence, curIndex, m_productionMap, m_valArray);
-        decompose(tempSentence, newSentence, m_valArray);
-    }
-}
-
-void LSystem::applyHomomorphisms(const LSentence &sentence, LSentence &newSentence)
-{
-    if(!sentence.compatible(alphabet) || !newSentence.compatible(alphabet))
-        throw std::runtime_error("LSentence Incompatible with production alphabet");
-    
-    for(uint curIndex = 0; curIndex < sentence.size(); curIndex = sentence.next(curIndex))
-    {
-        applyHomomorphisms(sentence, curIndex, newSentence);
-    }
-}
-
 void LSystem::applyBasicProduct(const LSentence &oldSentence, LSentence &newSentence, const unsigned int curIndex)
 {
-    newSentence.push_back((char)oldSentence[curIndex].id);
+    newSentence.push_back(oldSentence[curIndex].id, oldSentence[curIndex].numParams);
     for(uint i = 0; i < oldSentence[curIndex].numParams; ++i)
     {
         newSentence.push_back(oldSentence[curIndex+i+1].value);
@@ -222,10 +263,13 @@ void LSystem::applyProduct(const LSentence &oldSentence, LSentence &newSentence,
     try {product->apply(newSentence, V);}
     catch (std::exception &e) {throw e;}
 }
-//getting the index to be 'out' of range
-//need to test the 'cut' algorithm
-//TOMORROW
-void LSystem::applyCut(const LSentence &oldSentence, LSentence &newSentence, unsigned int &curIndex)
+
+//void LSystem::applyCut(const LSentence &lsentence, LSentence &lsentence, unsigned int &curIndex)
+//{}
+
+/*THIS CODE IS JUST WRONG... I can create a seperate function for removing 'empty' brackets later,
+//but they may be needed later
+void LSystem::applyCut(const LSentence &LString, LSentence &LString, unsigned int &curIndex)
 {
     char c = oldSentence[curIndex].id;
     bool poppedBack = false;
@@ -262,35 +306,45 @@ void LSystem::applyCut(const LSentence &oldSentence, LSentence &newSentence, uns
     if(poppedBack)
     {
         if(oldSentence.next(curIndex,curIndex) && oldSentence[curIndex].id == '%')
-            applyCut(oldSentence, newSentence, curIndex);
+            applyCut(oldSentence, newSentence, curIndex);//tail recursion
         //CAN GO OUT OF BOUNDS
     }
 
 //    std::cout<<"After cut at curIndex "<<curIndex<<" "<<(char)oldSentence[curIndex].id<<"\n";
-}
-
-//ie Same as iterate almost
-void LSystem::applyHomomorphisms(const LSentence &sentence, unsigned int i, LSentence &product)
-{
-    //if(!sentence.compatible(m_alphabet) || !product.compatible(m_alphabet))
-    //    throw std::runtime_error("LSentence Incompatible with production alphabet");
-    
-    applyProductionRecursively(sentence, i, product, m_homomorphismMap, m_valArray);
-}
+}*/
 
 void LSystem::decompose(const LSentence &undecomposedSentence, LSentence &newSentence, float *V)
 {
-    for(uint curIndex = 0; curIndex < undecomposedSentence.size(); curIndex = undecomposedSentence.next(curIndex))
+    for(uint i = 0; i < undecomposedSentence.size(); i = undecomposedSentence.next(i))
     {
-        applyProductionRecursively(undecomposedSentence, curIndex, newSentence, m_decompositionMap, V);
+        applyProductionRecursively(undecomposedSentence, i, newSentence, m_decompositionMap, V);
 //        decompose(undecomposedSentence, newSentence, curIndex, V);
     }
 }
 
-void LSystem::decompose(const LSentence &undecomposedSentence, LSentence &newSentence, const unsigned int curIndex, float *V)
+void LSystem::applyProductionRecursively(const LSentence &lsentence, const unsigned int i, LSentence &newLSentence,
+                                        ProductionMap &pm, float *V)
+{   
+    LSentence tempSentence;
+    Product *P = findMatch(i, lsentence, pm, V);
+    if(P == nullptr)
+    {
+        applyBasicProduct(lsentence, newLSentence, i);
+        return;
+    }
+    
+    P->apply(tempSentence, V);
+    for(uint j = 0; j < tempSentence.size(); j = tempSentence.next(j))
+    {
+        applyProductionRecursively(tempSentence,j, newLSentence, pm, V);
+    }
+}
+
+/*
+void LSystem::decompose(const LString &undecomposedSentence, LString &newSentence, const unsigned int curIndex, float *V)
 {
     
-    LSentence tempSentence(alphabet);
+    LString tempSentence;
     Product *P = findMatch(curIndex, undecomposedSentence, m_decompositionMap, V);
     if(P == nullptr)
     {
@@ -303,24 +357,6 @@ void LSystem::decompose(const LSentence &undecomposedSentence, LSentence &newSen
     {
         decompose(tempSentence, newSentence, i, V);
     }
-}
-
-void LSystem::applyProductionRecursively(const LSentence &sentence, const unsigned int curIndex, LSentence &newSentence,
-                                        ProductionMap &pm, float *V)
-{   
-    LSentence tempSentence(alphabet);
-    Product *P = findMatch(curIndex, sentence, pm, V);
-    if(P == nullptr)
-    {
-        applyBasicProduct(sentence, newSentence, curIndex);
-        return;
-    }
-    
-    P->apply(tempSentence, V);
-    for(uint i = 0; i < tempSentence.size(); i = tempSentence.next(i))
-    {
-        applyProductionRecursively(tempSentence, i, newSentence, pm, V);
-    }
-}
+}*/
 
 } // namespace LSYSTEM

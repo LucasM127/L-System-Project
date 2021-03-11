@@ -16,14 +16,15 @@ int main()
     G.setTexMap(&texture);
 
     sf::RenderWindow window(sf::VideoMode(G.getSize().x, G.getSize().y),"LS Grid");
-
+    std::string lstring;
+/*
     std::ifstream ifstream;
     ifstream.open("foo");
-    std::string lstring;
+    
     std::getline(ifstream, lstring);
     ifstream.close();
-
-    //lstring = "F[-F[-FF-x][+FF+x]F[-F+x][+F-x]Fx]F+FFFF+FFFF+FFF+FFF+FF+FF+F[+F+x]x";
+*/
+    lstring = "F[-F[-FF-x][+FF+x]F[-F+x][+F-x]Fx]F+FFFF+FFFF+FFF+FFF+FF+FF+F[+F+x]x";
 
     LSYSTEM::Alphabet abc;
     abc['F'] = 0;
@@ -34,28 +35,36 @@ int main()
     abc[']'] = 0;
     abc['x'] = 0;
 
-    LSYSTEM::LSentence StraightLineSentence(abc);
-    StraightLineSentence.loadSimple(lstring);//eh.. what'evs
+    //make an empty lsystem?
+    LSYSTEM::LSystemData lsData;
+    LSYSTEM::LSystem ls(lsData);//should use default productions for it all...
+
+//    LSYSTEM::LSentence StraightLineSentence(abc);
+//    StraightLineSentence.loadSimple(lstring);//eh.. what'evs
+    LSYSTEM::VLSentence vlsentence(lstring);
 
     GridTurtle T;
     T.position = {(int)mapWidth/2, (int)mapHeight/2};
     T.heading = {1,0};
 
-    LSInterpreterSimple<std::vector<GridInfo> > * I = new GridInterpreter(T, G.getMapper());
+    GridInterpreter I(T, G.getMapper());
+
+//    LSInterpreterSimple<std::vector<GridInfo> > * I = new GridInterpreter(T, G.getMapper());
 
     G.clear(sf::Color::White);
     
-    I->interpret(StraightLineSentence);
+    ls.interpret(vlsentence, I);
+//    I->interpret(StraightLineSentence);
 
-    for(auto &info : I->data())
+    for(auto &info : I.data())
     {
         assert(info.c.x > 0 && info.c.y > 0);
         Coord C(info.c.x, info.c.y);
         G.setCellTexture(C, info.texCoord, {32,32}, info.o);
     }
 
-    std::cout<<"v size: " << I->data().size() << std::endl;
-    std::cout<<StraightLineSentence<<std::endl;
+    std::cout<<"v size: " << I.data().size() << std::endl;
+    std::cout<<vlsentence<<std::endl;
 
     sf::Event event;
     while (window.isOpen())

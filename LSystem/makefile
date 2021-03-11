@@ -7,7 +7,7 @@ OBJS = LSentence.o Production.o ParametricProduction.o LSystem.o LSInterpreter.o
 #getting a collision
 
 test: $(OUTFOLDER)/LSystem.a $(OUTFOLDER)/EvalLib.a $(OUTFOLDER)/LSParser.a main.o
-	$(GCC) main.o $(OUTFOLDER)/LSystem.a $(OUTFOLDER)/EvalLib.a $(OUTFOLDER)/LSParser.a -o test -ldl
+	$(GCC) main.o $(OUTFOLDER)/LSystem.a $(OUTFOLDER)/EvalLib.a $(OUTFOLDER)/LSParser.a $(OUTFOLDER)/OstreamOperators.o -o test -ldl
 
 main.o: main.cpp
 	$(GCC) -Wall main.cpp -c

@@ -6,6 +6,6 @@
 #include "../Parsing/LSFileParser.hpp"
 #include "../Containers/OstreamOperators.hpp"
 //LSystem one is last...
-#include "../LSystem/LSInterpreter.hpp"
+#include "../LSystem/LSystem.hpp"
 
 #endif

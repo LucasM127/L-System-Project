@@ -61,13 +61,15 @@ const LSentence& ParametricProduct::get(const float * V)
 }
 */
 
-void ParametricProduct::apply(LSentence &newlsentence, const float * V)
+void ParametricProduct::apply(LSentence &lsentence, const float * V)
 {
     for(unsigned int i = 0;i<product.size();++i)
     {
-        newlsentence.push_back(product[i]);
-        for(unsigned int j = 0; j < productParameterEvaluators[i].size(); ++j)
-            newlsentence.push_back(productParameterEvaluators[i][j]->evaluate(V));
+        unsigned int numParams = productParameterEvaluators[i].size();
+
+        lsentence.push_back(product[i], numParams);
+        for(unsigned int j = 0; j < numParams; ++j)
+            lsentence.push_back(productParameterEvaluators[i][j]->evaluate(V));
     }
 }
 

@@ -1,29 +1,48 @@
 #include "LSInterpreter.hpp"
-/*
-LSInterpreter::LSInterpreter(LSYSTEM::LSystem &ls_) : ls(ls_)
-{}
 
-//reinterpret main sentence after homomorphisms applied...
-//other option, reinterpret while homomorphisms applied (?) or before
-//Usually, query modules don't have homomorphisms applicable so is a non-issue
-void LSInterpreter::interpret(LSYSTEM::LSentence &sentence)
+namespace LSYSTEM
 {
-    LSYSTEM::LSentence tempSentence(ls.alphabet);
 
-    reset();
+LSInterpreter::LSInterpreter(){}
+LSInterpreter::~LSInterpreter(){}
 
-    for(uint i = 0; i < sentence.size(); i=sentence.next(i))
-    {
-        tempSentence.clear();
-        ls.applyHomomorphisms(sentence, i, tempSentence);
-        
-        for(uint j = 0; j < tempSentence.size(); j = tempSentence.next(j))
-        {
-            interpret(tempSentence, j);
-        }
-        reinterpret(sentence, i);
-    }
+LSReinterpreter::LSReinterpreter(const LSYSTEM::Alphabet a) : alphabet(a){}
 
-    apply();
+void LSReinterpreter::contract(LSYSTEM::VLSentence &vlsentence)
+{
+    if(!compatible(alphabet, vlsentence.m_alphabet))
+        throw std::runtime_error("Incompatible alphabets");
+    combine(alphabet, vlsentence.m_alphabet);
 }
-*/
+
+//I NEED TO TEST THIS SHIT BADLY
+//Ensure that new letter module we are creating matches what we have agreed in contract with the vlsentence
+void LSReinterpreter::modify(LSYSTEM::VLSentence &vlsentence, const uint i, const LModule &&M)
+{
+    assert(alphabet.find(M.id) != alphabet.end());
+    assert(alphabet.at(M.id) == M.numVals);
+
+    LSYSTEM::LSentence &lsentence = vlsentence.m_lsentence;
+
+    lsentence[i].id = M.id;
+    for(uint j = 1; j <= M.numVals; ++ j)
+    {
+        lsentence[i+j].value = M.vals[j];
+    }
+}
+
+//Don't need to ensure with contract, modifying params does not change a modules identity
+void LSReinterpreter::modifyParams(LSYSTEM::VLSentence &vlsentence, const uint i, float * newVals, const uint numVals)
+{
+    LSYSTEM::LSentence &lsentence = vlsentence.m_lsentence;
+
+    assert(lsentence[i].numParams >= numVals);
+
+    for(uint j = 1; j <= numVals; ++ j)
+    {
+        lsentence[i+j].value = newVals[j];
+    }
+}
+
+
+} //namespace LSYSTEM

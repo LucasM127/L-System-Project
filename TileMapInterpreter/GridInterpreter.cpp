@@ -32,11 +32,11 @@ void GridInterpreter::reset()
 
 //GOT THIS TO WORK FINALLY JUST ONLY TOOK FOREVER
 //F and x are the 'same' logic ... just the tiles are different is all.
-void GridInterpreter::interpret(const LSYSTEM::LSentence &sentence, const uint i)
+void GridInterpreter::interpret(const LSYSTEM::LModule &&M)//const LSYSTEM::LSentence &sentence, const uint i)
 {
     GridInfo info;
     bool skipTile = false;
-    char c = sentence[i].id;
+    char c = M.id;//sentence[i].id;
 
     sf::Vector2i &turtleHeading = m_turtleStack.top().heading;
     sf::Vector2i &turtlePosition = m_turtleStack.top().position;
