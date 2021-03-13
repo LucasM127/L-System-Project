@@ -19,7 +19,7 @@ A => I[+A][-A]A : 1
 
 Homomorphic Productions:
 I => mF
-A => xf
+A => mxf
 X => mx
 
 ;Turtle Commands
