@@ -74,10 +74,66 @@ std::ostream& operator<<(std::ostream &os, const LSYSTEM::LSystemData &lsd)
         os<<" "<<c;
     os<<"\n";
 
-    os<<"Alphabet:";
-    for(auto &m : lsd.abc)
-        os<<" '"<<m.first<<"'"<<m.second;
-    os<<"\n";
+    os<<"Alphabet: "<<lsd.abc<<"\n";
 
     return os;
 }
+
+//a[3] b[4]
+std::ostream &operator<<(std::ostream &os, const LSYSTEM::Alphabet &alphabet)
+{
+    for(auto &pair : alphabet)
+        os<<pair.first<<"["<<pair.second<<"] ";
+
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const LSYSTEM::LSentence &lsentence)
+{
+    for(uint i = 0; i < lsentence.size(); ++i)
+    {
+        os<<lsentence[i].id;
+        if(lsentence[i].numParams)
+        {
+            os<<"("<<lsentence[i+1].value;
+            for(uint j = 1; j < lsentence[i].numParams; ++j)
+            {
+                os<<","<<lsentence[i+j+1].value;
+            }
+            os<<")";
+            i += lsentence[i].numParams;
+        }
+    }
+
+    return os;
+}
+
+//https://stackoverflow.com/questions/535444/custom-manipulator-for-c-iostream
+namespace OSManip 
+{
+
+Letters::Letters(std::ostream & os):os(os){}
+
+template<typename Rhs>
+std::ostream & operator<<(Letters const &q, Rhs const &rhs)
+{
+    return q.os << rhs;
+}
+
+std::ostream & operator<<(Letters const &q, LSYSTEM::LSentence const &lsentence)
+{
+    for(uint i = 0; i < lsentence.size(); i = lsentence.next(i))
+    {
+        q.os<<lsentence[i].id;
+    }
+    return q.os;
+}
+
+Letters operator<<(std::ostream &os, LetterCreator)
+{
+    return Letters(os);
+}
+
+LetterCreator letter;
+
+}//namespace OSManip

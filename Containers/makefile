@@ -1,16 +1,26 @@
 GCC = g++ -g -Wall
 OUTFOLDER = ../Lib
 #DEF = -D EVAL_DEBUG
-OBJS =
+OBJS = Alphabet.o LSentence.o OstreamOperators.o
 
-test: $(OUTFOLDER)/OstreamOperators.o test.o
-	$(GCC) test.o $(OUTFOLDER)/EvalLib.a -o test -ldl
+test: test.o $(OUTFOLDER)/LSContainers.a
+	$(GCC) test.o $(OUTFOLDER)/LSContainers.a -o test
 
-test.o: $(OUTFOLDER)/OstreamOperators.o test.cpp
+test.o: test.cpp
 	$(GCC) test.cpp -c
 
-$(OUTFOLDER)/OstreamOperators.o: OstreamOperators.hpp OstreamOperators.cpp
-	$(GCC) OstreamOperators.cpp -c -o $(OUTFOLDER)/OstreamOperators.o
+
+$(OUTFOLDER)/LSContainers.a: $(OBJS)
+	ar rvs $(OUTFOLDER)/LSContainers.a $(OBJS)
+
+OstreamOperators.o: OstreamOperators.hpp OstreamOperators.cpp ProductionData.hpp Alphabet.hpp LSentence.hpp
+	$(GCC) OstreamOperators.cpp -c
+
+LSentence.o: LSentence.cpp LSentence.hpp Alphabet.o
+	$(GCC) LSentence.cpp -c
+
+Alphabet.o: Alphabet.cpp Alphabet.hpp
+	$(GCC) Alphabet.cpp -c
 
 clean:
-	rm $(OUTFOLDER)/OstreamOperators.o test
+	rm *.o test $(OUTFOLDER)/LSContainers.a

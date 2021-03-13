@@ -1,7 +1,7 @@
 #ifndef LSINTERPRETER_HPP
 #define LSINTERPRETER_HPP
 
-#include "LSentence.hpp"
+#include "VLSentence.hpp"
 
 #include <cassert>
 

@@ -2,7 +2,7 @@
 #define PRODUCTION_HPP
 
 #include "../Containers/ProductionData.hpp"
-#include "LSentence.hpp"
+#include "../Containers/LSentence.hpp"
 
 namespace LSYSTEM
 {

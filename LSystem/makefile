@@ -1,13 +1,11 @@
 GCC = g++ -g -Wall
 OUTFOLDER = ../Lib
 #DEF = -D EVAL_DEBUG
-OBJS = LSentence.o Production.o ParametricProduction.o LSystem.o LSInterpreter.o
-#may be better as a 'container' ???
-#something to do with these 'libraries' they won't work the same as a whole bunch of object files ???
-#getting a collision
+OBJS = VLSentence.o Production.o ParametricProduction.o LSystem.o LSInterpreter.o
+STATIC_LIBS = $(OUTFOLDER)/LSystem.a $(OUTFOLDER)/EvalLib.a $(OUTFOLDER)/LSParser.a $(OUTFOLDER)/LSContainers.a
 
-test: $(OUTFOLDER)/LSystem.a $(OUTFOLDER)/EvalLib.a $(OUTFOLDER)/LSParser.a main.o
-	$(GCC) main.o $(OUTFOLDER)/LSystem.a $(OUTFOLDER)/EvalLib.a $(OUTFOLDER)/LSParser.a $(OUTFOLDER)/OstreamOperators.o -o test -ldl
+test:  main.o $(STATIC_LIBS)
+	$(GCC) main.o $(STATIC_LIBS) -o test -ldl
 
 main.o: main.cpp
 	$(GCC) -Wall main.cpp -c
@@ -24,11 +22,11 @@ LSystem.o: LSystem.cpp LSystem.hpp ParametricProduction.o
 ParametricProduction.o: ParametricProduction.hpp ParametricProduction.cpp Production.o $(OUTFOLDER)/EvalLib.a
 	$(GCC) ParametricProduction.cpp -c -I ../Logger/
 
-Production.o: Production.cpp Production.hpp LSentence.o
+Production.o: Production.cpp Production.hpp VLSentence.o
 	$(GCC) Production.cpp -c
 
-LSentence.o: LSentence.hpp LSentence.cpp
-	$(GCC) -D DEBUG LSentence.cpp -c
+VLSentence.o: VLSentence.hpp VLSentence.cpp ../Lib/LSContainers.a
+	$(GCC) -D DEBUG VLSentence.cpp -c
 
 clean:
 	rm *.o test $(OUTFOLDER)/LSystem.a

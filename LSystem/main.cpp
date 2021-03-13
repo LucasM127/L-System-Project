@@ -1,4 +1,5 @@
-#include "LSentence.hpp"
+#include "VLSentence.hpp"
+#include "../Containers/OstreamOperators.hpp"
 #include <iostream>
 //Sentence has its own 'local' alphabet
 //Each LSystem Production algorithm set has its own 'local' alphabet
@@ -20,7 +21,7 @@ int main()
     abc[']'] = 1;
     abc['E'] = 4;
     LSYSTEM::VLSentence S("A(4,5)BA(3.33,2)B");
-    std::cout<<S<<std::endl;
+    std::cout<<S.getLSentence()<<std::endl;
     //LSYSTEM::LSentence S(abc);
     //LSYSTEM::LSentence lS(abc);
     //LSYSTEM::LSentence rS(abc);
