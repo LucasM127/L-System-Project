@@ -310,7 +310,7 @@ void GridInterpreter::interpret(const LSYSTEM::LModule &&M)//const LSYSTEM::LSen
                         break;
                     case SkipBranchType::DOUBLE_LEFT_CUT_BRANCH:
                         info.texCoord = TEX2D_DOUBLE_BRANCH_TRIPLE_CAP;
-                        info.o = Orientation::R90CW;
+                        info.o = Orientation::R90CCW;//R90CW;//THAT"S IT
                         break;
                     case SkipBranchType::DOUBLE_CUT_BRANCH:
                         info.texCoord = TEX2D_DOUBLE_BRANCH_ALL_CAP;
