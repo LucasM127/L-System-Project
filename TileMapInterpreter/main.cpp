@@ -10,9 +10,9 @@
 int main()
 {
     srand(time(NULL));
-    uint mapWidth = 25;
-    uint mapHeight = 15;
-    Grid G(mapWidth,mapHeight,48,48);
+    uint mapWidth = 8;// 25;
+    uint mapHeight = 8;//15;
+    Grid G(mapWidth,mapHeight,96,96);
 
     sf::Texture texture;
     texture.loadFromFile(TILESET_FILE_NAME);
@@ -25,7 +25,7 @@ int main()
     LSYSTEM::LSystemData lsData;
     lsparser.parseFile("vine.ls", fd, lsData);
 
-    uint numVines = 1+rand()%9;
+    uint numVines = 4+rand()%5;
 
     std::vector<LSYSTEM::VLSentence> sentences(numVines*2);
     std::vector<LSYSTEM::VLSentence*> sentence_ptrs(numVines*2);
@@ -96,7 +96,7 @@ int main()
     sf::Event event;
     while (window.isOpen())
     {
-        window.clear(sf::Color(85,167,177));
+        window.clear(sf::Color(19,38,58));
         G.render(window);
         window.display();
 
