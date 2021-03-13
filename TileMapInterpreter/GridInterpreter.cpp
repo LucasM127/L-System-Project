@@ -3,7 +3,7 @@
 #include <cassert>
 #include <iostream>
 
-GridInterpreter::GridInterpreter(GridTurtle T, const CoordMapper &_mapper) : m_startTurtle(T), mapper(_mapper)
+GridInterpreter::GridInterpreter(GridTurtle T, EnviroGridMap &map) : m_startTurtle(T), r_map(map)
 {
     m_turtleStack.push(m_startTurtle);
     m_lastTurtleHeadingStack.push(m_startTurtle.heading);
@@ -323,7 +323,7 @@ void GridInterpreter::interpret(const LSYSTEM::LModule &&M)//const LSYSTEM::LSen
             }
             else//first in the main branch with no offbranches to a cap
             {
-                info.texCoord = TEX2D_STRAIGHT_ALL_CAP;
+                info.texCoord = TEX2D_APEX;//TEX2D_STRAIGHT_ALL_CAP;
                 info.o = Orientation::R180;
             }
         }//isFirstInBranch
@@ -390,15 +390,11 @@ void GridInterpreter::interpret(const LSYSTEM::LModule &&M)//const LSYSTEM::LSen
                                         (lastTurtleHeading.y ==-1 && turtleHeading.x == 1));
                     if(isRightTurn) info.o = Orientation::R90CCW;
                     else info.o = Orientation::FLIPPED_R90CW;
-//                    if(isRightTurn) info.o = Orientation::FLIPPED_R90CW;
-//                    else info.o = Orientation::FLIPPED_DEFAULT;
-                    if(isRightTurn) std::cout<<"IS RIGHT TURN\n";
-                    else std::cout<<"IS LEFT TURN\n";
                 }
             }
         }
         
-        advanceTurtle();
+//        advanceTurtle();
 
         if(!skipTile)
         {
@@ -409,6 +405,21 @@ void GridInterpreter::interpret(const LSYSTEM::LModule &&M)//const LSYSTEM::LSen
             m_data.push_back(info);
         }
     } break;
+    case 'f':
+    {
+        advanceTurtle();
+    } break;
+    case 'S':
+    {
+        info.o = Orientation::DEFAULT;
+        info.texCoord = TEX2D_SEED;
+
+        m_data.push_back(info);
+    } break;
+    case 'm':
+    {
+        r_map.mark(turtlePosition);
+    }
     
     default:
         break;

@@ -4,12 +4,12 @@
 #include <SFML/System/Vector2.hpp>
 #include <string>
 
-const float TILESET_TILE_SIZE = 32;
+const float TILESET_TILE_SIZE = 32;//what if I made bigger?  +2 all coords, -4 size is 28
 const std::string TILESET_FILE_NAME = "VinesTileset256x256.png";
 
-const sf::Vector2f TEX2D_SEED                             = { 32+128,  0};
-const sf::Vector2f TEX2D_APEX                             = { 64+128,  0};
-const sf::Vector2f TEX2D_FEELER                           = { 96+128,  0};
+const sf::Vector2f TEX2D_SEED                             = { 32,  0};
+const sf::Vector2f TEX2D_APEX                             = { 64,  0};
+const sf::Vector2f TEX2D_FEELER                           = { 96,  0};
 
 const sf::Vector2f TEX2D_STRAIGHT                         = { 64+128, 32};
 const sf::Vector2f TEX2D_STRAIGHT_END_CAP                 = { 64+128, 64};

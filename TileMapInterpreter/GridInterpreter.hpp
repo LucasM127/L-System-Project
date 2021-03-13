@@ -2,11 +2,14 @@
 #define GRID_INTERPRETER_HPP
 
 #include "../LSystem/LSInterpreter.hpp"
+#include "EnvironmentalGridMap.hpp"
 
 #include "Grid.hpp"
 #include "PipeGridCoords.hpp"
 
 #include <stack>
+
+class EnviroGridMap;
 
 struct GridInfo
 {
@@ -37,19 +40,20 @@ enum class SkipBranchType
 class GridInterpreter : public LSYSTEM::LSInterpreter//LSInterpreterSimple<std::vector<GridInfo> >
 {
 public:
-    GridInterpreter(GridTurtle T, const CoordMapper &mapper);
+    GridInterpreter(GridTurtle T, EnviroGridMap &map);
     ~GridInterpreter();
     std::vector<GridInfo> &data(){return m_data;}
+    void setStartTurtle(GridTurtle &T){m_startTurtle = T;}
+    const GridTurtle &queryTurtle() const {return m_turtleStack.top();}
 private:
     void reset() override;
     void interpret(const LSYSTEM::LModule &&M) override;//const LSYSTEM::LSentence &sentence, const uint i) override;
 
-    const GridTurtle m_startTurtle;
+    GridTurtle m_startTurtle;
+    EnviroGridMap &r_map;
     
     std::stack<GridTurtle> m_turtleStack;
     std::stack<sf::Vector2i> m_lastTurtleHeadingStack;
-
-    const CoordMapper &mapper;
 
     std::stack<bool> amFirstInBranchStack;
     bool amFirstAfterBranch;
