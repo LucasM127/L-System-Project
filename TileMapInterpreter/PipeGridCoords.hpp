@@ -3,6 +3,7 @@
 
 #include <SFML/System/Vector2.hpp>
 #include <string>
+#include <map>
 
 const float TILESET_TILE_SIZE = 32;//what if I made bigger?  +2 all coords, -4 size is 28
 const std::string TILESET_FILE_NAME = "VinesTileset256x256.png";
@@ -14,18 +15,15 @@ const sf::Vector2f TEX2D_FEELER                           = { 96,  0};
 const sf::Vector2f TEX2D_STRAIGHT                         = { 64+128, 32};
 const sf::Vector2f TEX2D_STRAIGHT_END_CAP                 = { 64+128, 64};
 const sf::Vector2f TEX2D_STRAIGHT_ALL_CAP                 = { 64+128, 96};
-
 const sf::Vector2f TEX2D_ANGLE                            = { 96+128, 32};
 const sf::Vector2f TEX2D_ANGLE_END_CAP                    = { 96+128, 64};
 const sf::Vector2f TEX2D_ANGLE_ALL_CAP                    = { 96+128, 96};
-
 const sf::Vector2f TEX2D_SINGLE_BRANCH                    = { 32+128, 32};
 const sf::Vector2f TEX2D_SINGLE_BRANCH_BRANCH_CAP         = { 32+128, 64};
 const sf::Vector2f TEX2D_SINGLE_BRANCH_END_CAP            = { 32+128, 96};
 const sf::Vector2f TEX2D_SINGLE_BRANCH_BRANCH_CAP_END_CAP = { 32+128,128};
 const sf::Vector2f TEX2D_SINGLE_BRANCH_BOTH_ENDS_CAPPED   = { 32+128,160};
 const sf::Vector2f TEX2D_SINGLE_BRANCH_ALL_CAPPED         = { 32+128,192};
-
 const sf::Vector2f TEX2D_DOUBLE_BRANCH =                    {  0+128, 32};
 const sf::Vector2f TEX2D_DOUBLE_BRANCH_END_CAP            = {  0+128, 64};
 const sf::Vector2f TEX2D_DOUBLE_BRANCH_BRANCH_CAP_END_CAP = {  0+128, 96};
