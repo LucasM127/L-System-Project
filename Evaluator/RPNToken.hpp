@@ -8,30 +8,29 @@
 #include <cstdint>
 #include <stack>
 #include <vector>
-#include <iostream>
-#include <Logger.hpp>
+
 #include "Numbers.hpp"
 
 //RPN Reverse Polish Notation
+
+namespace EVAL
+{
 
 struct RPNToken;
 
 typedef void(*opFnPtr)(std::stack<float>&);
 typedef std::vector<RPNToken> RPNList;
 
+extern const bool OP;
+extern const bool VAR;
+
 struct RPNToken//for 64 bit
 {
-    RPNToken(){}
-    RPNToken(char c, bool _isOp) : isOp(_isOp), isConst(false), isComplex(false), token(c)
-    {
-        //LOG("Make char '", c);
-    }
-	RPNToken(float v) : isOp(false), isConst(true), isComplex(false), value(v)
-    {
-        //LOG("Make float ", v);
-    }
-    RPNToken(const RPNList &list) : isOp(false), isConst(false), isComplex(true), rpnList(new RPNList(list)) {}
-	RPNToken(const RPNList &&list) : isOp(false), isConst(false), isComplex(true), rpnList(new RPNList(list)) {}
+    RPNToken();
+    RPNToken(char c, bool _isOp);
+	RPNToken(float v);
+    RPNToken(const RPNList &list);
+	RPNToken(const RPNList &&list);
 	
 	bool isOp;
     bool isConst;
@@ -45,5 +44,7 @@ struct RPNToken//for 64 bit
         opFnPtr fnPtr;
 	};
 };
+
+}//namespace EVAL
 
 #endif //EVAL_RPNTOKEN_HPP

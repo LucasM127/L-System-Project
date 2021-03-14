@@ -3,13 +3,16 @@
 
 #include "../Containers/VarIndice.hpp"
 
+namespace EVAL
+{
+
 class Number
 {
 public:
     Number(bool constant) : isConst(constant) {}
-	virtual const float getVal() const = 0;
-	virtual const float getVal(const float *v) const = 0;
-	virtual ~Number(){}
+    virtual const float getVal() const = 0;
+    virtual const float getVal(const float *v) const = 0;
+    virtual ~Number(){}
     const bool isConst;
 };
 
@@ -46,5 +49,7 @@ public:
 private:
     const int m_index;
 };
+
+}//namespace EVAL
 
 #endif //EVAL_NUMBERS_HPP

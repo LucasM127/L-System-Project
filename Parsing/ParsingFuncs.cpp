@@ -64,6 +64,22 @@ void findAndReplace(std::string& source, const std::unordered_map<std::string, s
     }
 }
 
+void findAndReplace(std::string& source, std::vector<std::pair<std::string, char> > &stringReplacementChars)
+{
+    std::string findString;
+    char replaceChar;
+    for(auto define : stringReplacementChars)
+    {
+        findString = define.first;
+        replaceChar = define.second;
+        for(std::string::size_type i = 0; (i = source.find(findString, i)) != std::string::npos;)
+        {
+            source.replace(i, findString.length(), &replaceChar, 1);
+            ++i;//i += replaceString.length();
+        }
+    }
+}
+
 void removeSpaces(std::string& s)
 {
     s.erase(remove_if(s.begin(), s.end(), isspace), s.end());

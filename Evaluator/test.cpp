@@ -36,11 +36,11 @@ int main()
 
     float V[1] = {90.f};
     
-    RuntimeEvalLoader evR;
+    EVAL::RuntimeLoader evR;
 //    LibEvalLoader evR;
     evR.init();
     
-    Evaluator *evalR = evR.load(exp, varMap, 1, "foo");
+    EVAL::Evaluator *evalR = evR.load(exp, varMap, 1, "foo");
     evR.generate();
 
     float n = evalR->evaluate(V);

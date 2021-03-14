@@ -1,7 +1,11 @@
+//Linux only unless can figure out how to use existing msvc compiler
+#include "LibEvalLoader.hpp"
 #include <dlfcn.h>//dlopen -ldl linkage
-#include "EvalLoader.hpp"
 
-void LibEvalLoader::init()
+namespace EVAL
+{
+
+void LibLoader::init()
 {
     file.open("LSYSTEM_FUNCS.cpp");//override mode
     if(!file)
@@ -16,15 +20,13 @@ void LibEvalLoader::init()
 //create a 'nested' rpnList
 //pass that 'nested' rpnList to other functions
 //this is what this is doing :)
-Evaluator* LibEvalLoader::load(const std::string &expression, const VarIndiceMap &varMap, int maxVarDepth, const std::string &comment)
+Evaluator* LibLoader::load(const std::string &expression, const VarIndiceMap &varMap, int maxVarDepth, const std::string &comment)
 {
-    shuntYardAlgorithm(expression);
-//    parse(expression, varMap);
+    shuntYardAlgorithm(tokenize(expression, varMap));
     simplify();
+    //don't expand so can convert back to infix notation
     const RPNList &rpnList = list();
-    //is not expanded!
-try
-{
+    
     if(rpnList.size()==1)
     {
         Evaluator *eval;
@@ -42,18 +44,11 @@ try
             return eval;
         }
     }
-}
-catch(const std::out_of_range& e)
-{
-    throw std::runtime_error("Variable out of range parsing expression '"+expression+"' in '"+comment);
-}
 
     std::string C_Expression = convertToCode(rpnList);
 
     int n = m_libEvaluators.size();
 
-    //std::string parsedExp = parse(expression, varIndiceMap);
-    //std::string parsedExp = expression;
     file << "//" << comment <<"\n";
     file << "float func_"<<n<<"(const float *V)\n";
     file << "{\n";
@@ -69,7 +64,7 @@ catch(const std::out_of_range& e)
     return m_libEvaluators.back();
 }
 
-void LibEvalLoader::generate()
+void LibLoader::generate()
 {
     file << "#ifdef __cplusplus\n";
     file << "}\n";//extern C
@@ -93,12 +88,12 @@ void LibEvalLoader::generate()
     }
 }
 
-void LibEvalLoader::close()
+void LibLoader::close()
 {
     dlclose(m_soLibHandle);
 }
 
-std::string LibEvalLoader::convertToCode(const RPNList &rpnList)
+std::string LibLoader::convertToCode(const RPNList &rpnList)
 {
     std::stack<std::string> theStack;
     //is non simplifieid string...
@@ -158,7 +153,7 @@ void LibPtrEvaluator::load(void *soLibHandle)
     }
 }
 
-std::map<char,std::string> LibEvalLoader::funcOpMap =
+std::map<char,std::string> LibLoader::funcOpMap =
 {
     {'+' , "+"},
     {'-' , "-"},
@@ -168,72 +163,18 @@ std::map<char,std::string> LibEvalLoader::funcOpMap =
     { 0  , "=="},
     {'>' , ">"},
     {'<' , "<"},
-	{ 1  , ">="},
+    { 1  , ">="},
     { 2  , "<="},
     { 3  , "sinf"},
     { 4  , "cosf"},
     { 5  , "tanf"},
-	{ 6  , "asinf"},
+    { 6  , "asinf"},
     { 7  , "acosf"},
     { 8  , "atanf"},
-    { 9  , "float(rand())/float(RAND_MAX)*"},//"float(rand()%100)/100.f*"},
-	{ 10 , "-"},
+    { 9  , "float(rand())/float(RAND_MAX)*"},//fix to use random_engine????
+    { 10 , "-"},
     { 11, "&&"},
     { 12, "||"}
 };
 
-/*
-#include <sstream>
-std::string LibEvalLoader::parse(const std::string &exp, const VarIndiceMap &varMap)
-{
-    std::stringstream sstream;
-    std::stringstream sstream2;
-    sstream << exp;
-
-    char c;
-
-    auto isNum = [](char x)->bool
-    {    
-        return ((x >= '0' && x < '9') || x == '.');
-    };
-//read in number or variable or operator token
-    float f;
-    bool lastWasNum = false;
-    //^token?  load () ech...
-    while(sstream)
-    {
-        c = sstream.peek();
-        if(c == EOF) break;
-        if(varMap.find(c) != varMap.end())
-        {
-            if(lastWasNum)
-            {
-                //insert * sign
-                sstream2 << '*';
-            }
-            lastWasNum = true;
-            sstream >> c;
-            sstream2 << c;
-        }
-        else if(isNum(c))
-        {
-            if(lastWasNum)
-            {
-                //insert * sign
-                sstream2 << '*';
-            }
-            sstream >> f;
-            lastWasNum = true;
-            sstream2 << f;
-        }
-        else
-        {
-            sstream >> c;
-            sstream2 << c;
-            lastWasNum = false;
-        }
-    }
-
-    return sstream2.str();
-}
-*/
+}//namespace EVAL

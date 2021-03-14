@@ -6,11 +6,14 @@
 //#include "Numbers.hpp"
 #include "RPNToken.hpp"
 
-class EvalLoader;
+namespace EVAL
+{
+
+class Loader;
 
 class Evaluator
 {
-    friend class EvalLoader;
+    friend class Loader;
 public:
     Evaluator(const std::string &exp, bool _isConst) : expression(exp), isConst(_isConst) {}
     virtual ~Evaluator(){}
@@ -18,24 +21,24 @@ public:
     const std::string expression;
     const bool isConst;
 protected:
-	static void add(std::stack<float>&);
-	static void subtract(std::stack<float>&);
-	static void multiply(std::stack<float>&);
-	static void divide(std::stack<float>&);
-	static void raiseByExponent(std::stack<float>&);
-	static void sin(std::stack<float>&);
-	static void cos(std::stack<float>&);
-	static void tan(std::stack<float>&);
-	static void cosecant(std::stack<float>&);
-	static void secant(std::stack<float>&);
-	static void cotangent(std::stack<float>&);
-	static void random(std::stack<float>&);
-	static void negate(std::stack<float>&);
-	static void testIfEqual(std::stack<float>&);
-	static void testIfGreaterThan(std::stack<float>&);
-	static void testIfLessThan(std::stack<float>&);
-	static void testIfGreaterOrEqualThan(std::stack<float>&);
-	static void testIfLessThanOrEqual(std::stack<float>&);
+    static void add(std::stack<float>&);
+    static void subtract(std::stack<float>&);
+    static void multiply(std::stack<float>&);
+    static void divide(std::stack<float>&);
+    static void raiseByExponent(std::stack<float>&);
+    static void sin(std::stack<float>&);
+    static void cos(std::stack<float>&);
+    static void tan(std::stack<float>&);
+    static void cosecant(std::stack<float>&);
+    static void secant(std::stack<float>&);
+    static void cotangent(std::stack<float>&);
+    static void random(std::stack<float>&);
+    static void negate(std::stack<float>&);
+    static void testIfEqual(std::stack<float>&);
+    static void testIfGreaterThan(std::stack<float>&);
+    static void testIfLessThan(std::stack<float>&);
+    static void testIfGreaterOrEqualThan(std::stack<float>&);
+    static void testIfLessThanOrEqual(std::stack<float>&);
     static void testAnd(std::stack<float>& numberStack);
     static void testOr(std::stack<float>& numberStack);
 };
@@ -80,5 +83,7 @@ private:
     const RPNList m_rpnList;
     std::stack<float> m_numStack;
 };
+
+}//namespace EVAL
 
 #endif //EVALUATOR_HPP
