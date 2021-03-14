@@ -15,9 +15,6 @@ A => I[-A]A : 2
 A => I[+A][-A]A : 1
 A => A : 32
 
-;A => A : 13
-;above line glitches... assume ...
-
 Homomorphic Productions:
 I => mF
 A => mxf
