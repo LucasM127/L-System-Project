@@ -11,17 +11,17 @@ namespace LSYSTEM
 class ParametricProduct : public Product
 {
 public:
-    ParametricProduct(const ProductData &pd, const Alphabet &pnm, VarIndiceMap &varIndiceMap, EvalLoader &ev, const unsigned int arrayDepth);
+    ParametricProduct(const ProductData &pd, const Alphabet &pnm, VarIndiceMap &varIndiceMap, EVAL::Loader &ev, const unsigned int arrayDepth);
     ~ParametricProduct(){}
     void apply(LSentence &lsentence, const float * V) override;
     const float calcWeight(const float *) override;
     bool isValid(const float *) override;
     bool fixedWeight(){return stochasticWeightEvaluator->isConst;}
 private:
-    void createProductEvaluations(const ProductData &pd, EvalLoader &ev, VarIndiceMap &varIndiceMap, const unsigned int arrayDepth);
-    std::vector< std::vector<Evaluator*> > productParameterEvaluators;
-    Evaluator* stochasticWeightEvaluator;
-    Evaluator* conditionalEvaluator;
+    void createProductEvaluations(const ProductData &pd, EVAL::Loader &ev, VarIndiceMap &varIndiceMap, const unsigned int arrayDepth);
+    std::vector< std::vector<EVAL::Evaluator*> > productParameterEvaluators;
+    EVAL::Evaluator* stochasticWeightEvaluator;
+    EVAL::Evaluator* conditionalEvaluator;
 };
 
 class ConditionalProductChooser:public ProductChooser
@@ -59,7 +59,7 @@ private:
 class BasicParametricProduction:public BasicProduction
 {
 public:
-    BasicParametricProduction(const ProductionData&, const Alphabet &pnm, EvalLoader &ev, const unsigned int arrayDepth);
+    BasicParametricProduction(const ProductionData&, const Alphabet &pnm, EVAL::Loader &ev, const unsigned int arrayDepth);
     virtual ~BasicParametricProduction();
 
     virtual ProductChooser* pass(const LSentence &lsentence, const unsigned int i, float * V, unsigned int arrayDepth) override;
@@ -71,7 +71,7 @@ class ParametricProduction:public BasicParametricProduction, public ProductionCo
 {
 public:
     ParametricProduction(const ProductionData&, const Alphabet &pnm,
-                          const std::set<char>& skip, EvalLoader &ev, const unsigned int arrayDepth);
+                          const std::set<char>& skip, EVAL::Loader &ev, const unsigned int arrayDepth);
     ~ParametricProduction();
 
     ProductChooser* pass(const LSentence &lsentence, const unsigned int i, float * V, unsigned int arrayDepth) override;

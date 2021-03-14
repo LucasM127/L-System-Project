@@ -14,13 +14,13 @@ $(OUTFOLDER)/LSystem.a: $(OBJS)
 	ar rvs $(OUTFOLDER)/LSystem.a $(OBJS)
 
 LSInterpreter.o: LSInterpreter.cpp LSInterpreter.hpp LSystem.o
-	$(GCC) LSInterpreter.cpp -c -I ../Logger/
+	$(GCC) LSInterpreter.cpp -c
 
 LSystem.o: LSystem.cpp LSystem.hpp ParametricProduction.o
-	$(GCC) -DLOG_DEBUG_STDOUT LSystem.cpp -c -I ../Logger/
+	$(GCC) -DLOG_DEBUG_STDOUT LSystem.cpp -c
 
 ParametricProduction.o: ParametricProduction.hpp ParametricProduction.cpp Production.o $(OUTFOLDER)/EvalLib.a
-	$(GCC) ParametricProduction.cpp -c -I ../Logger/
+	$(GCC) ParametricProduction.cpp -c
 
 Production.o: Production.cpp Production.hpp VLSentence.o
 	$(GCC) Production.cpp -c

@@ -42,7 +42,7 @@ private:
 
     void contract(LSYSTEM::VLSentence &vlsentence);
 
-    EvalLoader *m_evalLoader;//not necessarily 'owned' though is atm
+    EVAL::Loader *m_evalLoader;//not necessarily 'owned' though is atm
     unsigned int m_maxDepth, m_maxWidth;//smallest dimensions of m_valArray to prevent access violations
     float *m_valArray;//utility, not multithreading safe, each thread should have own copy
 };

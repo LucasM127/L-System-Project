@@ -3,7 +3,7 @@
 namespace LSYSTEM
 {
 
-ParametricProduct::ParametricProduct(const ProductData &pd, const Alphabet &pnm, VarIndiceMap &varIndiceMap, EvalLoader &ev, const unsigned int arrayDepth)
+ParametricProduct::ParametricProduct(const ProductData &pd, const Alphabet &pnm, VarIndiceMap &varIndiceMap, EVAL::Loader &ev, const unsigned int arrayDepth)
                                     : Product(this, pd.product)
 {
     createProductEvaluations(pd, ev, varIndiceMap, arrayDepth);
@@ -32,7 +32,7 @@ bool ParametricProduct::isValid(const float * V)
     return (bool)conditionalEvaluator->evaluate(V);
 }
 
-void ParametricProduct::createProductEvaluations(const ProductData& pd, EvalLoader &ev, VarIndiceMap &varIndiceMap, const unsigned int arrayDepth)
+void ParametricProduct::createProductEvaluations(const ProductData& pd, EVAL::Loader &ev, VarIndiceMap &varIndiceMap, const unsigned int arrayDepth)
 {
     const std::vector<std::vector<std::string> >& evalStrings = pd.evalStrings;
     productParameterEvaluators.resize(evalStrings.size());
@@ -143,7 +143,7 @@ Product* VariableStochasticConditionalProductChooser::choose(const float *V)
 
 //eval loader, and arrayDepth
 //vector of productDatas, to production... .... ???
-BasicParametricProduction::BasicParametricProduction(const ProductionData &ppd, const Alphabet &pnm, EvalLoader &ev, const unsigned int arrayDepth)
+BasicParametricProduction::BasicParametricProduction(const ProductionData &ppd, const Alphabet &pnm, EVAL::Loader &ev, const unsigned int arrayDepth)
                                                     : BasicProduction(this)
 {   
     bool isConditional = false;
@@ -190,7 +190,7 @@ BasicParametricProduction::~BasicParametricProduction()
 
 ParametricProduction::ParametricProduction(const ProductionData& ppd,
                      const Alphabet &pnm, const std::set<char> &skip,
-                     EvalLoader &ev, const unsigned int arrayDepth)
+                     EVAL::Loader &ev, const unsigned int arrayDepth)
                      :BasicParametricProduction(ppd,pnm, ev, arrayDepth),
                      ProductionContext(ppd.lContext,ppd.rContext,skip)
 {

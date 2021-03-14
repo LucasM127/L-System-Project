@@ -1,5 +1,7 @@
 #include "LSystem.hpp"
 
+#include "../Evaluator/LibEvalLoader.hpp"
+
 namespace LSYSTEM
 {
 
@@ -83,7 +85,7 @@ LSystem::LSystem(const LSystemData &lsData) : alphabet(lsData.abc), skippableLet
     }
     else
     {
-        m_evalLoader = new LibEvalLoader;//RuntimeEvalLoader;
+        m_evalLoader = new EVAL::LibLoader;//RuntimeEvalLoader;
         m_evalLoader->init();
 
         BasicParametricProduction *tempProduction = 0;
@@ -98,7 +100,6 @@ LSystem::LSystem(const LSystemData &lsData) : alphabet(lsData.abc), skippableLet
             }
             catch(std::exception& e)
             {
-                LOG("exception caught: ", e.what());
                 for(auto pMap : m_productionMap)
                     for(BasicProduction* pRule : pMap.second)
                         delete pRule;
