@@ -41,6 +41,7 @@ protected:
     static void testIfLessThanOrEqual(std::stack<float>&);
     static void testAnd(std::stack<float>& numberStack);
     static void testOr(std::stack<float>& numberStack);
+    static void maxFn(std::stack<float>&);
 };
 
 class ConstEvaluator : public Evaluator

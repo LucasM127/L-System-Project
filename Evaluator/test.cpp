@@ -34,8 +34,10 @@ int main()
         {'x',{0,0}}
     };
 
-    float V[1] = {90.f};
-    
+    float V[1] = {2.f};
+    exp = "2cos(90)";
+    exp = "max(4max(3,2),10+1)";
+    //exp = "2(1+4)";
     EVAL::RuntimeLoader evR;
 //    LibEvalLoader evR;
     evR.init();

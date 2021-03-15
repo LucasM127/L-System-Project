@@ -1,6 +1,6 @@
 GCC = g++ -g -Wall
 OUTFOLDER = ../Lib
-#DEF = -D EVAL_DEBUG
+DEF = -D EVAL_DEBUG
 OBJS =  LibEvalLoader.o ShuntYardAlgorithm.o EvalOpMap.o Tokenize.o EvalLoader.o RPNToken.o
 
 test: $(OUTFOLDER)/EvalLib.a test.o
@@ -16,7 +16,7 @@ LibEvalLoader.o: LibEvalLoader.hpp LibEvalLoader.cpp EvalLoader.o
 	$(GCC) LibEvalLoader.cpp -c
 
 ShuntYardAlgorithm.o: ShuntYardAlgorithm.cpp EvalLoader.o
-	$(GCC) ShuntYardAlgorithm.cpp -c
+	$(GCC) $(DEF) ShuntYardAlgorithm.cpp -c
 
 EvalOpMap.o: EvalOpMap.cpp EvalLoader.o
 	$(GCC) $(DEF) EvalOpMap.cpp -c

@@ -30,6 +30,7 @@ std::vector< std::pair<std::string, char> > Loader::tokenStringReplaceVector =
     {"sin",  		3 },
     {"cos",  		4 },
     {"tan",  		5 },
+    {"max",         13},
     {"==",			0 },
     {">=",			1 },
     {"<=",			2 },
@@ -65,7 +66,8 @@ std::map<char, int> Loader::opPriorityMap
     { 9 ,   4},
     { 10,   4},
     { 11,  -1},//&&//Need to evaluat > < first before this...
-    { 12,  -1}//||
+    { 12,  -1},//||
+    { 13,   4}//max(a,b) like unary?
     //{'(',	-1}//so will apply
 };
 
@@ -91,9 +93,9 @@ std::map<char, bool> Loader::opLeftAssociativityMap =
     { 9 ,   false},
     { 10,   false},
     { 11,	true},//&&
-    { 12,	true}//||
+    { 12,	true},//||
+    { 13,   true}//f1 f2 a , b , c => a b f2 c f1 (left associative)
 };
-
 
 //uses ascii code range 0-31 (unprintable control characters)
 //for where the tokens do not have a direct single character equivalent
@@ -126,6 +128,10 @@ std::map<char,opFnPtr> Loader::unaryOpMap =
     { 10 , Evaluator::negate}
 };
 
+std::map<char,opFnPtr> Loader::funcOpMap =
+{
+    { 13 , Evaluator::maxFn}
+};
 //Map reverse map??? Function -> opPrority
 
 void Evaluator::add(std::stack<float>& numberStack)// '+'
@@ -336,6 +342,16 @@ void Evaluator::testOr(std::stack<float>& numberStack)
     LOG("Testing if ", lhs, " is less or equal to ", rhs);
     //std::cout<<"testing if "<<lhs<<" is less than "<<rhs<<std::endl;
     (roundf(lhs) || roundf(rhs)) ? numberStack.push(1) : numberStack.push(0);
+}
+
+void Evaluator::maxFn(std::stack<float>& numberStack)
+{
+    float rhs = numberStack.top();
+    numberStack.pop();
+    float lhs = numberStack.top();
+    numberStack.pop();
+    LOG("Getting max of ", lhs, " or ", rhs);
+    numberStack.push(fmaxf(lhs,rhs));
 }
 
 } //namespace EVAL

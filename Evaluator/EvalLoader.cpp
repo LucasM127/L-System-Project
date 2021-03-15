@@ -38,6 +38,8 @@ Evaluator* RuntimeLoader::load(const std::string &expression, const VarIndiceMap
         {
             if(unaryOpMap.find(T.token) != unaryOpMap.end())
                 T.fnPtr = unaryOpMap.at(T.token);
+            else if(isAFunc(T.token))
+                T.fnPtr = funcOpMap.at(T.token);
             else
                 T.fnPtr = binaryOpMap.at(T.token);
         }
@@ -69,7 +71,13 @@ bool Loader::isUnary(const char op)
 bool Loader::isAnOp(const char op)
 {
     return 	(unaryOpMap.find(op) != unaryOpMap.end()) ||
-            (binaryOpMap.find(op) != binaryOpMap.end());
+            (binaryOpMap.find(op) != binaryOpMap.end()) ||
+            (funcOpMap.find(op) != funcOpMap.end());
+}
+
+bool Loader::isAFunc(const char op)
+{
+    return (funcOpMap.find(op) != funcOpMap.end());
 }
 
 void Loader::simplify()

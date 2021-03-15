@@ -34,6 +34,7 @@ protected:
 
     static std::map<char,opFnPtr> binaryOpMap;
     static std::map<char,opFnPtr> unaryOpMap;
+    static std::map<char,opFnPtr> funcOpMap;
 //private:
     static std::vector<std::pair<std::string, char> > tokenStringReplaceVector;
     static std::map<char, bool> opLeftAssociativityMap;
@@ -45,11 +46,13 @@ protected:
     
     bool isUnary(const char op);
     bool isAnOp(const char op);
+    bool isAFunc(const char op);
 
     void expand(RPNList &rpnList, RPNList &rpnListFinal);
     void simplify(RPNList& rpnList);
     void simplifyBinary(RPNList& rpnList);
     void simplifyUnary(RPNList& rpnList);
+    void simplifyFunc(RPNList& rpnList);
     void distribute(RPNList &rpnList, int complexIt);
     std::stack<float> m_floatStack;
 

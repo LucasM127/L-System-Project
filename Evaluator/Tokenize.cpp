@@ -15,7 +15,8 @@ std::vector<EVAL::RPNToken> EVAL::Loader::tokenize(const std::string &expression
     while(LSPARSE::next(exp, i, c_next))
     {
         ++i;
-        if(c_next == '(' || c_next == ')')
+        if(c_next == ' ') continue;
+        if(c_next == '(' || c_next == ')' || c_next == ',')
             tokens.emplace_back(c_next, OP);
         else if(isAnOp(c_next))
             tokens.emplace_back(c_next,OP);
