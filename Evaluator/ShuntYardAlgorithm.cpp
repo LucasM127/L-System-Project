@@ -398,7 +398,8 @@ void Loader::simplify(RPNList& rpnList)
             }
             else if(rpnList.size() > 2 &&
                     opPriorityMap[token.rpnList->back().token] == opPriorityMap[rpnList.back().token] )
-            {
+            {//ie, if 2+(3x+1) => push 2 push [] pop '+' vs push[3x] push 1 pop '+', both have '+' at end
+            //(unarys, functions, selfcontained in brackets so doesn't affect)
                 distribute(rpnList, i);
             }
         }
