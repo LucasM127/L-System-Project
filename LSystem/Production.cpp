@@ -41,7 +41,7 @@ BasicProduction::~BasicProduction()
     //delete m_chooser;
 }
 
-ProductChooser *BasicProduction::pass(const LSentence &lsentence, const unsigned int i, float * V = nullptr, unsigned int arrayDepth)
+ProductChooser *BasicProduction::pass(const LSentence &lsentence, const unsigned int i, float * V, unsigned int arrayDepth)
 {
     return m_chooser;
 }
