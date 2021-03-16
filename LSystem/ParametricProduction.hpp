@@ -24,38 +24,6 @@ private:
     EVAL::Evaluator* conditionalEvaluator;
 };
 
-class ConditionalProductChooser:public ProductChooser
-{
-public:
-    ConditionalProductChooser(std::vector<Product*>& pds):ProductChooser(pds){}
-    Product* choose(const float *V) override;
-};
-
-class StochasticConditionalProductChooser:public ProductChooser//stochastic with conditionals
-{
-public:
-    StochasticConditionalProductChooser(std::vector<Product*>& pds):ProductChooser(pds){}//no need to prebalance the weights
-    Product* choose(const float *V) override;
-private:
-    std::vector<Product*> m_validProducts;//subset of products dependant on context and conditional
-};
-
-class VariableStochasticProductChooser:public ProductChooser//stochastic with unknown variable weights, no conditionals
-{
-public:
-    VariableStochasticProductChooser(std::vector<Product*>& pds):ProductChooser(pds){}
-    Product* choose(const float *V) override;
-};
-
-class VariableStochasticConditionalProductChooser:public ProductChooser
-{
-public:
-    VariableStochasticConditionalProductChooser(std::vector<Product*>& pds):ProductChooser(pds){}
-    Product* choose(const float *V) override;
-private:
-    std::vector<Product*> m_validProducts;
-};
-
 class BasicParametricProduction:public BasicProduction
 {
 public:

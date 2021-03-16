@@ -4,12 +4,14 @@
 #include "../Containers/ProductionData.hpp"
 #include "../Containers/LSentence.hpp"
 
+#include "ProductChooser.hpp"
+
 namespace LSYSTEM
 {
 
 class ParametricProduct;
 
-class Product;
+class ProductChooser;
 
 class Product
 {
@@ -18,31 +20,12 @@ public:
     Product(ParametricProduct *P, const std::string &_productString);
     virtual ~Product(){}
     virtual void apply(LSentence &lsentence, const float * V = nullptr);
-    virtual bool isValid(const float * V){return true;}
-    const float getWeight(){return m_stochasticWeight;}
-    virtual const float calcWeight(const float * V){return m_stochasticWeight;}
+    virtual bool isValid(const float * V);
+    const float getWeight();
+    virtual const float calcWeight(const float * V);
     const std::string product;
 protected:
     float m_stochasticWeight;
-};
-
-class ProductChooser
-{
-public:
-    ProductChooser(std::vector<Product*> &_products):products(_products){}
-    virtual ~ProductChooser(){}
-    virtual Product* choose(const float *V){return products[0];}
-protected:
-    std::vector<Product*> &products;
-};
-
-class StochasticProductChooser: public ProductChooser
-{
-public:
-    StochasticProductChooser(std::vector<Product*>& _products);
-    Product *choose(const float *V) override;
-protected:
-    float m_weightTotal;
 };
 
 class BasicParametricProduction;
@@ -53,14 +36,14 @@ public:
     BasicProduction(const std::vector<ProductData> &pds);
     BasicProduction(BasicParametricProduction *P){}
     virtual ~BasicProduction();
-    virtual ProductChooser *pass(const LSentence &lsentence, const unsigned int i, float * V = nullptr, unsigned int arrayDepth = 0){return m_chooser;}
+    virtual ProductChooser *pass(const LSentence &lsentence, const unsigned int i, float * V = nullptr, unsigned int arrayDepth = 0);
     const std::string sentence;
-    Product *getProduct(){return m_chooser->choose(nullptr);}
+    Product *getProduct();
 protected:
     std::vector<Product*> m_products;
     ProductChooser *m_chooser;
 };
-//use to fill var holder
+//More a class trait?
 class ProductionContext
 {
 public:
@@ -85,8 +68,7 @@ public:
     ProductChooser *pass(const LSentence &lsentence, const unsigned int i, float * V, unsigned int arrayDepth) override;
 };
 
-//or lambda it???
-bool isSkippable(char c, const std::set<char> &skippableLetters);
+//bool isSkippable(char c, const std::set<char> &skippableLetters);
 
 } // namespace LSYSTEM
 

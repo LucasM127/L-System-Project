@@ -18,24 +18,9 @@ void Product::apply(LSentence &lsentence, const float * V)
     }
 }
 
-StochasticProductChooser::StochasticProductChooser(std::vector<Product*>& _products):ProductChooser(_products), m_weightTotal(0.f)
-{
-    for(Product *P : products)
-        m_weightTotal += P->calcWeight(nullptr);
-}
-
-//total is constant...
-Product* StochasticProductChooser::choose(const float *V)
-{   
-    float randomNum = (float(rand())/float(RAND_MAX))*m_weightTotal;
-    float runningTotal = 0.f;
-    for(Product *P : products)
-    {
-        runningTotal += P->getWeight();
-        if(runningTotal > randomNum) return P;
-    }
-    return nullptr;
-}
+bool Product::isValid(const float * V){return true;}
+const float Product::getWeight(){return m_stochasticWeight;}
+const float Product::calcWeight(const float * V){return m_stochasticWeight;}
 
 BasicProduction::BasicProduction(const std::vector<ProductData> &pds)
 {
@@ -56,6 +41,13 @@ BasicProduction::~BasicProduction()
     //delete m_chooser;
 }
 
+ProductChooser *BasicProduction::pass(const LSentence &lsentence, const unsigned int i, float * V = nullptr, unsigned int arrayDepth)
+{
+    return m_chooser;
+}
+
+Product *BasicProduction::getProduct(){return m_chooser->choose(nullptr);}
+
 //FIX THIS! STATE SHOULD NOT BE HELD HERE
 ProductionContext::ProductionContext(const std::string &lc, const std::string &rc, const std::set<char> &_skippableLetters)
                                     : lContext(lc), rContext(rc), skippableLetters(_skippableLetters)
@@ -74,26 +66,7 @@ bool isSkippable(char c, const std::set<char> &skippableLetters)
 {
     return skippableLetters.count(c) > 0;
 }
-/*
-//why is this even here????
-bool last(const std::vector<char> &string, const unsigned int loc, const std::set<char> &skippableLetters, unsigned int &indice)
-{
-    if(string.size() <= loc) return false;//invalid index
 
-    unsigned int i = 1;
-    while(loc >= i)
-    {
-        indice = loc - i;
-        char c_last = string[loc - i];
-        if(isSkippable(c_last, skippableLetters))
-            i++;
-        else return true;
-    }
-    return false;
-}
-*/
-//YAY
-//lContext.size() == now sum of letter paramNum + num Letters == constant (uses pnm though to calculate)
 bool ProductionContext::passLContext(const LSentence &lsentence, const unsigned int curLetterIndex)
 {
     unsigned int i = lContext.size() - 1;

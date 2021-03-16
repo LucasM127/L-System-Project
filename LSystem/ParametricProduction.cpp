@@ -47,20 +47,6 @@ void ParametricProduct::createProductEvaluations(const ProductData& pd, EVAL::Lo
     }
 }
 
-/* Changes internal state, not 'functional'
-const LSentence& ParametricProduct::get(const float * V)
-{
-    for(unsigned int i = 0;i<productParameterEvaluators.size();i++)
-    {
-        for(unsigned int j = 0;j<productParameterEvaluators[i].size();j++)
-        {
-            product->getVals(i)[j] = productParameterEvaluators[i][j]->evaluate(V);
-        }
-    }
-    return *product;
-}
-*/
-
 void ParametricProduct::apply(LSentence &lsentence, const float * V)
 {
     for(unsigned int i = 0;i<product.size();++i)
@@ -71,74 +57,6 @@ void ParametricProduct::apply(LSentence &lsentence, const float * V)
         for(unsigned int j = 0; j < numParams; ++j)
             lsentence.push_back(productParameterEvaluators[i][j]->evaluate(V));
     }
-}
-
-Product* ConditionalProductChooser::choose(const float *V)
-{
-    if(products[0]->isValid(V)) return products[0];
-//    for(Product *P : products) if(P->isValid(V)) return P;
-    return nullptr;
-}
-//weights cannot be 'zero or negative'
-Product* StochasticConditionalProductChooser::choose(const float *V)
-{
-    m_validProducts.clear();
-    float runningTotal = 0;
-    for(Product *P : products)
-        if(P->isValid(V))
-    {
-        runningTotal += P->getWeight();
-        m_validProducts.push_back(P);
-    }
-    if(m_validProducts.size()==0) return nullptr;
-
-    float randomNum = float(rand())/float(RAND_MAX)*runningTotal;
-    runningTotal = 0;
-    for(unsigned int i = 0;i<m_validProducts.size();++i)
-    {
-        runningTotal += m_validProducts[i]->getWeight();
-        if(runningTotal > randomNum) return m_validProducts[i];
-    }
-
-    return nullptr;
-}
-
-Product* VariableStochasticProductChooser::choose(const float *V)
-{
-    float runningTotal = 0;
-    for(Product *P : products) runningTotal += P->calcWeight(V);
-
-    float randomNum = float(rand())/float(RAND_MAX)*runningTotal;
-    runningTotal = 0;
-    for(unsigned int i = 0;i<products.size();i++)
-    {
-        runningTotal += products[i]->getWeight();
-        if(runningTotal > randomNum) return products[i];
-    }
-    return nullptr;
-}
-
-Product* VariableStochasticConditionalProductChooser::choose(const float *V)
-{
-    m_validProducts.clear();
-    float runningTotal = 0;
-    for(Product *P : products)
-        if(P->isValid(V))
-    {
-        runningTotal += P->calcWeight(V);
-        m_validProducts.push_back(P);
-    }
-    if(m_validProducts.size()==0) return nullptr;
-
-    float randomNum = float(rand())/float(RAND_MAX)*runningTotal;
-    runningTotal = 0;
-    for(unsigned int i = 0;i<m_validProducts.size();++i)
-    {
-        runningTotal += m_validProducts[i]->getWeight();
-        if(runningTotal > randomNum) return m_validProducts[i];
-    }
-
-    return nullptr;
 }
 
 //eval loader, and arrayDepth
