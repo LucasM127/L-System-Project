@@ -27,6 +27,7 @@ int main()
         RPNToken('+',OP)//true,false),
     };
 */
+
 //    std::string exp="5.2+3sin(0.7x)";
     std::string exp="10+rand()%x";//"x>70&&x<100";
     std::map<char, VarIndice> varMap =
@@ -36,7 +37,7 @@ int main()
 
     float V[1] = {2.f};
     exp = "2cos(90)";
-    exp = "max(4max(3,2),10+1)";
+    exp = "max (3max(1,2), max(3, 4))";//"max(4max(3,2),10+1)";
     //exp = "2(1+4)";
     EVAL::RuntimeLoader evR;
 //    LibEvalLoader evR;
