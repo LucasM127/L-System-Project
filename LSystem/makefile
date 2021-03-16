@@ -1,8 +1,10 @@
+# $< - first dependency name   $@ - target name
 GCC = g++ -g -Wall
-OUTFOLDER = ../Lib
-#DEF = -D EVAL_DEBUG
-OBJS = VLSentence.o Production.o ParametricProduction.o LSystem.o LSInterpreter.o
-STATIC_LIBS = $(OUTFOLDER)/LSystem.a $(OUTFOLDER)/EvalLib.a $(OUTFOLDER)/LSParser.a $(OUTFOLDER)/LSContainers.a
+OF = ../Obj
+LF = ../InternalLib
+OBJS = $(OF)/VLSentence.o $(OF)/Production.o $(OF)/ParametricProduction.o\
+		 $(OF)/ProductChooser.o $(OF)/LSystem.o $(OF)/LSInterpreter.o
+STATIC_LIBS = $(LF)/LSystem.a $(LF)/EvalLib.a $(LF)/LSParser.a $(LF)/LSContainers.a
 
 test:  main.o $(STATIC_LIBS)
 	$(GCC) main.o $(STATIC_LIBS) -o test -ldl
@@ -10,23 +12,36 @@ test:  main.o $(STATIC_LIBS)
 main.o: main.cpp
 	$(GCC) -Wall main.cpp -c
 
-$(OUTFOLDER)/LSystem.a: $(OBJS)
-	ar rvs $(OUTFOLDER)/LSystem.a $(OBJS)
+$(LF)/EvalLib.a:
+	make -C ../Evaluator -f makefile
 
-LSInterpreter.o: LSInterpreter.cpp LSInterpreter.hpp LSystem.o
-	$(GCC) LSInterpreter.cpp -c
+$(LF)/LSParser.a:
+	make -C ../Parsing -f makefile
 
-LSystem.o: LSystem.cpp LSystem.hpp ParametricProduction.o
-	$(GCC) -DLOG_DEBUG_STDOUT LSystem.cpp -c
+$(LF)/LSContainers.a:
+	make -C ../Containers -f makefile
 
-ParametricProduction.o: ParametricProduction.hpp ParametricProduction.cpp Production.o $(OUTFOLDER)/EvalLib.a
-	$(GCC) ParametricProduction.cpp -c
+$(LF)/LSystem.a: $(OBJS)
+	ar rvs $@ $(OBJS)
 
-Production.o: Production.cpp Production.hpp VLSentence.o
-	$(GCC) Production.cpp -c
+$(OF)/LSInterpreter.o: LSInterpreter.cpp LSInterpreter.hpp LSystem.o
+	$(GCC) $< -c -o $@
 
-VLSentence.o: VLSentence.hpp VLSentence.cpp ../Lib/LSContainers.a
-	$(GCC) -D DEBUG VLSentence.cpp -c
+$(OF)/LSystem.o: LSystem.cpp LSystem.hpp ParametricProduction.o
+	$(GCC) $< -c -o $@
+
+$(OF)/ProductChooser.o: ProductChooser.cpp ProductChooser.hpp Production.o
+	$(GCC) $< -c -o $@
+
+$(OF)/ParametricProduction.o: ParametricProduction.cpp ParametricProduction.hpp\
+								 Production.o $(LF)/EvalLib.a
+	$(GCC) $< -c -o $@
+
+$(OF)/Production.o: Production.cpp Production.hpp VLSentence.o
+	$(GCC) $< -c -o $@
+
+$(OF)/VLSentence.o: VLSentence.cpp VLSentence.hpp $(LF)/LSContainers.a
+	$(GCC) $< -c -o $@
 
 clean:
-	rm *.o test $(OUTFOLDER)/LSystem.a
+	rm -f *.o $(OBJS) test $(LF)/LSystem.a

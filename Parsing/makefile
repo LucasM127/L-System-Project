@@ -1,23 +1,29 @@
+# $< - first dependency name   $@ - target name
 GCC = g++ -g -Wall
-OUTFOLDER = ../Lib
+OF = ../Obj
+LF = ../InternalLib
 #DEF = -D EVAL_DEBUG
-OBJS = LSFileParser.o ParsingFuncs.o
+OBJS = $(OF)/LSFileParser.o $(OF)/ParsingFuncs.o
 
 
-test: main.o $(OUTFOLDER)/LSParser.a
-	g++ -g -Wall main.o $(OUTFOLDER)/LSParser.a $(OUTFOLDER)/OstreamOperators.o -o test
+test: main.o $(LF)/LSParser.a
+	g++ -g -Wall main.o $(LF)/LSParser.a $(LF)/LSContainers.a -o test
 
 main.o: main.cpp
 	g++ -g -Wall main.cpp -c
 
-$(OUTFOLDER)/LSParser.a: $(OBJS)
-	ar rvs $(OUTFOLDER)/LSParser.a $(OBJS)
+$(LF)/LSParser.a: $(OBJS)
+	ar rvs $(LF)/LSParser.a $(OBJS)
 
-LSFileParser.o: LSFileParser.cpp LSFileParser.hpp
-	g++ -g -Wall LSFileParser.cpp -c
+$(LF)/LSContainers.a:
+	make -C ../Containers -f makefile
 
-ParsingFuncs.o: ParsingFuncs.cpp ParsingFuncs.hpp
-	g++ -g -Wall ParsingFuncs.cpp -c
+$(OF)/LSFileParser.o: LSFileParser.cpp LSFileParser.hpp ../Containers/LSFileData.hpp\
+						 ../Containers/ProductionData.hpp ParsingFuncs.o
+	$(GCC) $< -c -o $@
+
+$(OF)/ParsingFuncs.o: ParsingFuncs.cpp ParsingFuncs.hpp
+	$(GCC) $< -c -o $@
 
 clean:
-	rm *.o test $(OUTFOLDER)/LSParser.a
+	rm -f $(OBJS) main.o test $(LF)/LSParser.a

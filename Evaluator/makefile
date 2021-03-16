@@ -1,34 +1,42 @@
+# $< - first dependency name   $@ - target name
 GCC = g++ -g -Wall
-OUTFOLDER = ../Lib
-DEF = -D EVAL_DEBUG
-OBJS =  LibEvalLoader.o ShuntYardAlgorithm.o EvalOpMap.o Tokenize.o EvalLoader.o RPNToken.o
+OF = ../Obj
+LF = ../InternalLib
+#DEF = -D EVAL_DEBUG
+DEF=
+OBJS =  $(OF)/LibEvalLoader.o $(OF)/ShuntYardAlgorithm.o $(OF)/EvalOpMap.o\
+		 $(OF)/Tokenize.o $(OF)/EvalLoader.o $(OF)/RPNToken.o
 
-test: $(OUTFOLDER)/EvalLib.a test.o
-	$(GCC) test.o $(OBJS) $(OUTFOLDER)/LSParser.a -o test -ldl
+test: $(LF)/EvalLib.a $(LF)/LSParser.a test.o
+	$(GCC) test.o $(LF)/EvalLib.a $(LF)/LSParser.a -o test -ldl
 
-$(OUTFOLDER)/EvalLib.a: $(OBJS)
-	ar rvs $(OUTFOLDER)/EvalLib.a $(OBJS)
+test.o: test.cpp
+	$(GCC) $< -c -o $@
 
-test.o: test.cpp LibEvalLoader.o
-	$(GCC) test.cpp -c
+$(LF)/EvalLib.a: $(OBJS)
+	ar rvs $@ $(OBJS)
 
-LibEvalLoader.o: LibEvalLoader.hpp LibEvalLoader.cpp EvalLoader.o
-	$(GCC) LibEvalLoader.cpp -c
+$(LF)/LSParser.a:
+	make -C ../Parsing -f makefile
 
-ShuntYardAlgorithm.o: ShuntYardAlgorithm.cpp EvalLoader.o
-	$(GCC) $(DEF) ShuntYardAlgorithm.cpp -c
+$(OF)/LibEvalLoader.o: LibEvalLoader.cpp LibEvalLoader.hpp EvalLoader.o
+	$(GCC) $< -c -o $@
 
-EvalOpMap.o: EvalOpMap.cpp EvalLoader.o
-	$(GCC) $(DEF) EvalOpMap.cpp -c
+$(OF)/ShuntYardAlgorithm.o: ShuntYardAlgorithm.cpp EvalLoader.o
+	$(GCC) $(DEF) $< -c -o $@
 
-Tokenize.o: Tokenize.cpp EvalLoader.o
-	$(GCC) Tokenize.cpp -c
+$(OF)/EvalOpMap.o: EvalOpMap.cpp EvalLoader.o
+	$(GCC) $(DEF) $< -c -o $@
 
-EvalLoader.o: EvalLoader.cpp EvalLoader.hpp Evaluator.hpp ../Containers/VarIndice.hpp RPNToken.o
-	$(GCC) $(DEF) EvalLoader.cpp -c
+$(OF)/Tokenize.o: Tokenize.cpp EvalLoader.o $(LF)/LSParser.a
+	$(GCC) $< -c -o $@
 
-RPNToken.o: RPNToken.hpp RPNToken.cpp Numbers.hpp
-	$(GCC) RPNToken.cpp -c
+$(OF)/EvalLoader.o: EvalLoader.cpp EvalLoader.hpp Evaluator.hpp\
+					 ../Containers/VarIndice.hpp RPNToken.o
+	$(GCC) $(DEF) $< -c -o $@
+
+$(OF)/RPNToken.o: RPNToken.cpp RPNToken.hpp Numbers.hpp
+	$(GCC) $< -c -o $@
 
 clean:
-	rm *.o test $(OUTFOLDER)/EvalLib.a
+	rm -f *.o $(OBJS) test $(LF)/EvalLib.a

@@ -1,26 +1,28 @@
+# $< - first dependency name   $@ - target name
 GCC = g++ -g -Wall
-OUTFOLDER = ../Lib
+OF = ../Obj
+LF = ../InternalLib
 #DEF = -D EVAL_DEBUG
-OBJS = Alphabet.o LSentence.o OstreamOperators.o
+OBJS = $(OF)/Alphabet.o $(OF)/LSentence.o $(OF)/OstreamOperators.o
 
-test: test.o $(OUTFOLDER)/LSContainers.a
-	$(GCC) test.o $(OUTFOLDER)/LSContainers.a -o test
+test: main.o $(LF)/LSContainers.a
+	$(GCC) main.o $(OBJS) -o test
 
-test.o: test.cpp
-	$(GCC) test.cpp -c
+main.o: main.cpp
+	$(GCC) main.cpp -c
 
+$(LF)/LSContainers.a: $(OBJS)
+	ar rvs $@ $(OBJS)
 
-$(OUTFOLDER)/LSContainers.a: $(OBJS)
-	ar rvs $(OUTFOLDER)/LSContainers.a $(OBJS)
+$(OF)/OstreamOperators.o: OstreamOperators.cpp OstreamOperators.hpp\
+							 ProductionData.hpp Alphabet.hpp LSentence.hpp
+	$(GCC) $< -c -o $@
 
-OstreamOperators.o: OstreamOperators.hpp OstreamOperators.cpp ProductionData.hpp Alphabet.hpp LSentence.hpp
-	$(GCC) OstreamOperators.cpp -c
+$(OF)/LSentence.o: LSentence.cpp LSentence.hpp $(OF)/Alphabet.o
+	$(GCC) $< -c -o $@
 
-LSentence.o: LSentence.cpp LSentence.hpp Alphabet.o
-	$(GCC) LSentence.cpp -c
-
-Alphabet.o: Alphabet.cpp Alphabet.hpp
-	$(GCC) Alphabet.cpp -c
+$(OF)/Alphabet.o: Alphabet.cpp Alphabet.hpp
+	$(GCC) $< -c -o $@
 
 clean:
-	rm *.o test $(OUTFOLDER)/LSContainers.a
+	rm -f $(OBJS) test main.o $(LF)/LSContainers.a

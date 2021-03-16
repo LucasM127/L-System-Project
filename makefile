@@ -1,24 +1,26 @@
-STATIC_LIBS=Lib/LSystem.a Lib/EvalLib.a Lib/LSParser.a Lib/LSContainers.a
+LF=InternalLib
+STATIC_LIBS=($LF)/LSystem.a ($LF)/EvalLib.a ($LF)/LSParser.a ($LF)/LSContainers.a
 
 all: $(STATIC_LIBS)
-	ar rvs lsystem.a $(STATIC_LIBS)
+	ar rvs Lib/lsystem.a Obj/*.o
 
-Lib/LSystem.a: Lib/EvalLib.a
+($LF)/LSystem.a: ($LF)/EvalLib.a
 	make -C LSystem -f makefile
 
-Lib/EvalLib.a: Lib/LSParser.a
+($LF)/EvalLib.a: ($LF)/LSParser.a
 	make -C Evaluator -f makefile
 
-Lib/LSParser.a: Lib/LSContainers.a
+($LF)/LSParser.a: ($LF)/LSContainers.a
 	make -C Parsing -f makefile
 
-Lib/LSContainers.a:
+($LF)/LSContainers.a:
 	make -C Containers -f makefile
 
 clean:
 	make clean -C LSystem -f makefile
 	make clean -C Evaluator -f makefile
 	make clean -C Parsing -f makefile
-	rm *.o test
+	make clean -C Containers -f makefile
+	rm -f Lib/lsystem.a
 
 .PHONY: clean all
