@@ -69,7 +69,7 @@ bool isSkippable(char c, const std::set<char> &skippableLetters)
 
 bool ProductionContext::passLContext(const LSentence &lsentence, const unsigned int curLetterIndex)
 {
-    unsigned int i = lContext.size() - 1;
+    unsigned int i = lContext.size() - 1;//start at the right, go left
     int curLvl = 0;
     unsigned int curIndex = curLetterIndex;
     char curChar = lsentence[curIndex].id;
@@ -88,14 +88,17 @@ bool ProductionContext::passLContext(const LSentence &lsentence, const unsigned 
         }
         else if( (curChar == ']') || (curChar == '[') )
         {
-            if( curChar == ']' ) curLvl++;//skip over to left
+            if( curChar == ']' ) curLvl++;//skip over [] to left
             while(curLvl > 0)
             {
                 curIndex = lsentence.last(curIndex);
                 if(lsentence[curIndex].id == ']') curLvl++;
                 else if(lsentence[curIndex].id == '[') curLvl--;
             }
-            continue;//go past '['
+            if(curChar == '[' && curChar == lContext[i])//AM checking for beginning of branch, 'optional'
+                ;//is A MATCH
+            else
+                continue;//go past '['
         }
         else if(curChar != lContext[i]) return false;
         //passes checks so far
