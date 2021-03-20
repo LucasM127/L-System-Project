@@ -9,6 +9,7 @@
 //Example from
 //pdf "Modeling plant development with L-systems" pg 5
 //"L-system modeling the development of a vegetative segment ofAnabaena"
+//http://algorithmicbotany.org/papers/modeling-plant-development-with-l-systems.pdf
 
 //[][ ]
 class CellTurtle : public LSYSTEM::LSInterpreter
@@ -25,12 +26,12 @@ public:
         {
             assert(M.numVals == 1);
         }
-        if(M.id == 'L') //m_string.append("___");
+        if(M.id == 'L')
         {
             assert(M.numVals == 0);
             m_string.append("[ ]");
         }
-        if(M.id == 'S') //m_string.push_back('-');
+        if(M.id == 'S')
         {
             assert(M.numVals == 0);
             m_string.append("[]");
