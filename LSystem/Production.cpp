@@ -10,7 +10,7 @@ Product::Product(const std::string &_productString, float w) : product(_productS
 Product::Product(ParametricProduct *P, const std::string &_productString) : product(_productString) {}
 
 //non parametric
-void Product::apply(LSentence &lsentence, const float * V)
+void Product::apply(LSentence &lsentence, float * V)
 {
     for(auto c : product)
     {
@@ -18,9 +18,9 @@ void Product::apply(LSentence &lsentence, const float * V)
     }
 }
 
-bool Product::isValid(const float * V){return true;}
+bool Product::isValid(float * V){return true;}
 const float Product::getWeight(){return m_stochasticWeight;}
-const float Product::calcWeight(const float * V){return m_stochasticWeight;}
+const float Product::calcWeight(float * V){return m_stochasticWeight;}
 
 BasicProduction::BasicProduction(const std::vector<ProductData> &pds)
 {
@@ -95,9 +95,10 @@ bool ProductionContext::passLContext(const LSentence &lsentence, const unsigned 
                 if(lsentence[curIndex].id == ']') curLvl++;
                 else if(lsentence[curIndex].id == '[') curLvl--;
             }
-            if(curChar == '[' && curChar == lContext[i])//AM checking for beginning of branch, 'optional'
-                ;//is A MATCH
-            else
+            //Not sure if this makes sense though.
+            //if(curChar == '[' && curChar == lContext[i]))//AM checking for beginning of branch, 'optional'
+            //    ;//is A MATCH
+            //else
                 continue;//go past '['
         }
         else if(curChar != lContext[i]) return false;

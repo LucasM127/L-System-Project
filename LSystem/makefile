@@ -24,20 +24,20 @@ $(LF)/LSContainers.a:
 $(LF)/LSystem.a: $(OBJS)
 	ar rvs $@ $(OBJS)
 
-$(OF)/LSInterpreter.o: LSInterpreter.cpp LSInterpreter.hpp LSystem.o
+$(OF)/LSInterpreter.o: LSInterpreter.cpp LSInterpreter.hpp $(OF)/LSystem.o
 	$(GCC) $< -c -o $@
 
-$(OF)/LSystem.o: LSystem.cpp LSystem.hpp ParametricProduction.o
+$(OF)/LSystem.o: LSystem.cpp LSystem.hpp $(OF)/ParametricProduction.o
 	$(GCC) $< -c -o $@
 
-$(OF)/ProductChooser.o: ProductChooser.cpp ProductChooser.hpp Production.o
+$(OF)/ProductChooser.o: ProductChooser.cpp ProductChooser.hpp $(OF)/Production.o
 	$(GCC) $< -c -o $@
 
 $(OF)/ParametricProduction.o: ParametricProduction.cpp ParametricProduction.hpp\
-								 Production.o $(LF)/EvalLib.a
+								 $(OF)/Production.o $(LF)/EvalLib.a
 	$(GCC) $< -c -o $@
 
-$(OF)/Production.o: Production.cpp Production.hpp VLSentence.o
+$(OF)/Production.o: Production.cpp Production.hpp $(OF)/VLSentence.o
 	$(GCC) $< -c -o $@
 
 $(OF)/VLSentence.o: VLSentence.cpp VLSentence.hpp $(LF)/LSContainers.a

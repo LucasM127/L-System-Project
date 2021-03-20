@@ -21,13 +21,13 @@ ParametricProduct::ParametricProduct(const ProductData &pd, const Alphabet &pnm,
         m_stochasticWeight = stochasticWeightEvaluator->evaluate(nullptr);
 }
 
-const float ParametricProduct::calcWeight(const float * V)
+const float ParametricProduct::calcWeight(float * V)
 {
     m_stochasticWeight = stochasticWeightEvaluator->evaluate(V);
     return m_stochasticWeight;
 }
 
-bool ParametricProduct::isValid(const float * V)
+bool ParametricProduct::isValid(float * V)
 {
     return (bool)conditionalEvaluator->evaluate(V);
 }
@@ -47,7 +47,7 @@ void ParametricProduct::createProductEvaluations(const ProductData& pd, EVAL::Lo
     }
 }
 
-void ParametricProduct::apply(LSentence &lsentence, const float * V)
+void ParametricProduct::apply(LSentence &lsentence, float * V)
 {
     for(unsigned int i = 0;i<product.size();++i)
     {

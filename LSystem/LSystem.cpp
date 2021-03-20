@@ -1,32 +1,41 @@
 #include "LSystem.hpp"
 
 #include "../Evaluator/LibEvalLoader.hpp"
+//just include parsing here???
+#include "../Parsing/ProductionParser.hpp"
 
 namespace LSYSTEM
 {
 
 //need to add if can't find...????
-LSystem::LSystem(const LSystemData &lsData) : alphabet(lsData.abc), skippableLetters(lsData.skippableLetters),
-                                                m_evalLoader(nullptr), m_maxDepth(0), m_maxWidth(0)
+LSystem::LSystem(const LSData &lsData)// : alphabet(lsData.abc), skippableLetters(lsData.skippableLetters),
+                                        //        m_evalLoader(nullptr), 
+                                        : m_maxDepth(0), m_maxWidth(0)
 {
-    for(auto &pair : alphabet)
+    LSDataParser lsdp;
+    lsdp.parse(lsData);
+    m_alphabet = std::move(lsdp.alphabet);
+    m_skippableLetters = std::move(lsdp.skippableLetters);
+
+    //calculate size of containers needed to hold variables
+    for(auto &pair : m_alphabet)
     {
         if(pair.second > m_maxDepth)
         {
             m_maxDepth = pair.second;
         }
     }
-    for(const ProductionData &pd : lsData.productionDatas)
+    for(const ProductionData &pd : lsdp.productionDatas)
     {
         unsigned int contextSize = pd.lContext.size() + 1 + pd.rContext.size();
         if(contextSize > m_maxWidth) m_maxWidth = contextSize;
     }
-    for(const ProductionData &pd : lsData.decompositionProductionDatas)
+    for(const ProductionData &pd : lsdp.decompositionProductionDatas)
     {
         unsigned int contextSize = pd.lContext.size() + 1 + pd.rContext.size();
         if(contextSize > m_maxWidth) m_maxWidth = contextSize;
     }
-    for(const ProductionData &pd : lsData.homomorphicProductionDatas)
+    for(const ProductionData &pd : lsdp.homomorphicProductionDatas)
     {
         unsigned int contextSize = pd.lContext.size() + 1 + pd.rContext.size();
         if(contextSize > m_maxWidth) m_maxWidth = contextSize;
@@ -36,12 +45,12 @@ LSystem::LSystem(const LSystemData &lsData) : alphabet(lsData.abc), skippableLet
     if(isSimple)
     {
         BasicProduction *tempProduction = nullptr;
-        for(const ProductionData &productionData : lsData.productionDatas)
+        for(const ProductionData &productionData : lsdp.productionDatas)
         {
             try
             {
                 if(productionData.lContext.size()||productionData.rContext.size())
-                    tempProduction = new Production(productionData.products, alphabet, productionData.lContext, productionData.rContext, skippableLetters);
+                    tempProduction = new Production(productionData.products, m_alphabet, productionData.lContext, productionData.rContext, m_skippableLetters);
                 else
                     tempProduction = new BasicProduction(productionData.products);
             }
@@ -54,7 +63,7 @@ LSystem::LSystem(const LSystemData &lsData) : alphabet(lsData.abc), skippableLet
             }
             m_productionMap[productionData.letter[0]].push_back(tempProduction);
         }
-        for(const ProductionData &productionData : lsData.decompositionProductionDatas)
+        for(const ProductionData &productionData : lsdp.decompositionProductionDatas)
         {
             try {tempProduction = new BasicProduction(productionData.products);}
             catch(std::exception& e)
@@ -69,7 +78,7 @@ LSystem::LSystem(const LSystemData &lsData) : alphabet(lsData.abc), skippableLet
         }
 
         //non contextual by definition (?)
-        for(const ProductionData &productionData : lsData.homomorphicProductionDatas)
+        for(const ProductionData &productionData : lsdp.homomorphicProductionDatas)
         {
             try {tempProduction = new BasicProduction(productionData.products);}
             catch(std::exception& e)
@@ -89,14 +98,14 @@ LSystem::LSystem(const LSystemData &lsData) : alphabet(lsData.abc), skippableLet
         m_evalLoader->init();
 
         BasicParametricProduction *tempProduction = 0;
-        for(const ProductionData &productionData : lsData.productionDatas)
+        for(const ProductionData &productionData : lsdp.productionDatas)
         {
             try
             {
                 if(productionData.lContext.size()||productionData.rContext.size())
-                    tempProduction = new ParametricProduction(productionData, alphabet, skippableLetters, *m_evalLoader, m_maxDepth);
+                    tempProduction = new ParametricProduction(productionData, m_alphabet, m_skippableLetters, *m_evalLoader, m_maxDepth);
                 else
-                    tempProduction = new BasicParametricProduction(productionData, alphabet, *m_evalLoader, m_maxDepth);
+                    tempProduction = new BasicParametricProduction(productionData, m_alphabet, *m_evalLoader, m_maxDepth);
             }
             catch(std::exception& e)
             {
@@ -109,9 +118,9 @@ LSystem::LSystem(const LSystemData &lsData) : alphabet(lsData.abc), skippableLet
         }
 
         //non contextual by definition (?)
-        for(const ProductionData &productionData : lsData.decompositionProductionDatas)
+        for(const ProductionData &productionData : lsdp.decompositionProductionDatas)
         {
-            try {tempProduction = new BasicParametricProduction(productionData, alphabet, *m_evalLoader, m_maxDepth);}
+            try {tempProduction = new BasicParametricProduction(productionData, m_alphabet, *m_evalLoader, m_maxDepth);}
             catch(std::exception& e)
             {
                 for(auto pMap : m_decompositionMap)
@@ -124,9 +133,9 @@ LSystem::LSystem(const LSystemData &lsData) : alphabet(lsData.abc), skippableLet
         }
 
         //non contextual by definition (?)
-        for(const ProductionData &productionData : lsData.homomorphicProductionDatas)
+        for(const ProductionData &productionData : lsdp.homomorphicProductionDatas)
         {
-            try {tempProduction = new BasicParametricProduction(productionData, alphabet, *m_evalLoader, m_maxDepth);}
+            try {tempProduction = new BasicParametricProduction(productionData, m_alphabet, *m_evalLoader, m_maxDepth);}
             catch(std::exception& e)
             {
                 for(auto pMap : m_homomorphismMap)
@@ -150,10 +159,10 @@ LSystem::~LSystem()
 }
 
 void LSystem::iterate(const VLSentence &oldSentence, VLSentence &newSentence)
-{
-    if(!compatible(oldSentence.m_alphabet, alphabet))
+{//try catch throw???
+    if(!compatible(oldSentence.m_alphabet, m_alphabet))
         throw std::runtime_error("LSentence Incompatible with production alphabet");
-    combine(alphabet, newSentence.m_alphabet);
+    combine(m_alphabet, newSentence.m_alphabet);
 
     const LSentence &oldLSentence = oldSentence.m_lsentence;
     LSentence &newLSentence = newSentence.m_lsentence;
@@ -162,8 +171,8 @@ void LSystem::iterate(const VLSentence &oldSentence, VLSentence &newSentence)
 
     for(uint i = 0; i < oldLSentence.size(); i = oldLSentence.next(i))
     {
-//        applyCut(oldSentence,newSentence, curIndex);
-//        if(curIndex >= oldSentence.lstring.size()) break;
+        applyCut(oldLSentence, i);
+        if(i >= oldLSentence.size()) break;
         tempSentence.clear();
         applyProduct(oldLSentence, tempSentence, i, m_productionMap, m_valArray);
         decompose(tempSentence, newLSentence, m_valArray);
@@ -172,9 +181,9 @@ void LSystem::iterate(const VLSentence &oldSentence, VLSentence &newSentence)
 
 void LSystem::interpret(VLSentence &vlsentence, LSInterpreter &I, LSReinterpreter &R)
 {
-    if(!compatible(vlsentence.m_alphabet, alphabet))
+    if(!compatible(vlsentence.m_alphabet, m_alphabet))
         throw;
-    combine(alphabet, vlsentence.m_alphabet);
+    combine(m_alphabet, vlsentence.m_alphabet);
 
     R.contract(vlsentence);
 
@@ -195,9 +204,9 @@ void LSystem::interpret(VLSentence &vlsentence, LSInterpreter &I, LSReinterprete
 
 void LSystem::interpret(VLSentence &vlsentence, LSInterpreter &I)
 {
-    if(!compatible(vlsentence.m_alphabet, alphabet))
+    if(!compatible(vlsentence.m_alphabet, m_alphabet))
         throw;
-    combine(alphabet, vlsentence.m_alphabet);
+    combine(m_alphabet, vlsentence.m_alphabet);
 
     I.reset();
 
@@ -215,9 +224,9 @@ void LSystem::interpret(VLSentence &vlsentence, LSInterpreter &I)
 
 void LSystem::contract(LSYSTEM::VLSentence &vlsentence)
 {
-    if(!compatible(alphabet, vlsentence.m_alphabet))
+    if(!compatible(m_alphabet, vlsentence.m_alphabet))
         throw std::runtime_error("Incompatible alphabets");
-    combine(alphabet, vlsentence.m_alphabet);
+    combine(m_alphabet, vlsentence.m_alphabet);
 }
 
 Product* LSystem::findMatch(const unsigned int i, const LSentence &refLS, std::unordered_map<char, std::vector<BasicProduction*> > &productionMap, float *V)
@@ -265,13 +274,28 @@ void LSystem::applyProduct(const LSentence &oldSentence, LSentence &newSentence,
     catch (std::exception &e) {throw e;}
 }
 
-//void LSystem::applyCut(const LSentence &lsentence, LSentence &lsentence, unsigned int &curIndex)
-//{}
-
-/*THIS CODE IS JUST WRONG... I can create a seperate function for removing 'empty' brackets later,
+void LSystem::applyCut(const LSentence &oldLSentence, unsigned int &curIndex)
+{
+    char c = oldLSentence[curIndex].id;
+    if(c != '%') return;
+    int curLvl = 0;
+    while ((curIndex = oldLSentence.next(curIndex)) < oldLSentence.size())
+    {
+        c = oldLSentence[curIndex].id;
+        if(c == '[') curLvl++;
+        if(c == ']' && curLvl == 0) break;
+        if(c == ']') curLvl--;
+    }
+    //curIndex = oldLSentence.next(curIndex);
+    //cur Index resumes after the 'brackets' need to check validity though
+    return;
+}
+/*
+//THIS CODE IS JUST WRONG... I can create a seperate function for removing 'empty' brackets later,
 //but they may be needed later
 void LSystem::applyCut(const LSentence &LString, LSentence &LString, unsigned int &curIndex)
 {
+    //just no skip letters
     char c = oldSentence[curIndex].id;
     bool poppedBack = false;
     if(c != '%') return;

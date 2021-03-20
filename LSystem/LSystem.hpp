@@ -18,16 +18,14 @@ typedef std::unordered_map<char, std::vector<BasicProduction*> > ProductionMap;
 class LSystem
 {
 public:
-    LSystem(const LSystemData &lsData);
+    LSystem(const LSData &lsData);
+    //LSystem(const LSystemData &lsData);
     ~LSystem();
     void iterate(const VLSentence &sentence, VLSentence &newSentence);
     void interpret(VLSentence &sentence, LSInterpreter &I, LSReinterpreter &R);
     void interpret(VLSentence &sentence, LSInterpreter &I);
-
-    const Alphabet alphabet;//can't use a conflicting alphabet or the productions may try to write to a non-existant parameter
-    const std::set<char> skippableLetters;//for context matching, cut symbol cut off branch?
 private:
-    //void applyCut(const LSentence &oldSentence, LSentence &newSentence, unsigned int &i);
+    void applyCut(const LSentence &oldSentence, unsigned int &i);
     Product * findMatch(const unsigned int i, const LSentence &refLS, std::unordered_map<char, std::vector<BasicProduction*> > &productionMap, float *V);
     void applyProduct(const LSentence &oldSentence, LSentence &newSentence, unsigned int &curIndex,
                                 std::unordered_map<char, std::vector<BasicProduction*> > &productMap, float *V);
@@ -41,6 +39,9 @@ private:
     std::unordered_map<char, std::vector<BasicProduction*> > m_homomorphismMap;
 
     void contract(LSYSTEM::VLSentence &vlsentence);
+
+    Alphabet m_alphabet;//can't use a conflicting alphabet or the productions may try to write to a non-existant parameter
+    std::set<char> m_skippableLetters;//for context matching, cut symbol cut off branch?
 
     EVAL::Loader *m_evalLoader;//not necessarily 'owned' though is atm
     unsigned int m_maxDepth, m_maxWidth;//smallest dimensions of m_valArray to prevent access violations

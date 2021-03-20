@@ -19,10 +19,10 @@ public:
     Product(const std::string &productString, float w = 1.f);
     Product(ParametricProduct *P, const std::string &_productString);
     virtual ~Product(){}
-    virtual void apply(LSentence &lsentence, const float * V = nullptr);
-    virtual bool isValid(const float * V);
+    virtual void apply(LSentence &lsentence, float * V = nullptr);
+    virtual bool isValid(float * V);
     const float getWeight();
-    virtual const float calcWeight(const float * V);
+    virtual const float calcWeight(float * V);
     const std::string product;
 protected:
     float m_stochasticWeight;

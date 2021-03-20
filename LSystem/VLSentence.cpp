@@ -1,5 +1,7 @@
 #include "VLSentence.hpp"
 
+#include "../Parsing/LSParseFuncs.hpp"
+
 namespace LSYSTEM
 {
 
@@ -7,14 +9,18 @@ VLSentence::VLSentence() {}
 
 VLSentence::VLSentence(const std::string &string)
 {
-    parse(string);
+    //parse(string);
+    m_lsentence = loadLSentence(string);
+    validate();
 }
 
 void VLSentence::operator=(const std::string &string)
 {
     m_alphabet.clear();
     m_lsentence.clear();
-    parse(string);
+    //parse(string);
+    m_lsentence = loadLSentence(string);
+    validate();
 }
 
 const L32 &VLSentence::operator[](const uint i) const
@@ -31,10 +37,22 @@ void VLSentence::clear()
 const Alphabet &VLSentence::getAlphabet() const {return m_alphabet;}
 const LSentence &VLSentence::getLSentence() const {return m_lsentence;}
 
+void VLSentence::validate()
+{
+    m_alphabet.clear();
+    for(uint i = 0; i < m_lsentence.size(); i = m_lsentence.next(i))
+    {
+        LModule M(m_lsentence, i);
+        if(m_alphabet.find(M.id) != m_alphabet.end() && m_alphabet.at(M.id) != M.numVals)
+            throw std::runtime_error("Invalid LSentence");
+        m_alphabet[M.id] = M.numVals;
+    }
+}
+
 } //namespace LSYSTEM
-
+/*
 #include "../Parsing/ParsingFuncs.hpp"
-
+//THINKING
 void LSYSTEM::VLSentence::parse(const std::string &string)
 {
     uint i = -1;
@@ -78,4 +96,4 @@ void LSYSTEM::VLSentence::parse(const std::string &string)
             throw std::runtime_error("Uneven number of parameters for letter '"+std::string(&c,1)+"'");
         m_alphabet[c] = numParams;
     }
-}
+}*/

@@ -25,10 +25,10 @@ VariableStochasticProductChooser::VariableStochasticProductChooser(std::vector<P
 VariableStochasticConditionalProductChooser::VariableStochasticConditionalProductChooser(std::vector<Product*>& pds):ProductChooser(pds)
 {}
 
-Product* ProductChooser::choose(const float *V){return products[0];}
+Product* ProductChooser::choose(float *V){return products[0];}
 
 //total is constant...
-Product* StochasticProductChooser::choose(const float *V)
+Product* StochasticProductChooser::choose(float *V)
 {   
     float randomNum = (float(rand())/float(RAND_MAX))*m_weightTotal;
     float runningTotal = 0.f;
@@ -41,13 +41,13 @@ Product* StochasticProductChooser::choose(const float *V)
 }
 
 
-Product* ConditionalProductChooser::choose(const float *V)
+Product* ConditionalProductChooser::choose(float *V)
 {
     if(products[0]->isValid(V)) return products[0];
     return nullptr;
 }
 //weights cannot be 'zero or negative'
-Product* StochasticConditionalProductChooser::choose(const float *V)
+Product* StochasticConditionalProductChooser::choose(float *V)
 {
     m_validProducts.clear();
     float runningTotal = 0;
@@ -70,7 +70,7 @@ Product* StochasticConditionalProductChooser::choose(const float *V)
     return nullptr;
 }
 
-Product* VariableStochasticProductChooser::choose(const float *V)
+Product* VariableStochasticProductChooser::choose(float *V)
 {
     float runningTotal = 0;
     for(Product *P : products) runningTotal += P->calcWeight(V);
@@ -85,7 +85,7 @@ Product* VariableStochasticProductChooser::choose(const float *V)
     return nullptr;
 }
 
-Product* VariableStochasticConditionalProductChooser::choose(const float *V)
+Product* VariableStochasticConditionalProductChooser::choose(float *V)
 {
     m_validProducts.clear();
     float runningTotal = 0;

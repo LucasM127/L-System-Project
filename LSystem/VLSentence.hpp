@@ -21,7 +21,8 @@ public:
     const Alphabet &getAlphabet() const;
     const LSentence &getLSentence() const;
 private:
-    void parse(const std::string &string);
+    //void parse(const std::string &string);
+    void validate();
     Alphabet m_alphabet;
     LSentence m_lsentence;
 };
