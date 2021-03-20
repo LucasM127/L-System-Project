@@ -428,17 +428,18 @@ void Loader::simplifyUnary(RPNList& rpnList)
     if(!numToken.isConst)
         return;
 
-    m_floatStack.push(numToken.value);
+    uint top = 0;
+    m_floatStack[top++] = numToken.value;//.push(numToken.value);
     size_t i = 1;
     for(; i < rpnList.size(); ++i)
     {
         RPNToken & nextPop = rpnList[i];
         char nextOp = nextPop.token;
         if(nextOp == 9) break;//random op. Any future pops will no longer be const
-        unaryOpMap[nextOp](m_floatStack);
+        unaryOpMap[nextOp](m_floatStack,top);
     }
-    float number = m_floatStack.top();
-    m_floatStack.pop();
+    float number = m_floatStack[0];//.top();
+    //m_floatStack.pop();
 
     rpnList.erase(rpnList.begin()+1, rpnList.begin()+i);//dont erase random op
     
@@ -478,11 +479,12 @@ void Loader::simplifyFunc(RPNList& rpnList)
     opFnPtr fnPtr = funcOpMap.at(rpnList[2].token);
     float lhs = rpnList[0].value;
     float rhs = rpnList[1].value;
-    m_floatStack.push(lhs);
-    m_floatStack.push(rhs);
-    fnPtr(m_floatStack);
-    float result = m_floatStack.top();
-    m_floatStack.pop();
+    uint top = 0;
+    m_floatStack[top++] = lhs;//.push(lhs);
+    m_floatStack[top++] = rhs;//.push(rhs);
+    fnPtr(m_floatStack, top);
+    float result = m_floatStack[0];//.top();
+    //m_floatStack.pop();
     rpnList.resize(1);
     rpnList[0] = RPNToken(result);
 }
@@ -538,12 +540,13 @@ void Loader::simplifyBinary(RPNList& rpnList)
         {
             rhsIt = lhsIt+1;
             rhsNumPtr = &nextToken;
-            m_floatStack.push(lhsNumPtr->value);
-            m_floatStack.push(rhsNumPtr->value);
+            uint top = 0;
+            m_floatStack[top++] = lhsNumPtr->value;//.push(lhsNumPtr->value);
+            m_floatStack[top++] = rhsNumPtr->value;//.push(rhsNumPtr->value);
             //int opIt = rpnList.size() - rhsIt;//but as all are ^ no matter
-            binaryOpMap['^'](m_floatStack);
-            float number = m_floatStack.top();
-            m_floatStack.pop();
+            binaryOpMap['^'](m_floatStack,top);
+            float number = m_floatStack[0];//.top();
+            //m_floatStack.pop();
             //erase rhs and pop
             rpnList.erase(rpnList.begin() + rhsIt);
             rpnList.pop_back();
@@ -560,12 +563,13 @@ void Loader::simplifyBinary(RPNList& rpnList)
             return;
         //can simplify!
         rhsNumPtr = &rpnList[rhsIt];
-        m_floatStack.push(lhsNumPtr->value);
-        m_floatStack.push(rhsNumPtr->value);
+        uint top = 0;
+        m_floatStack[top++] = lhsNumPtr->value;//.push(lhsNumPtr->value);
+        m_floatStack[top++] = rhsNumPtr->value;//.push(rhsNumPtr->value);
         char op = rpnList[rhsIt+1].token;
-        binaryOpMap[op](m_floatStack);
-        float number = m_floatStack.top();
-        m_floatStack.pop();
+        binaryOpMap[op](m_floatStack,top);
+        float number = m_floatStack[0];//.top();
+        //m_floatStack.pop();
         rpnList.erase(rpnList.begin() + rhsIt, rpnList.begin() + rhsIt + 2);
         rpnList[lhsIt].value = number;
     }

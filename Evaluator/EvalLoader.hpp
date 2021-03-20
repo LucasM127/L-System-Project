@@ -54,7 +54,8 @@ protected:
     void simplifyUnary(RPNList& rpnList);
     void simplifyFunc(RPNList& rpnList);
     void distribute(RPNList &rpnList, int complexIt);
-    std::stack<float> m_floatStack;
+    //std::stack<float> m_floatStack;
+    float m_floatStack[2];//just for simplifies only two operands
 
     std::stack< RPNList > m_rpnListStack;
 
@@ -64,7 +65,15 @@ protected:
 class RuntimeLoader : public Loader
 {
 public:
+    RuntimeLoader();
     Evaluator* load(const std::string &expression, const VarIndiceMap &varMap, int maxVarDepth, const std::string &comment) override;
+    void setOffset(uint offset);
+    uint getMaxStackSz();
+private:
+    uint m_offset;
+    uint m_maxStackSz;
+
+    uint getMaxStackSz(const RPNList &rpnlist);
 };
 
 }//namespace EVAL

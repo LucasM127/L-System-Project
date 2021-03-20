@@ -18,7 +18,8 @@ namespace EVAL
 
 struct RPNToken;
 
-typedef void(*opFnPtr)(std::stack<float>&);
+//typedef void(*opFnPtr)(std::stack<float>&);
+typedef void(*opFnPtr)(float*, uint&);
 typedef std::vector<RPNToken> RPNList;
 
 extern const bool OP;

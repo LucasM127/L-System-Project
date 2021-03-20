@@ -34,7 +34,7 @@ class LibPtrEvaluator : public Evaluator
 {
 public:
     LibPtrEvaluator(const std::string exp, const std::string &func_sig);
-    float evaluate(const float *v) override;
+    float evaluate(float *v) override;
     void load(void *soLibHandle);
 private:
     const std::string m_func_sig;

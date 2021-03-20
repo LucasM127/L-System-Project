@@ -2,6 +2,8 @@
 #include <iostream>
 #include <string>
 #include <cmath>
+
+#include <chrono>
 //#define VAR false,false
 //#define OP  true,false
 //#define NUM false,true
@@ -9,7 +11,48 @@
 int main()
 {
     srand(time(NULL));
-    /*
+    
+    std::string exp="(x+1)(x-1)";
+    std::map<char, VarIndice> varMap =
+    {
+        {'x',{0,0}}
+    };
+
+    uint numVals = 1;
+    float x_val = 4.f;
+    
+    EVAL::RuntimeLoader evR;
+    evR.setOffset(numVals);
+
+    evR.init();
+    
+    EVAL::Evaluator *evalR = evR.load(exp, varMap, 1, "foo");
+    evR.generate();
+
+    uint stackSz = evR.getMaxStackSz();
+    float *V = new float[numVals + stackSz];
+    V[0] = x_val;
+
+    auto start = std::chrono::high_resolution_clock::now();
+
+//    V[0] = rand()%100;
+//while(true){
+    float n;
+    for(uint i = 0; i < 100000; ++i)
+    n = evalR->evaluate(V);
+//}
+//    while(true)
+//        evalR->evaluate(V);
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = end - start;
+    std::cout<<n<<" is answer duration "<<duration.count()<<"\n";
+    std::cout<<"Max stack size was "<<stackSz<<"\n";
+    evR.close();
+
+    return 0;
+}
+
+/*
     //5x+4sin(30x)
     RPNList rpnList = 
     {
@@ -27,33 +70,3 @@ int main()
         RPNToken('+',OP)//true,false),
     };
 */
-
-//    std::string exp="5.2+3sin(0.7x)";
-    std::string exp="10+rand()%x";//"x>70&&x<100";
-    std::map<char, VarIndice> varMap =
-    {
-        {'x',{0,0}}
-    };
-
-    float V[1] = {2.f};
-    exp = "2cos(90)";
-    exp = "max (3max(1,2), max(3, 4))";//"max(4max(3,2),10+1)";
-    //exp = "2(1+4)";
-    EVAL::RuntimeLoader evR;
-//    LibEvalLoader evR;
-    evR.init();
-    
-    EVAL::Evaluator *evalR = evR.load(exp, varMap, 1, "foo");
-    evR.generate();
-
-    float n = evalR->evaluate(V);
-    std::cout<<n<<" is answer\n";
-    n = evalR->evaluate(V);
-    std::cout<<n<<" is answer\n";
-    n = evalR->evaluate(V);
-    std::cout<<n<<" is answer\n";
-    
-    evR.close();
-
-    return 0;
-}

@@ -138,7 +138,7 @@ std::string LibLoader::convertToCode(const RPNList &rpnList)
 LibPtrEvaluator::LibPtrEvaluator(const std::string exp, const std::string &func_sig) : Evaluator(exp, false), m_func_sig(func_sig)
 {}
 
-float LibPtrEvaluator::evaluate(const float *v)
+float LibPtrEvaluator::evaluate(float *v)
 {
     return (*m_funcPtr)(v);
 }

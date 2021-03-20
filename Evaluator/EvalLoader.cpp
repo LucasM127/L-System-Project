@@ -31,6 +31,9 @@ Evaluator* RuntimeLoader::load(const std::string &expression, const VarIndiceMap
         m_evaluators.push_back(retEvalPtr);
         return retEvalPtr;
     }
+    //Is a complex expression...
+    uint stackSz = getMaxStackSz(rpnList);//before conversion occurs but after simplified/expanded
+    if(stackSz > m_maxStackSz) m_maxStackSz = stackSz;
     //convert from id values to actual implementations
     for(auto &T : rpnList)
     {
@@ -51,7 +54,7 @@ Evaluator* RuntimeLoader::load(const std::string &expression, const VarIndiceMap
                 T.numPtr = new LVariable(varMap.at(T.token),maxVarDepth);
         }
     }
-    retEvalPtr = new ComplexEvaluator(expression, rpnList);
+    retEvalPtr = new ComplexEvaluator(expression, rpnList, m_offset);
     LOG("New complex eval for exp: ",expression);
     m_evaluators.emplace_back(retEvalPtr);
     return retEvalPtr;
@@ -88,6 +91,38 @@ void Loader::simplify()
 void Loader::expand(RPNList &target)
 {
     expand(m_rpnListStack.top(), target);
+}
+
+RuntimeLoader::RuntimeLoader():Loader(), m_offset(0), m_maxStackSz(0){}
+
+void RuntimeLoader::setOffset(uint offset)
+{
+    m_offset = offset;
+}
+
+uint RuntimeLoader::getMaxStackSz()
+{
+    return m_maxStackSz;
+}
+
+uint RuntimeLoader::getMaxStackSz(const RPNList &rpnlist)
+{
+    uint maxSz = 0;
+    uint curSz = 0;
+    for(auto T : rpnlist)
+    {
+        if(!T.isOp)
+        {
+            ++curSz;
+            if(curSz > maxSz) maxSz = curSz;
+        }
+        else
+        {
+            if(!isUnary(T.token))
+                --curSz;//currently only supports 2 parameters.. would be more if a function, but overkill is ok for now.
+        }
+    }
+    return maxSz;
 }
 
 } //namespace EVAL

@@ -134,6 +134,185 @@ std::map<char,opFnPtr> Loader::funcOpMap =
 };
 //Map reverse map??? Function -> opPrority
 
+void Evaluator::add(float *stackVals, uint &top)// '+'
+{
+    --top;
+    float rhs = stackVals[top];
+    float lhs = stackVals[top-1];
+    LOG("Adding ", lhs, " and ", rhs);
+    stackVals[top-1] = lhs + rhs;
+}
+
+void Evaluator::subtract(float *stackVals, uint &top)//-
+{
+    --top;
+    float rhs = stackVals[top];
+    float lhs = stackVals[top-1];
+    LOG("Subtracting ", lhs, " and ", rhs);
+    stackVals[top-1] = lhs - rhs;
+}
+
+void Evaluator::multiply(float *stackVals, uint &top)//*
+{
+    --top;
+    float rhs = stackVals[top];
+    float lhs = stackVals[top-1];
+    LOG("Multiplying ", lhs, " and ", rhs);
+    stackVals[top-1] = lhs * rhs;
+}
+
+void Evaluator::divide(float *stackVals, uint &top)// /
+{
+    --top;
+    float rhs = stackVals[top];
+    float lhs = stackVals[top-1];
+    LOG("Dividing ", lhs, " and ", rhs);
+    //if(rhs = 0.f) numberStack.push
+    stackVals[top-1] = lhs / rhs;
+}
+
+void Evaluator::raiseByExponent(float *stackVals, uint &top)//^
+{
+    --top;
+    float rhs = stackVals[top];
+    float lhs = stackVals[top-1];
+    LOG("Raising ", lhs, " to the power of ", rhs);
+    stackVals[top-1] = powf(lhs,rhs);
+}
+
+void Evaluator::sin(float *stackVals, uint &top)//S
+{
+    float num = stackVals[top-1];
+    LOG("Taking the sin of ", num);
+    stackVals[top-1] = sinf(num * DegToRad);
+}
+
+void Evaluator::cos(float *stackVals, uint &top)//C
+{
+    float num = stackVals[top-1];
+    LOG("Taking the cos of ", num);
+    stackVals[top-1] = cosf(num * DegToRad);
+}
+
+void Evaluator::tan(float *stackVals, uint &top)//T
+{
+    float num = stackVals[top-1];
+    LOG("Taking the tan of ", num);
+    stackVals[top-1] = tanf(num * DegToRad);
+}//use op ... command style ?
+
+void Evaluator::cosecant(float *stackVals, uint &top)//S
+{
+    float num = stackVals[top-1];
+    LOG("Taking the cosecant of ", num);
+    stackVals[top-1] = asinf(num * DegToRad);
+}
+//abs() |x|
+
+void Evaluator::secant(float *stackVals, uint &top)//C
+{
+    float num = stackVals[top-1];
+    LOG("Taking the secant of ", num);
+    stackVals[top-1] = acosf(num * DegToRad);
+}
+
+void Evaluator::cotangent(float *stackVals, uint &top)//T
+{
+    float num = stackVals[top-1];
+    LOG("Taking the cotangent of ", num);
+    stackVals[top-1] = atanf(num * DegToRad);
+}
+
+void Evaluator::random(float *stackVals, uint &top)//R
+{
+    float num = stackVals[top-1];
+    LOG("Rand ", num);
+    float r = float(rand())/float(RAND_MAX) * num;
+    stackVals[top-1] = roundf(r);
+}
+
+
+void Evaluator::negate(float *stackVals, uint &top)// _0
+{
+    float num = stackVals[top-1];
+    LOG("Negating ", num);
+    stackVals[top-1] = -num;
+}
+
+//fix with more float friendly functions later
+void Evaluator::testIfEqual(float *stackVals, uint &top)//=
+{
+    --top;
+    float rhs = stackVals[top];
+    float lhs = stackVals[top-1];
+    LOG("Testing if ", lhs, " equals ", rhs);
+    stackVals[top-1] = (roundf(lhs) == roundf(rhs)) ? 1 : 0;
+}
+
+void Evaluator::testIfGreaterThan(float *stackVals, uint &top)//>
+{
+    --top;
+    float rhs = stackVals[top];
+    float lhs = stackVals[top-1];
+    LOG("Testing if ", lhs, " is greater than ", rhs);
+    stackVals[top-1] = (roundf(lhs) > roundf(rhs)) ? 1 : 0;
+}
+
+void Evaluator::testIfLessThan(float *stackVals, uint &top)//<
+{
+    --top;
+    float rhs = stackVals[top];
+    float lhs = stackVals[top-1];
+    LOG("Testing if ", lhs, " is less than ", rhs);
+    stackVals[top-1] = (roundf(lhs) < roundf(rhs)) ? 1 : 0;
+}
+
+void Evaluator::testIfGreaterOrEqualThan(float *stackVals, uint &top)
+{
+    --top;
+    float rhs = stackVals[top];
+    float lhs = stackVals[top-1];
+    LOG("Testing if ", lhs, " is greater or equal to ", rhs);
+    stackVals[top-1] = (roundf(lhs) >= roundf(rhs)) ? 1 : 0;
+}
+
+void Evaluator::testIfLessThanOrEqual(float *stackVals, uint &top)
+{
+    --top;
+    float rhs = stackVals[top];
+    float lhs = stackVals[top-1];
+    LOG("Testing if ", lhs, " is less or equal to ", rhs);
+    stackVals[top-1] = (roundf(lhs) <= roundf(rhs)) ? 1 : 0;
+}
+
+void Evaluator::testAnd(float *stackVals, uint &top)
+{
+    --top;
+    float rhs = stackVals[top];
+    float lhs = stackVals[top-1];
+    LOG("Testing if ", lhs, " is less or equal to ", rhs);
+    stackVals[top-1] = (roundf(lhs) && roundf(rhs)) ? 1 : 0;
+}
+
+void Evaluator::testOr(float *stackVals, uint &top)
+{
+    --top;
+    float rhs = stackVals[top];
+    float lhs = stackVals[top-1];
+    LOG("Testing if ", lhs, " is less or equal to ", rhs);
+    stackVals[top-1] = (roundf(lhs) || roundf(rhs)) ? 1 : 0;
+}
+
+void Evaluator::maxFn(float *stackVals, uint &top)
+{
+    --top;
+    float rhs = stackVals[top];
+    float lhs = stackVals[top-1];
+    LOG("Getting max of ", lhs, " or ", rhs);
+    stackVals[top-1] = fmaxf(lhs,rhs);
+}
+
+/*
 void Evaluator::add(std::stack<float>& numberStack)// '+'
 {
     float rhs = numberStack.top();
@@ -156,7 +335,7 @@ void Evaluator::subtract(std::stack<float>& numberStack)//-
     numberStack.push(lhs - rhs);
 }
 
-void Evaluator::multiply(std::stack<float>& numberStack)//*
+void Evaluator::multiply(std::stack<float>& numberStack)// *
 {
     float rhs = numberStack.top();
     numberStack.pop();
@@ -352,6 +531,6 @@ void Evaluator::maxFn(std::stack<float>& numberStack)
     numberStack.pop();
     LOG("Getting max of ", lhs, " or ", rhs);
     numberStack.push(fmaxf(lhs,rhs));
-}
+}*/
 
 } //namespace EVAL
