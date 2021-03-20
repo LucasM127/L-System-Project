@@ -28,6 +28,8 @@ union L32
 
 typedef std::vector<L32> LString;
 
+struct LModule;
+
 class LSentence
 {
 public:
@@ -38,6 +40,7 @@ public:
     uint back() const;
     void push_back(char c, uint numParams);
     void push_back(float f);
+    void push_back(LModule &&module);
     L32 &operator[](const uint i);
     const L32 &operator[](const uint i) const;
     std::size_t size() const;

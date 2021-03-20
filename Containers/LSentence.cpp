@@ -56,6 +56,13 @@ void LSentence::push_back(float f)
     m_lstring.emplace_back(f);
 }
 
+void LSentence::push_back(LModule &&module)
+{
+    push_back(module.id, module.numVals);
+    for(uint i = 0; i < module.numVals; ++i)
+        push_back(module.vals[i]);
+}
+
 L32 &LSentence::operator[](const uint i){return m_lstring[i];}
 
 const L32 &LSentence::operator[](const uint i) const {return m_lstring[i];}

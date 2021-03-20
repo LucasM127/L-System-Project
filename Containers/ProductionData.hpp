@@ -10,19 +10,24 @@
 
 namespace LSYSTEM
 {
-/*
-struct ProductionData;
 
-struct ProductionRawStringData
-{
-    std::string lContext;
-    std::string predicate;
-    std::string rContext;
-    std::string conditional;
-    std::string product;
-    std::string stochasticWeight;
+//we parse the file... it contains the LSDATA below... ... parse LSDATA -> LSParser
+//Uses it to create the productionMapping in LSystem (new delete) and set its alphabet
+//we parse the file... it contains Interpreter data... ... parse INTERPRETDATA -> InterpreterParser
+//just one of each -potentially- for now
+//we parse the file... it could contain Axiom String Data... -> loadLSentence function and set its alphabet
+struct LSData;//and remove LSystemData as loaded in house, validated with the functions...
+
+//can load from file, or personally, and put in LSystem loader...
+struct LSData
+{//global mapping//constants??? defines???
+    std::vector<std::string> productions;
+    std::vector<std::string> decompositions;
+    std::vector<std::string> homomorphisms;
+    std::set<char> skippableLetters;
+    std::vector<std::pair<std::string, float> > globals;
 };
-*/
+
 struct ProductData
 {
     std::string rawStatement;

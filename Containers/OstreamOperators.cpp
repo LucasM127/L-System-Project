@@ -28,6 +28,29 @@ std::ostream& operator<<(std::ostream &os, const LSYSTEM::LSFileData &fd)
     return os;
 }
 
+std::ostream& operator<<(std::ostream &os, const LSYSTEM::LSData &ld)
+{
+    os<<"Productions: \n";
+    for(const auto &string : ld.productions)
+        os<<string<<"\n";
+    os<<"Decompositions: \n";
+    for(const auto &string : ld.decompositions)
+        os<<string<<"\n";
+    os<<"Homomorphisms: \n";
+    for(const auto &string : ld.homomorphisms)
+        os<<string<<"\n";
+    os<<"Skippable Letters: \n";
+    for(auto c : ld.skippableLetters)
+        os<<c<<" ";
+    os<<"\n";
+//        os<<ld.skipString<<"\n";
+    os<<"Globals:\n";
+    for(const auto &pair : ld.globals)
+        os<<pair.first<<" = "<<pair.second<<"\n";
+    
+    return os;
+}    
+
 std::ostream& operator<<(std::ostream &os, const LSYSTEM::ProductionData &pd)
 {
     os<<pd.lContext<<" < "<<pd.letter<<" > "<<pd.rContext<<" =>\n";

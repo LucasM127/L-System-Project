@@ -9,6 +9,8 @@
 
 std::ostream& operator<<(std::ostream &os, const LSYSTEM::LSFileData &fd);
 
+std::ostream& operator<<(std::ostream &os, const LSYSTEM::LSData &ld);
+
 std::ostream& operator<<(std::ostream &os, const LSYSTEM::ProductionData &pd);
 
 std::ostream& operator<<(std::ostream &os, const LSYSTEM::ProductData &pd);
