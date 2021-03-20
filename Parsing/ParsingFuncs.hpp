@@ -1,5 +1,6 @@
 #ifndef COMMON_PARSING_FUNCTIONS_HPP
 #define COMMON_PARSING_FUNCTIONS_HPP
+//These do not throw exceptions.
 
 #include <string>
 #include <unordered_map>
@@ -32,6 +33,8 @@ void prepString(std::string &string, std::unordered_map<std::string, std::string
 std::string getLetters(const std::string& sentence);
 
 bool bracketsMatch(const std::string& sentence);
+
+bool getNextParam(const std::string &s, uint &i, std::string &param);
 
 }// namespace LSPARSE
 

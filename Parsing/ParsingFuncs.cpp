@@ -161,4 +161,16 @@ bool bracketsMatch(const std::string& sentence)
     return !(numCurvedBrackets || numSquareBrackets);
 }
 
+bool getNextParam(const std::string &s, uint &i, std::string &param)
+{
+    char c_next;
+    while(LSPARSE::next(s,i,c_next))
+    {
+        ++i;
+        if(c_next == ',' || c_next == ')') break;
+        param.push_back(c_next);
+    }
+    return c_next == ',';
+}
+
 }// namespace LSPARSE
