@@ -92,7 +92,7 @@ public:
     void setCellTexture(Coord C, sf::Vector2f uv, sf::Vector2f sz, Orientation orientation = DEFAULT);
     void flip(Coord C);//y-axis
     void clear(sf::Color color);
-
+    const sf::Texture *getTexture() const;
 private:
     sf::VertexBuffer m_vbuffer;
     bool amModified;

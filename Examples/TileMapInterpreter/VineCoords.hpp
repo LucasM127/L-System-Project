@@ -1,5 +1,5 @@
-#ifndef PIPE_GRID_COORDS_HPP
-#define PIPE_GRID_COORDS_HPP
+#ifndef VINE_COORDS_HPP
+#define VINE_COORDS_HPP
 
 #include <SFML/System/Vector2.hpp>
 #include <string>
@@ -60,4 +60,4 @@ const sf::Vector2f      TRIPLE_CAPPED_DOUBLE_BRANCH_SEGMENT = {  0, 64};
 const sf::Vector2f         ALL_CAPPED_DOUBLE_BRANCH_SEGMENT = {  0,256};
 */
 
-#endif //PIPE_GRID_COORDS_HPP
+#endif //VINE_COORDS_HPP

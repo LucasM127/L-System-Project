@@ -5,7 +5,7 @@
 #include "EnvironmentalGridMap.hpp"
 
 #include "Grid.hpp"
-#include "PipeGridCoords.hpp"
+#include "VineCoords.hpp"
 
 #include <stack>
 

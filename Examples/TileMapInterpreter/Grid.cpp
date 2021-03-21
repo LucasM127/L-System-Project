@@ -180,3 +180,8 @@ Coord Grid::getCoordinate(const sf::Vector2f &pos)
     return Coord(   (pos.x - m_x_offset) / m_cellSize.x,
                     (pos.y - m_y_offset) / m_cellSize.y);
 }
+
+const sf::Texture *Grid::getTexture() const
+{
+    return m_texMap;
+}

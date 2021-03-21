@@ -1,7 +1,7 @@
 #include "EnvironmentalGridMap.hpp"
 
 #include <random>
-
+//could I make it smaller tiles???
 EnviroGridMap::EnviroGridMap(const CoordMapper &mapper, sf::Vector2i origin) : m_mapper(mapper), m_origin(origin)
 {
     m_collisionMap.resize(m_mapper.sz(), 0);
@@ -30,7 +30,9 @@ void EnviroGridMap::clear()
         i = 0;
 }
 
-EnviroProgram::EnviroProgram(EnviroGridMap &map, GridInterpreter &_I) : LSYSTEM::LSReinterpreter({{'X',0}}), m_refMap(map), I(_I)
+EnviroProgram::EnviroProgram(EnviroGridMap &map, GridInterpreter &_I) : LSYSTEM::LSReinterpreter(
+                                {{'X',0},{'w',0},{'a',0},{'s',0},{'d',0},{'i',0},{'j',0},{'k',0},{'l',0}}
+                                ), m_refMap(map), I(_I)
 {
     m_randomEngine.seed(time(NULL));
 }
@@ -38,11 +40,35 @@ EnviroProgram::EnviroProgram(EnviroGridMap &map, GridInterpreter &_I) : LSYSTEM:
 //is the same sentence...
 void EnviroProgram::reinterpret(const LSYSTEM::LSentence &sentence, const uint i, LSYSTEM::VLSentence &vlsentence)
 {
-    if(sentence[i].id == 'A' || sentence[i].id == 'B')
+    if(sentence[i].id == 'A')// || sentence[i].id == 'B')
     {
         //save vlsentence, i, and turtlePosition...
         m_queries.emplace_back(I.queryTurtle().position, i, vlsentence);
     }
+    if(sentence[i].id == 'I')
+    {
+        auto &h = I.queryTurtle().heading;
+        if(h.y == -1)
+            modify(vlsentence, i, {'w'});
+        else if(h.y == 1)
+            modify(vlsentence, i, {'s'});
+        else if(h.x == -1)
+            modify(vlsentence, i, {'a'});
+        else
+            modify(vlsentence, i, {'d'});
+    }/*
+    if(sentence[i].id == 'I')
+    {
+        auto &h = I.queryTurtle().heading;
+        if(h.y == -1)
+            modify(vlsentence, i, {'w'});
+        else if(h.y == 1)
+            modify(vlsentence, i, {'s'});
+        else if(h.x == -1)
+            modify(vlsentence, i, {'a'});
+        else
+            modify(vlsentence, i, {'d'});
+    }*/
 }
 
 void EnviroProgram::apply()
