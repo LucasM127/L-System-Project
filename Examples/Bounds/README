@@ -1,1 +1,8 @@
-Example
+Interpreter binary subdivides the planar bounds either (+) horizontally or (-) vertically.
+Interesting effect when use this subset of productions below and colour each id a unique colour.
+The subdivision 'rectangles' are all square, but as only two colours or ids are showing at a time, looks like something would get from turtle graphic interpretation.
+note img.png
+A => +[D][D]  
+B => +[A][C]  
+C => -[B][B]  
+D => -[C][A]  
