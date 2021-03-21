@@ -6,3 +6,13 @@ A => +[D][D]
 B => +[A][C]  
 C => -[B][B]  
 D => -[C][A]  
+
+img2.png rules below
+A => +[H][G]
+B => +[E][H]
+C => +[B][A]
+D => +[G][B]
+E => -[D][C]
+F => -[A][D]
+G => -[F][E]
+H => -[C][F]
