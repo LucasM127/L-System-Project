@@ -55,7 +55,7 @@ Productions that are applied recursively towards target sentence.  Not contextua
 Homomorphic Productions:
 Productions that are applied recursively and immediately fed to an interpreter.  Not contextual.  Not saved.
 
-  LSystem:
+LSystem:
 Set of productions, decompositions, and/or homomorphisms that conform with internal alphabet.
 
 Only a validated lsentence whose internal alphabet does not conflict with an lsystems production ruleset, can be modified by that lsystem.
