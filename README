@@ -10,6 +10,7 @@ B(x,y)
 Special Symbols:
 [ signifies start of a branch (for context checking)
 ] signifies end of a branch (for context checking)
+% cut symbol.  Remaining symbols of current [branch] ignored up to ] symbol.
 Currently only support splitting operations.  Tree graph.  No cyclic cycles unfortunately. :(  Perhaps storing individual lsentences as nodes somehow?
 
 Alphabet:
@@ -42,7 +43,7 @@ B(x) => C : 1
 
 Contextual Set: (the production rules applied from greater to lesser context size)
 BC < D > E => X (tried second)
-ABC < D > E\[F]G => X (tried first)
+ABC < D > E[F]G => X (tried first)
 D => (tried last)
 A skippable set of letters may be defined to ignore certain letters in context matching.
 
