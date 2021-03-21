@@ -1,0 +1,18 @@
+Interpreter binary subdivides the planar bounds either (+) horizontally or (-) vertically into 2 equally sized rectangles.  [ pushes a rectangle as new outer bounds.  A counter is used to keep track of which subdivided rectangle to further subdivide.
+Interesting effect when use this subset of productions below and colour each id a unique colour.
+The subdivision 'rectangles' are all square, but as only two colours or ids are showing at a time, looks like something would get from turtle graphic interpretation.
+note img.png
+A => +[D][D]  
+B => +[A][C]  
+C => -[B][B]  
+D => -[C][A]  
+
+img2.png rules below
+A => +[H][G]
+B => +[E][H]
+C => +[B][A]
+D => +[G][B]
+E => -[D][C]
+F => -[A][D]
+G => -[F][E]
+H => -[C][F]
