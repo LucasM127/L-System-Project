@@ -1,0 +1,68 @@
+L-System-Project
+Lindenmayer System Model in c++
+(see examples or interpretors for visual interpretations)
+
+Letter Module:  
+Identifying 'char' with n parameters.  
+A  
+B(x,y)  
+
+Special Symbols:
+[ signifies start of a branch (for context checking)
+] signifies end of a branch (for context checking)
+% cut symbol.  Remaining symbols of current [branch] ignored up to ] symbol.
+Currently only support splitting operations.  Tree graph.  No cyclic cycles unfortunately. :(  Perhaps storing individual lsentences as nodes somehow?
+
+Alphabet:
+Set of letters and corresponding parameter count.  Stored as std::unordered_map<char,uint> in which a letter cannot having conflicting parameter counts.
+
+LSentence:
+String of letter modules.
+
+VLSentence:
+String of letter modules validated to ensure conformance with internal alphabet.
+
+Production Syntax: 
+[Left Context] < [Predicate Letter] > [Right Context] : [Conditional Expression] => [Product] : [Stochastic Weight Expression]
+
+Examples:
+
+Implied:
+A(x... [0-n]args) => A(x... [0-n]args)
+
+User Defined:
+A =>
+A => AB(2,5)
+
+Conditional:
+A(x) : x > 1 => B
+
+Stochastic Set:
+B(x) => B(x) : x
+B(x) => C : 1
+
+Contextual Set: (the production rules applied from greater to lesser context size)
+BC < D > E => X (tried second)
+ABC < D > E[F]G => X (tried first)
+D => (tried last)
+A skippable set of letters may be defined to ignore certain letters in context matching.
+
+Parameters: (product letter modules must have all parameters explicitly defined)
+A < B(x) > C(y) => A(x+y)B(x)C(y)
+
+Decomposition Productions:
+Productions that are applied recursively towards target sentence.  Not contextual.
+
+Homomorphic Productions:
+Productions that are applied recursively and immediately fed to an interpreter.  Not contextual.  Not saved.
+
+LSystem:
+Set of productions, decompositions, and/or homomorphisms that conform with internal alphabet.
+
+Only a validated lsentence whose internal alphabet does not conflict with an lsystems production ruleset, can be modified by that lsystem.
+
+Interpreter:
+User defined methods to 'interpret' an lsentence.  Interpreter class must be inherited from to hook into homomorphically modified letter module output stream.
+
+Reinterpreter:
+User defined methods to 'reinterpret' an lsentence.  Must define a alphabet on creation (const std::unordered_map<char,uint>) so that any changes to a vlsentence won't conflict with the vlsentence's internal alphabet.  Reinterpreter class must be inherited from to hook into functions modify (change a certain letter) or modifyParams (only change a letter modules parameters).
