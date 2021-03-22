@@ -164,7 +164,8 @@ bool ProductionContext::passRContext(const LSentence &lsentence, const unsigned 
         else if( rContext[i] == ']')//try going back to main branch, finished checking this branch context
         {
             indexStack.pop();//passed no need to go back
-            advanceToEndOfBranch();//no continue
+            if(curChar != ']')
+                advanceToEndOfBranch();//no continue
         }
         else if( curChar != rContext[i])//no match
         {
