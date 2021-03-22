@@ -10,7 +10,7 @@ namespace LSYSTEM
 //need to add if can't find...????
 LSystem::LSystem(const LSData &lsData)// : alphabet(lsData.abc), skippableLetters(lsData.skippableLetters),
                                         //        m_evalLoader(nullptr), 
-                                        : m_maxDepth(0), m_maxWidth(0)
+                                        : m_valArray(nullptr), m_maxDepth(0), m_maxWidth(0)
 {
     LSDataParser lsdp;
     lsdp.parse(lsData);
@@ -94,7 +94,7 @@ LSystem::LSystem(const LSData &lsData)// : alphabet(lsData.abc), skippableLetter
     }
     else
     {
-        m_evalLoader = new EVAL::LibLoader;//RuntimeEvalLoader;
+        m_evalLoader = new EVAL::RuntimeLoader;//EVAL::LibLoader;
         m_evalLoader->init();
 
         BasicParametricProduction *tempProduction = 0;
@@ -148,14 +148,18 @@ LSystem::LSystem(const LSData &lsData)// : alphabet(lsData.abc), skippableLetter
         }
 
         m_evalLoader->generate();
+
+        uint maxStackSz = dynamic_cast<EVAL::RuntimeLoader*>(m_evalLoader)->getMaxStackSz();
+        m_valArray = new float[m_maxDepth * m_maxWidth + maxStackSz];
     }
 //just singular atm
-    m_valArray = new float[m_maxDepth * m_maxWidth];
+    
 }
 
 LSystem::~LSystem()
 {
-    delete[] m_valArray;
+    if(m_valArray)
+        delete[] m_valArray;
 }
 
 void LSystem::iterate(const VLSentence &oldSentence, VLSentence &newSentence)
