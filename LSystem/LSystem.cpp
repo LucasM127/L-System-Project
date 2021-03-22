@@ -10,7 +10,7 @@ namespace LSYSTEM
 //need to add if can't find...????
 LSystem::LSystem(const LSData &lsData)// : alphabet(lsData.abc), skippableLetters(lsData.skippableLetters),
                                         //        m_evalLoader(nullptr), 
-                                        : m_valArray(nullptr), m_maxDepth(0), m_maxWidth(0)
+                                        : m_maxDepth(0), m_maxWidth(0), m_valArray(nullptr)
 {
     LSDataParser lsdp;
     lsdp.parse(lsData);
@@ -96,6 +96,7 @@ LSystem::LSystem(const LSData &lsData)// : alphabet(lsData.abc), skippableLetter
     {
         m_evalLoader = new EVAL::RuntimeLoader;//EVAL::LibLoader;
         m_evalLoader->init();
+        dynamic_cast<EVAL::RuntimeLoader*>(m_evalLoader)->setOffset(m_maxDepth*m_maxWidth);//ooops
 
         BasicParametricProduction *tempProduction = 0;
         for(const ProductionData &productionData : lsdp.productionDatas)
