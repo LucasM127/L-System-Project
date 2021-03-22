@@ -1,13 +1,16 @@
 #include <iostream>
 
 #include "Production.hpp"
+#include "../Containers/OstreamOperators.hpp"
+#include "../Parsing/LSParseFuncs.hpp"
+#include "../Containers/LSentence.hpp"
 
 class PContextTest : public LSYSTEM::ProductionContext
 {
 public:
     PContextTest(const std::string &lc, const std::string &rc, const std::set<char> &_skippableLetters) : ProductionContext(lc, rc, _skippableLetters){}
     
-    void printContext(const std::vector<char> &lsentence, const unsigned int loc)
+    void printContext(const LSYSTEM::LSentence &lsentence, const unsigned int loc)
     {
         std::cout<<"LContext : "<<lContext<<"\n";
         std::cout<<"           ";
@@ -15,6 +18,7 @@ public:
             std::cout<<i%10;
         std::cout<<"\n";
         std::cout<<"RContext : "<<rContext<<"\n";
+        std::cout<<"           ";
         for(uint i = 0; i < rContext.size(); i++)
             std::cout<<i%10;
         std::cout<<"\n";
@@ -25,7 +29,7 @@ public:
         if(passR) std::cout<<"Passes R Context"<<"\n";
 
         //the sentence
-        for(auto c : lsentence) std::cout<<c;
+        std::cout<<OSManip::letter<<lsentence;
         std::cout<<"\n";
         if(passL && lContext.size())
         {
@@ -69,13 +73,6 @@ public:
     }
 };
 
-std::vector<char> convert(const std::string &s)
-{
-    std::vector<char> v;
-    for(auto c : s) v.push_back(c);
-    return v;
-}
-
 int main()
 {
     std::set<char> skippable = {'+','-'};
@@ -87,7 +84,7 @@ int main()
 
     PContextTest test(lcontext, rcontext, skippable);
 
-    std::vector<char> lsentence = convert("AF[+F][-F]");
+    LSYSTEM::LSentence lsentence = loadLSentence("AF[+F][-F]");
 //    {
 //        'A','B','x','C','D','E','[','d','g',']','[','x','d','e','f',']','F','G'
 //    };
