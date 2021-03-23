@@ -170,7 +170,7 @@ bool getNextParam(const std::string &s, uint &i, std::string &param)
         ++i;
         if(c_next == '(') ++curLvl;
         else if(c_next == ')' && curLvl > 0) --curLvl;
-        if((c_next == ',' || c_next == ')') && (curLvl == 0)) break;
+        else if((c_next == ',' || c_next == ')') && (curLvl == 0)) break;
         param.push_back(c_next);
     }
     return c_next == ',';

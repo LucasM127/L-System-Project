@@ -235,23 +235,29 @@ std::string LSDataParser::parseContextString(const std::string &contextString, u
             std::string paramString;//return false???
             while(LSPARSE::getNextParam(contextString,i,paramString))
             {
-                if(paramString.size() == 0)
-                    continue;//maybe intentional A(,x) only care about the second variable
-                if(paramString.size() > 1)
+                if(paramString.size() == 0);//maybe intentional A(,x) only care about the second variable
+                else if(paramString.size() > 1)
                     throw std::runtime_error("Unrecognized variable \'"+paramString+"\' in context");
+                else
+                {
+                    char token = paramString[0];
+                    if(varIndiceMap.find(token) != varIndiceMap.end())
+                        throw std::runtime_error("Can only use variable id \'"+paramString+"\' once in the context");//or something like that
+                    varIndiceMap[token] = VarIndice(varIndex, paramNum);
+                }
+                ++paramNum;
+                paramString.clear();
+            }
+            if(paramString.size() == 0);//maybe intentional A(,x,) only care about the second variable
+            else if(paramString.size() > 1)
+                throw std::runtime_error("Unrecognized variable \'"+paramString+"\' in context");
+            else
+            {
                 char token = paramString[0];
                 if(varIndiceMap.find(token) != varIndiceMap.end())
                     throw std::runtime_error("Can only use variable id \'"+paramString+"\' once in the context");//or something like that
                 varIndiceMap[token] = VarIndice(varIndex, paramNum);
-                ++paramNum;
-                paramString.clear();
             }
-            if(paramString.size() > 1)
-                throw std::runtime_error("Unrecognized variable \'"+paramString+"\' in context");
-            char token = paramString[0];
-            if(varIndiceMap.find(token) != varIndiceMap.end())
-                throw std::runtime_error("Can only use variable id \'"+paramString+"\' once in the context");//or something like that
-            varIndiceMap[token] = VarIndice(varIndex, paramNum);
             ++paramNum;
         }
 
