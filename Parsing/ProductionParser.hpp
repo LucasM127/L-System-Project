@@ -23,8 +23,11 @@ private:
     bool stochasticMatch(std::vector<LSYSTEM::ProductionData>&, LSYSTEM::ProductionData&);
     void sortProductions(std::vector<LSYSTEM::ProductionData>& productions);
 
-    void fillVarMap(const std::string&,uint&,VarIndiceMap&,LSYSTEM::Alphabet &pnm);
+//    void fillVarMap(const std::string&,uint&,VarIndiceMap&,LSYSTEM::Alphabet &pnm);
+    std::string parseContextString(const std::string &contextString, uint &varIndex, VarIndiceMap& varIndiceMap, LSYSTEM::Alphabet &abc);
     std::string getProductEvalStrings(const std::string& rawProductString,std::vector<std::vector<std::string> >&, LSYSTEM::Alphabet &pnm);
+
+    void assertAlphabet();
 };
 
 #endif //LS_PRODUCTION_PARSER_HPP

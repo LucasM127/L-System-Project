@@ -2,24 +2,24 @@
 #include "LSParseFuncs.hpp"
 #include "../Containers/OstreamOperators.hpp"
 #include <iostream>
+#include "ProductionParser.hpp"
 
 int main()
 {
-    LSYSTEM::LSentence L = loadLSentence("ab(3)cd(3,5.5.5,7)ba");
-
-    std::cout<<L<<std::endl;
-
-    //getParam?
-    std::string param;
-    std::string test = "(34.235,FFF,,ffma)ksjfd";
-    uint i = 0;
-    std::cout<<test<<"\n";
-    while(LSPARSE::getNextParam(test,i,param))
+    LSYSTEM::LSData lsData;
+    lsData.productions = 
     {
-        std::cout<<param<<"\n";
-        param.clear();
-    }
-    std::cout<<param<<"\n";
+        "F=>F+G-F"
+    };
+    lsData.homomorphisms = 
+    {
+        "G=>F(x)"
+    };//what can I do, if I infer....
+    LSDataParser P;
+    P.parse(lsData);
+
+    for(auto &pd : P.productionDatas)
+        std::cout<<pd<<"\n";
 
     return 0;
 }

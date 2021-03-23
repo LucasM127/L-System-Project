@@ -164,10 +164,13 @@ bool bracketsMatch(const std::string& sentence)
 bool getNextParam(const std::string &s, uint &i, std::string &param)
 {
     char c_next;
+    uint curLvl = 0;
     while(LSPARSE::next(s,i,c_next))
     {
         ++i;
-        if(c_next == ',' || c_next == ')') break;
+        if(c_next == '(') ++curLvl;
+        else if(c_next == ')' && curLvl > 0) --curLvl;
+        if((c_next == ',' || c_next == ')') && (curLvl == 0)) break;
         param.push_back(c_next);
     }
     return c_next == ',';

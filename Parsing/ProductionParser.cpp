@@ -9,6 +9,8 @@ void LSDataParser::parse(const LSYSTEM::LSData &lsData)
     loadProductionDatas(lsData.productions,    productionDatas,              alphabet);
     loadProductionDatas(lsData.decompositions, decompositionProductionDatas, alphabet);
     loadProductionDatas(lsData.homomorphisms,  homomorphicProductionDatas,   alphabet);
+
+    assertAlphabet();
 }
 
 void LSDataParser::mapGlobals(const std::vector<std::pair<std::string, float> > &globalPairs)
@@ -35,18 +37,22 @@ try
         decomposeProductionString(productionString, pd);
 
         uint index = 0;
-        
-        fillVarMap(pd.lContext,index,pd.products[0].varIndiceMap,abc);
-        fillVarMap(pd.letter,index,pd.products[0].varIndiceMap,abc);
-        fillVarMap(pd.rContext,index,pd.products[0].varIndiceMap,abc);
+        //???? AND SO IS THIS?
+        pd.lContext = parseContextString(pd.lContext, index, pd.products[0].varIndiceMap, abc);
+        pd.letter   = parseContextString(pd.letter  , index, pd.products[0].varIndiceMap, abc);
+        pd.rContext = parseContextString(pd.rContext, index, pd.products[0].varIndiceMap, abc);
+//hmmm
+        //fillVarMap(pd.lContext,index,pd.products[0].varIndiceMap,abc);
+        //fillVarMap(pd.letter,index,pd.products[0].varIndiceMap,abc);
+        //fillVarMap(pd.rContext,index,pd.products[0].varIndiceMap,abc);
 
         //now I can simplify...
-        pd.lContext = LSPARSE::getLetters(pd.lContext);
-        pd.letter = LSPARSE::getLetters(pd.letter);
-        pd.rContext = LSPARSE::getLetters(pd.rContext);
+        //pd.lContext = LSPARSE::getLetters(pd.lContext);
+        //pd.letter = LSPARSE::getLetters(pd.letter);
+        //pd.rContext = LSPARSE::getLetters(pd.rContext);
         if(pd.letter.size() != 1)
             throw std::runtime_error(pd.products[0].rawStatement + " doesn't have a singular predicate letter.");
-        
+        //????? THIS IS THE ISSUE
         pd.products[0].product = getProductEvalStrings(pd.products[0].product,pd.products[0].evalStrings, abc);
 }
 catch(std::runtime_error &e)
@@ -206,10 +212,132 @@ void LSDataParser::decomposeProductionString(const std::string &productionString
     }
 
     if(!bracketsMatch(product.product) || !bracketsMatch(product.conditional) || !bracketsMatch(product.productWeight))
-        throw std::runtime_error("Mismatching brackets.");
+        throw std::runtime_error("Mismatching brackets.");//?
 }
 
-//and I got to redo this yet again :/ 'Blegh'
+//Check this code....
+std::string LSDataParser::parseContextString(const std::string &contextString, uint &varIndex, VarIndiceMap& varIndiceMap, LSYSTEM::Alphabet &abc)
+{
+    std::string letters;
+    uint i = -1;
+    char c_next;
+    while(LSPARSE::next(contextString, i, c_next))
+    {
+        ++i;
+        ++varIndex;
+        char cur_letter = c_next;
+        letters.push_back(c_next);
+
+        uint paramNum = 0;
+        if(LSPARSE::next(contextString, i, c_next) && c_next == '(')
+        {
+            ++i;
+            std::string paramString;//return false???
+            while(LSPARSE::getNextParam(contextString,i,paramString))
+            {
+                if(paramString.size() == 0)
+                    continue;//maybe intentional A(,x) only care about the second variable
+                if(paramString.size() > 1)
+                    throw std::runtime_error("Unrecognized variable \'"+paramString+"\' in context");
+                char token = paramString[0];
+                if(varIndiceMap.find(token) != varIndiceMap.end())
+                    throw std::runtime_error("Can only use variable id \'"+paramString+"\' once in the context");//or something like that
+                varIndiceMap[token] = VarIndice(varIndex, paramNum);
+                ++paramNum;
+                paramString.clear();
+            }
+            if(paramString.size() > 1)
+                throw std::runtime_error("Unrecognized variable \'"+paramString+"\' in context");
+            char token = paramString[0];
+            if(varIndiceMap.find(token) != varIndiceMap.end())
+                throw std::runtime_error("Can only use variable id \'"+paramString+"\' once in the context");//or something like that
+            varIndiceMap[token] = VarIndice(varIndex, paramNum);
+            ++paramNum;
+        }
+
+        //update alphabet
+        if(abc.find(cur_letter) == abc.end())
+            abc[cur_letter] = paramNum;
+        else
+        {
+            if((abc.at(cur_letter) != paramNum) && (paramNum != 0))
+                throw std::runtime_error("Letter '" + std::string(&cur_letter,1) + "' should have " 
+                    + std::to_string(abc.at(cur_letter)) + " parameters.");
+        }
+    }
+
+    return letters;
+}
+
+std::string LSDataParser::getProductEvalStrings(const std::string &rawProductString,std::vector<std::vector<std::string> > &evalStrings, LSYSTEM::Alphabet &abc)
+{
+    std::string letters;
+    uint i = -1;
+    char c_next;
+    while(LSPARSE::next(rawProductString, i, c_next))
+    {
+        ++i;
+        evalStrings.push_back(std::vector<std::string>());
+        char cur_letter = c_next;
+        letters.push_back(c_next);
+        uint paramNum = 0;
+        if(LSPARSE::next(rawProductString, i, c_next) && c_next == '(')
+        {
+            ++i;
+            std::string paramString;
+            while(LSPARSE::getNextParam(rawProductString,i,paramString))
+            {
+                if(paramString.size() == 0)
+                    throw std::runtime_error("No Rule to generate parameter(s) in letter \'" + std::string(&cur_letter,1) + "\'");
+                evalStrings.back().push_back(paramString);
+                ++paramNum;
+                paramString.clear();
+            }
+            if(paramString.size() == 0)
+                throw std::runtime_error("No Rule to generate parameter(s) in letter \'" + std::string(&cur_letter,1) + "\'");
+            evalStrings.back().push_back(paramString);
+            ++paramNum;
+        }
+
+        //update alphabet
+        if(abc.find(cur_letter) == abc.end())
+            abc[cur_letter] = paramNum;
+        else
+        {
+            if((abc.at(cur_letter) != paramNum) && (abc.at(cur_letter) != 0))
+                throw std::runtime_error("Letter '" + std::string(&cur_letter,1) + "' should have " 
+                    + std::to_string(abc.at(cur_letter)) + " parameters.");
+        }
+    }
+
+    return letters;
+}
+
+void LSDataParser::assertAlphabet()
+{
+    for(auto &ppd : productionDatas)
+        for(auto &pd : ppd.products)
+            for(uint i = 0; i < pd.product.size(); ++i)
+            {
+                if(alphabet.at(pd.product[i]) != pd.evalStrings[i].size())
+                    throw std::runtime_error("Wrong number of parameters for letter '" + std::string(&pd.product[i],1) + "' in production " + pd.rawStatement);
+            }
+    for(auto &ppd : decompositionProductionDatas)
+        for(auto &pd : ppd.products)
+            for(uint i = 0; i < pd.product.size(); ++i)
+            {
+                if(alphabet.at(pd.product[i]) != pd.evalStrings[i].size())
+                    throw std::runtime_error("Wrong number of parameters for letter '" + std::string(&pd.product[i],1) + "' in production " + pd.rawStatement);
+            }
+    for(auto &ppd : homomorphicProductionDatas)
+        for(auto &pd : ppd.products)
+            for(uint i = 0; i < pd.product.size(); ++i)
+            {
+                if(alphabet.at(pd.product[i]) != pd.evalStrings[i].size())
+                    throw std::runtime_error("Wrong number of parameters for letter '" + std::string(&pd.product[i],1) + "' in production " + pd.rawStatement);
+            }
+}
+/*
 void LSDataParser::fillVarMap(const std::string &contextString, uint &varIndex, VarIndiceMap& varIndiceMap, LSYSTEM::Alphabet &pnm)
 {
     using namespace LSPARSE;
@@ -266,8 +394,10 @@ void LSDataParser::fillVarMap(const std::string &contextString, uint &varIndex, 
     if(contextString.size()==1)
         varNum++;
     varIndex += varNum;
-}
+}*/
 
+/*
+//THIS SUCKS
 std::string LSDataParser::getProductEvalStrings(const std::string &rawProductString,std::vector<std::vector<std::string> > &evalStrings, LSYSTEM::Alphabet &pnm)
 {
     using namespace LSPARSE;
@@ -320,6 +450,7 @@ std::string LSDataParser::getProductEvalStrings(const std::string &rawProductStr
                 exp.push_back(c_next);
             }
         }
+        //!!!!
         if(pnm.find(curLetter) != pnm.end())
         {
             unsigned int mappedNumParams = pnm[curLetter];
@@ -339,4 +470,4 @@ std::string LSDataParser::getProductEvalStrings(const std::string &rawProductStr
     }
 
     return productString;
-}
+}*/
