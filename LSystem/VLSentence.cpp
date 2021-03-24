@@ -1,6 +1,7 @@
 #include "VLSentence.hpp"
 
 #include "../Parsing/LSParseFuncs.hpp"
+#include "../Containers/OstreamOperators.hpp"
 
 namespace LSYSTEM
 {
@@ -50,6 +51,12 @@ void VLSentence::validate()
 }
 
 } //namespace LSYSTEM
+
+std::ostream &operator<<(std::ostream &os, const LSYSTEM::VLSentence &V)
+{
+    return os << V.getLSentence();
+};
+
 /*
 #include "../Parsing/ParsingFuncs.hpp"
 //THINKING

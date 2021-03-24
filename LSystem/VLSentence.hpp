@@ -29,4 +29,6 @@ private:
 
 } //namespace LSYSTEM
 
+std::ostream &operator<<(std::ostream &os, const LSYSTEM::VLSentence &V);
+
 #endif //VLSENTENCE_HPP
