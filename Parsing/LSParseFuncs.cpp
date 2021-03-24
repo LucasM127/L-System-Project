@@ -29,14 +29,14 @@ std::vector<float> loadParams(const std::string &s, uint &i)
         vals.emplace_back(loadNumber(param));
         param.clear();
     }
-    vals.emplace_back(loadNumber(param));
+    //vals.emplace_back(loadNumber(param));
     }
     catch(std::exception &e)//make custom type to catch again...
     {
         throw std::runtime_error("Invalid Parameter "+std::string(e.what()));//custom type exceptions???
-    }
-    if(s[i] != ')')
-        throw std::runtime_error("Unclosed bracket");
+    }//HMMMMMMMMMM
+//    if(s[i] != ')')
+//        throw std::runtime_error("Unclosed bracket");
     return vals;
 }
 
@@ -45,9 +45,9 @@ LSYSTEM::LModule loadModule(const std::string &s, uint &i, std::vector<float> &v
 {
     vals.clear();
     char id = s[i];
-    char c_next;
-    if(LSPARSE::next(s,i,c_next) && c_next == '(')
-        vals = std::move(loadParams(s,++i));
+    //char c_next;
+    //if(LSPARSE::next(s,i,c_next) && c_next == '(')
+        vals = std::move(loadParams(s,i));//++i));
     return LSYSTEM::LModule(id, &vals[0], vals.size());//vals is destroyed
 }
 

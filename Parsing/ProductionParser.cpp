@@ -219,6 +219,7 @@ void LSDataParser::decomposeProductionString(const std::string &productionString
 std::string LSDataParser::parseContextString(const std::string &contextString, uint &varIndex, VarIndiceMap& varIndiceMap, LSYSTEM::Alphabet &abc)
 {
     std::string letters;
+    std::string paramString;
     uint i = -1;
     char c_next;
     while(LSPARSE::next(contextString, i, c_next))
@@ -229,26 +230,9 @@ std::string LSDataParser::parseContextString(const std::string &contextString, u
         letters.push_back(c_next);
 
         uint paramNum = 0;
-        if(LSPARSE::next(contextString, i, c_next) && c_next == '(')
+        while(LSPARSE::getNextParam(contextString, i, paramString))
         {
-            ++i;
-            std::string paramString;//return false???
-            while(LSPARSE::getNextParam(contextString,i,paramString))
-            {
-                if(paramString.size() == 0);//maybe intentional A(,x) only care about the second variable
-                else if(paramString.size() > 1)
-                    throw std::runtime_error("Unrecognized variable \'"+paramString+"\' in context");
-                else
-                {
-                    char token = paramString[0];
-                    if(varIndiceMap.find(token) != varIndiceMap.end())
-                        throw std::runtime_error("Can only use variable id \'"+paramString+"\' once in the context");//or something like that
-                    varIndiceMap[token] = VarIndice(varIndex, paramNum);
-                }
-                ++paramNum;
-                paramString.clear();
-            }
-            if(paramString.size() == 0);//maybe intentional A(,x,) only care about the second variable
+            if(paramString.size() == 0);//maybe intentional A(,x) only care about the second variable
             else if(paramString.size() > 1)
                 throw std::runtime_error("Unrecognized variable \'"+paramString+"\' in context");
             else
@@ -259,6 +243,7 @@ std::string LSDataParser::parseContextString(const std::string &contextString, u
                 varIndiceMap[token] = VarIndice(varIndex, paramNum);
             }
             ++paramNum;
+            paramString.clear();
         }
 
         //update alphabet
@@ -278,6 +263,7 @@ std::string LSDataParser::parseContextString(const std::string &contextString, u
 std::string LSDataParser::getProductEvalStrings(const std::string &rawProductString,std::vector<std::vector<std::string> > &evalStrings, LSYSTEM::Alphabet &abc)
 {
     std::string letters;
+    std::string paramString;
     uint i = -1;
     char c_next;
     while(LSPARSE::next(rawProductString, i, c_next))
@@ -287,22 +273,13 @@ std::string LSDataParser::getProductEvalStrings(const std::string &rawProductStr
         char cur_letter = c_next;
         letters.push_back(c_next);
         uint paramNum = 0;
-        if(LSPARSE::next(rawProductString, i, c_next) && c_next == '(')
+        while(LSPARSE::getNextParam(rawProductString, i, paramString))
         {
-            ++i;
-            std::string paramString;
-            while(LSPARSE::getNextParam(rawProductString,i,paramString))
-            {
-                if(paramString.size() == 0)
-                    throw std::runtime_error("No Rule to generate parameter(s) in letter \'" + std::string(&cur_letter,1) + "\'");
-                evalStrings.back().push_back(paramString);
-                ++paramNum;
-                paramString.clear();
-            }
             if(paramString.size() == 0)
                 throw std::runtime_error("No Rule to generate parameter(s) in letter \'" + std::string(&cur_letter,1) + "\'");
             evalStrings.back().push_back(paramString);
             ++paramNum;
+            paramString.clear();
         }
 
         //update alphabet

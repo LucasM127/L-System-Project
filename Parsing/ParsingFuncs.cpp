@@ -161,19 +161,31 @@ bool bracketsMatch(const std::string& sentence)
     return !(numCurvedBrackets || numSquareBrackets);
 }
 
+//For use in a while loop.  Loads next param in 'param' while a parameter exists after current letter.
 bool getNextParam(const std::string &s, uint &i, std::string &param)
 {
     char c_next;
+    if(!LSPARSE::next(s,i,c_next))
+        return false;
+    if(c_next == ')')
+    {
+        ++i;
+        return false;
+    }
+    if(!(c_next == '(' || c_next == ','))
+        return false;
+
+    ++i;
     uint curLvl = 0;
     while(LSPARSE::next(s,i,c_next))
     {
-        ++i;
         if(c_next == '(') ++curLvl;
         else if(c_next == ')' && curLvl > 0) --curLvl;
         else if((c_next == ',' || c_next == ')') && (curLvl == 0)) break;
+        ++i;
         param.push_back(c_next);
     }
-    return c_next == ',';
+    return true;
 }
 
 }// namespace LSPARSE
