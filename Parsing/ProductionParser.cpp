@@ -225,7 +225,6 @@ std::string LSDataParser::parseContextString(const std::string &contextString, u
     while(LSPARSE::next(contextString, i, c_next))
     {
         ++i;
-        ++varIndex;
         char cur_letter = c_next;
         letters.push_back(c_next);
 
@@ -245,6 +244,7 @@ std::string LSDataParser::parseContextString(const std::string &contextString, u
             ++paramNum;
             paramString.clear();
         }
+        ++varIndex;
 
         //update alphabet
         if(abc.find(cur_letter) == abc.end())
