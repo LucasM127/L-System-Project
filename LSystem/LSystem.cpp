@@ -164,23 +164,36 @@ LSystem::~LSystem()
 }
 
 void LSystem::iterate(const VLSentence &oldSentence, VLSentence &newSentence)
-{//try catch throw???
+{
     if(!compatible(oldSentence.m_alphabet, m_alphabet))
         throw std::runtime_error("LSentence Incompatible with production alphabet");
     combine(m_alphabet, newSentence.m_alphabet);
+//    combine(oldSentence.m_alphabet, newSentence.m_alphabet);//hmmm
 
     const LSentence &oldLSentence = oldSentence.m_lsentence;
     LSentence &newLSentence = newSentence.m_lsentence;
 
-    LSentence tempSentence;
-
+    //match appropiate iteration 'type'
+    bool applyDecompositions = m_decompositionMap.size() > 0;
+    //bool applyCut = oldSentence.m_alphabet.find('%') != oldSentence.m_alphabet.end();
+    if(applyDecompositions)
+    {
+        LSentence tempSentence;
+        for(uint i = 0; i < oldLSentence.size(); i = oldLSentence.next(i))
+        {
+            applyCut(oldLSentence, i);
+            if(i >= oldLSentence.size()) break;
+            tempSentence.clear();
+            applyProduct(oldLSentence, tempSentence, i, m_productionMap, m_valArray);
+            decompose(tempSentence, newLSentence, m_valArray);
+        }
+        return;
+    }
     for(uint i = 0; i < oldLSentence.size(); i = oldLSentence.next(i))
     {
         applyCut(oldLSentence, i);
         if(i >= oldLSentence.size()) break;
-        tempSentence.clear();
-        applyProduct(oldLSentence, tempSentence, i, m_productionMap, m_valArray);
-        decompose(tempSentence, newLSentence, m_valArray);
+        applyProduct(oldLSentence, newLSentence, i, m_productionMap, m_valArray);
     }
 }
 
@@ -238,7 +251,7 @@ Product* LSystem::findMatch(const unsigned int i, const LSentence &refLS, std::u
 {
     char c = refLS[i].id;
 
-    if(productionMap.find(c)==productionMap.end())
+    if(productionMap.find(c)==productionMap.end())//KEEP GETTING HERE IN SIMPLE WHILE LOOP 
     {
         return nullptr;
     }
@@ -342,7 +355,7 @@ void LSystem::applyCut(const LSentence &LString, LSentence &LString, unsigned in
 
 //    std::cout<<"After cut at curIndex "<<curIndex<<" "<<(char)oldSentence[curIndex].id<<"\n";
 }*/
-
+//CREATE AN ITERATION LOOP WITHOUT THIS DECOMPOSE SHIT!!!!
 void LSystem::decompose(const LSentence &undecomposedSentence, LSentence &newSentence, float *V)
 {
     for(uint i = 0; i < undecomposedSentence.size(); i = undecomposedSentence.next(i))

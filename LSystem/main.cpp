@@ -1,41 +1,52 @@
 #include "LSystem.hpp"
-#include "../Containers/OstreamOperators.hpp"
-#include "../Parsing/LSParseFuncs.hpp"
 #include <iostream>
+
+
+#include <chrono>
 //Sentence has its own 'local' alphabet
 //Each LSystem Production algorithm set has its own 'local' alphabet
 //if they speak the same language they can work together, if not they can't
 
-//TODO Fix cut algorithm
-//returning the next index to be out of range.
-//Never 'tested' it properly anyways
+//TODO???
+//Fix context array of indices to be a parameter, remove the maxDepth param (as const)
+//Decompose recursivity is painful to performance
 using namespace LSYSTEM;
 
 int main()
 {
-    //Yay.  This worked nicely... now to do this with the LSystem Monstrosity
-    //Load a LSData Structure... and have LSystem Validate it with alphabet and sort it out
-    //but the data loaded will be pre-divided already.
-    //The Eval loader will worry about expressions as usual.
-    //or load it 'implicitly' in the constructor
-    LSYSTEM::LSData LD;
-    LD.productions =
+    LSData lsd;
+    lsd.productions = 
     {
-        "a=>b",
-        "c=>a"
+        "A(x,t):t==0 => A(x*0.3,2)+A(x*(0.3*(1-0.3))^0.5,1)--A(x*(0.3*(1-0.3))^0.5,1)+A(x*(1-0.3),0)",
+        "A(x,t):t>0=>A(x,t-1)"
     };
-    LSYSTEM::LSystem L(LD);
-    //Production Datas
-    LSYSTEM::VLSentence V("ab(5)cdb(2)");
+    LSystem L(lsd);
 
-    std::cout<<V.getLSentence()<<std::endl;
-    std::cout<<OSManip::letter<<V.getLSentence()<<std::endl;
-//    VLSentence A("ab(3)cdba");
-    LSYSTEM::VLSentence B;
-    L.iterate(V,B);
+    VLSentence axiom("A(5,0)");
+    VLSentence A,B;
+    VLSentence *oldSentence = &axiom;
+    VLSentence *newSentence = &A;
+//see the time difference for 13 iterations
+    //while (true)
+    {
+        A = axiom;
+        oldSentence = &A;
+        newSentence = &B;
+        auto start = std::chrono::high_resolution_clock::now();
+        for(int i = 0; i < 13; ++i)//15 iterations
+        {
+            L.iterate(*oldSentence, *newSentence);
+            oldSentence->clear();
+            std::swap(oldSentence,newSentence);
+        }
+        auto end = std::chrono::high_resolution_clock::now();
+        auto duration = end - start;
+        std::cout<<"Duration "<<duration.count()<<"\n";
+        A.clear();
+        B.clear();
+    }
 
-    std::cout<<B.getLSentence()<<std::endl;
-    std::cout<<OSManip::letter<<B.getLSentence()<<std::endl;
+    //where is the time getting taken up by?
 
     return 0;
 };
