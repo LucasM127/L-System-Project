@@ -10,16 +10,27 @@ namespace EVAL
 const bool OP = true;
 const bool VAR = false;
 
+//override copy constructor???
+void deepCopy(const RPNList &list, RPNList &target)
+{
+    target.reserve(list.size());
+    for(auto &tok : list)
+    {
+        if(tok.type == RPNToken::TYPE::COMPLEX)
+        {
+            target.emplace_back(*tok.rpnList);//calls new
+            deepCopy(*tok.rpnList,*target.back().rpnList);
+        }
+        else
+            target.push_back(tok);//just copy it over...
+    }
+}
+
 RPNToken::RPNToken(){}//le sigh
-RPNToken::RPNToken(char c, bool _isOp) : isOp(_isOp), isConst(false), isComplex(false), token(c)
-{
-    //LOG("Make char '", c);
-}
-RPNToken::RPNToken(float v) : isOp(false), isConst(true), isComplex(false), value(v)
-{
-    //LOG("Make float ", v);
-}
-RPNToken::RPNToken(const RPNList &list) : isOp(false), isConst(false), isComplex(true), rpnList(new RPNList(list)) {}
-RPNToken::RPNToken(const RPNList &&list) : isOp(false), isConst(false), isComplex(true), rpnList(new RPNList(list)) {}
+RPNToken::RPNToken(char c, bool isOp) : type(isOp ? TYPE::OP : TYPE::VAR), token(c) {}
+RPNToken::RPNToken(float v) : type(TYPE::CONST), value(v) {}
+RPNToken::RPNToken(float *v) : type(TYPE::GLOBAL), global(v) {}
+RPNToken::RPNToken(const RPNList &list) : type(TYPE::COMPLEX), rpnList(new RPNList(list)) {}
+RPNToken::RPNToken(const RPNList &&list) : type(TYPE::COMPLEX), rpnList(new RPNList(list)) {}
 
 }//namespace EVAL
