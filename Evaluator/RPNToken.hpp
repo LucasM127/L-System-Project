@@ -45,7 +45,6 @@ struct RPNToken
     RPNToken& operator=(RPNToken&&) = default;//so many of these!!!!
     RPNToken(char c, TYPE type);
 	RPNToken(float v);
-    RPNToken(float *v);
     RPNToken(const RPNList &list);
 	RPNToken(const RPNList &&list);
 
@@ -53,7 +52,6 @@ struct RPNToken
 	{
         char token;
         float value;//I need these two
-        float *global;//for simplify() to work
         RPNList *rpnList;
 	};
 };
@@ -61,6 +59,7 @@ struct RPNToken
 extern const RPNToken::TYPE OP;
 extern const RPNToken::TYPE VAR;
 extern const RPNToken::TYPE SYM;
+extern const RPNToken::TYPE GLB;
 
 struct RPN
 {

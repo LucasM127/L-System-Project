@@ -13,6 +13,8 @@ namespace EVAL
 const float DegToRad = 0.01745329252;
 
 //sorted by decreasing string size (can't use a map)
+//Need to put in parsing ... function thing
+/***
 std::vector< std::pair<std::string, char> > Loader::tokenStringReplaceVector =
 {
     {"cotangent",	8},
@@ -41,7 +43,7 @@ std::vector< std::pair<std::string, char> > Loader::tokenStringReplaceVector =
     //if lhs(!= 1 && rhs!=1 
     {"&&",			11},
     {"||",			12}
-};
+};**/
 
 /*std::set<char> opSet = 
 {

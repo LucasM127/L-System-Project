@@ -1,21 +1,36 @@
-#include "Simplifier.hpp"
+#include "Simplify.hpp"
 #include "RPNListFuncs.hpp"
 #include "../Logger/Logger.hpp"
+
+#include <cassert>
 
 namespace EVAL
 {
 
 const size_t OUT_OF_RANGE = -1;
 
-//utility func to get val from RPNToken const/global
-inline float valOf(const RPNToken &T)
+//Helper function
+size_t locateNextConstant(const RPNList& rpnList, size_t k)
 {
-    if(T.type == RPNToken::TYPE::GLOBAL)
-        return *T.global;
-    return T.value;
+    for(size_t i = k;i < rpnList.size()-1; i++)
+    {
+        const RPNToken &curToken = rpnList[i];
+        if(curToken.type == RPNToken::TYPE::OP)
+            continue;
+        if(curToken.type == RPNToken::TYPE::CONST)
+        {
+            return i;
+        }
+    }
+    return OUT_OF_RANGE;
+};
+
+void Simplify::operator()(RPNList &rpnList)
+{
+    simplify(rpnList);
 }
 
-void Simplifier::simplify(RPNList& rpnList)
+void Simplify::simplify(RPNList& rpnList)
 {
     LOG("IN SIMPLIFY");
     printList(rpnList);
@@ -55,14 +70,14 @@ void Simplifier::simplify(RPNList& rpnList)
 }
 
 //push pop + n*(pop)
-void Simplifier::simplifyUnary(RPNList& rpnList)
+void Simplify::simplifyUnary(RPNList& rpnList)
 {//if const unary, calculate it out till hit rand function
     LOG("IN SIMPLIFY UNARY");
     printList(rpnList);
     LOG("");
 
     RPNToken numToken = rpnList.front();
-    if(numToken.type != RPNToken::TYPE::CONST && numToken.type != RPNToken::TYPE::GLOBAL)//!numToken.isConst)
+    if(numToken.type != RPNToken::TYPE::CONST)//!numToken.isConst)
         return;
 
     uint top = 0;
@@ -84,7 +99,7 @@ void Simplifier::simplifyUnary(RPNList& rpnList)
 }
 
 //push * n_args pop
-void Simplifier::simplifyFunc(RPNList& rpnList)
+void Simplify::simplifyFunc(RPNList& rpnList)
 {
     LOG("IN SIMPLIFY FUNC");
     printList(rpnList);
@@ -107,15 +122,15 @@ void Simplifier::simplifyFunc(RPNList& rpnList)
                 token = tempToken;
             }
         }
-        if(token.type == RPNToken::TYPE::CONST || token.type == RPNToken::TYPE::GLOBAL)
+        if(token.type == RPNToken::TYPE::CONST)
             ++constArgCtr;
     }
 
     if(constArgCtr < numArgs) return;
 
     opFnPtr fnPtr = funcOpMap.at(rpnList[2].token);
-    float lhs = valOf(rpnList[0]);
-    float rhs = valOf(rpnList[1]);
+    float lhs = rpnList[0].value;
+    float rhs = rpnList[1].value;
     uint top = 0;
     m_floatStack[top++] = lhs;
     m_floatStack[top++] = rhs;
@@ -125,26 +140,10 @@ void Simplifier::simplifyFunc(RPNList& rpnList)
     rpnList[0] = RPNToken(result);
 }
 
-//Helper function
-size_t locateNextConstant(const RPNList& rpnList, size_t k)
-{
-    for(size_t i = k;i < rpnList.size()-1; i++)
-    {
-        const RPNToken &curToken = rpnList[i];
-        if(curToken.type == RPNToken::TYPE::OP)
-            continue;
-        if(curToken.type == RPNToken::TYPE::CONST || curToken.type == RPNToken::TYPE::GLOBAL)
-        {
-            return i;
-        }
-    }
-    return OUT_OF_RANGE;
-};
-
 //ASSUMES that there is no mixing of associativity at each level of operators. +- left   */ left   ^ right
 //push push pop + n*(push pop) LEFT_ASSOCIATIVE
 //push + n*(push) + n*(pop) RIGHT_ASSOCIATIVE
-void Simplifier::simplifyBinary(RPNList& rpnList)
+void Simplify::simplifyBinary(RPNList& rpnList)
 {
     LOG("IN SIMPLIFY BINARY");
     printList(rpnList);
@@ -165,7 +164,7 @@ void Simplifier::simplifyBinary(RPNList& rpnList)
         RPNToken &nextToken = rpnList[lhsIt+1];
         if(nextToken.type == RPNToken::TYPE::OP)
             return;//end of the pushes
-        else if(nextToken.type != RPNToken::TYPE::CONST && nextToken.type != RPNToken::TYPE::GLOBAL)//  !nextToken.isConst)
+        else if(nextToken.type != RPNToken::TYPE::CONST)//  !nextToken.isConst)
         {
             lhsIt = locateNextConstant(rpnList,lhsIt+2);
             if(lhsIt == OUT_OF_RANGE)
@@ -177,8 +176,8 @@ void Simplifier::simplifyBinary(RPNList& rpnList)
             rhsIt = lhsIt+1;
             rhsNumPtr = &nextToken;
             uint top = 0;
-            m_floatStack[top++] = valOf(*lhsNumPtr);// lhsNumPtr->value;
-            m_floatStack[top++] = valOf(*rhsNumPtr);// rhsNumPtr->value;
+            m_floatStack[top++] = lhsNumPtr->value;
+            m_floatStack[top++] = rhsNumPtr->value;
             //int opIt = rpnList.size() - rhsIt;//but as all are ^ no matter
             binaryOpMap['^'](m_floatStack,top);
             float number = m_floatStack[0];
@@ -199,8 +198,8 @@ void Simplifier::simplifyBinary(RPNList& rpnList)
         //can simplify!
         rhsNumPtr = &rpnList[rhsIt];
         uint top = 0;
-        m_floatStack[top++] = valOf(*lhsNumPtr);// lhsNumPtr->value;
-        m_floatStack[top++] = valOf(*rhsNumPtr);// rhsNumPtr->value;
+        m_floatStack[top++] = lhsNumPtr->value;
+        m_floatStack[top++] = rhsNumPtr->value;
         char op = rpnList[rhsIt+1].token;
         binaryOpMap[op](m_floatStack,top);
         float number = m_floatStack[0];
@@ -213,7 +212,7 @@ void Simplifier::simplifyBinary(RPNList& rpnList)
 
 //simplify a leaf node, then afterwords distribute to main branch
 //call on numPtr that passes isComplex() test
-void Simplifier::distribute(RPNList &rpnList, int complexIt)//for left Associative terms -> can make assumptions
+void Simplify::distribute(RPNList &rpnList, int complexIt)//for left Associative terms -> can make assumptions
 {
     auto negate = [](RPNList &rpnList) -> void
     {
@@ -374,7 +373,7 @@ void Simplifier::distribute(RPNList &rpnList, int complexIt)//for left Associati
 }
 /*
 #ifdef EVAL_DEBUG
-void Simplifier::testDistribute()
+void Simplify::testDistribute()
 {
     //3-(x-1)
     RPNList rpnList1 = 

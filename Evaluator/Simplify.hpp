@@ -1,24 +1,24 @@
-#ifndef SIMPLIFIER_HPP
-#define SIMPLIFIER_HPP
+#ifndef EVAL_RPNTOKEN_SIMPLIFY_HPP
+#define EVAL_RPNTOKEN_SIMPLIFY_HPP
 
 #include "RPNToken.hpp"
 
 namespace EVAL
 {
 
-class Simplifier
+class Simplify
 {
 public:
     void operator()(RPNList &rpnList);
 private:
-    float m_floatStack[2];
+    float m_floatStack[2];//up to 2 args
     
     void simplify(RPNList& rpnList);
     void simplifyBinary(RPNList& rpnList);
     void simplifyUnary(RPNList& rpnList);
     void simplifyFunc(RPNList& rpnList);
     void distribute(RPNList &rpnList, int complexIt);
-    float m_floatStack[2];//make bigger to support bigger functions with 3+ args?
+    
     #ifdef EVAL_DEBUG
     void testDistribute();
     #endif
@@ -26,4 +26,4 @@ private:
 
 } //namespace EVAL
 
-#endif //SIMPLIFIER_HPP
+#endif //EVAL_RPNTOKEN_SIMPLIFY_HPP

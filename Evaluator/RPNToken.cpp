@@ -10,6 +10,7 @@ namespace EVAL
 const RPNToken::TYPE OP  = RPNToken::TYPE::OP;
 const RPNToken::TYPE VAR = RPNToken::TYPE::VAR;
 const RPNToken::TYPE SYM = RPNToken::TYPE::SYMBOL;
+const RPNToken::TYPE GLB = RPNToken::TYPE::GLOBAL;
 
 void destroy(RPNList &list)
 {
@@ -38,7 +39,6 @@ void deepCopy(const RPNList &list, RPNList &target)
 RPNToken::RPNToken(){}//le sigh
 RPNToken::RPNToken(char c, TYPE _type)   : type(_type),         token(c) {}
 RPNToken::RPNToken(float v)              : type(TYPE::CONST),   value(v) {}
-RPNToken::RPNToken(float *v)             : type(TYPE::GLOBAL),  global(v) {}
 RPNToken::RPNToken(const RPNList &list)  : type(TYPE::COMPLEX), rpnList(new RPNList(list)) {}//points to the address passed
 RPNToken::RPNToken(const RPNList &&list) : type(TYPE::COMPLEX), rpnList(new RPNList(list)) {}
 

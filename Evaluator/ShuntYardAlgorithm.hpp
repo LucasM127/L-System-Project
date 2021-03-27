@@ -9,6 +9,7 @@ namespace EVAL
 
 class ShuntYardAlgorithm
 {
+public:
     RPNList &apply(const RPNList &tokenizedExpression);
 private:
     std::stack< RPNList > m_rpnListStack;

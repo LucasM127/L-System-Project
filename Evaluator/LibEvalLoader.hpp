@@ -3,7 +3,7 @@
 
 #include "EvalLoader.hpp"
 #include <fstream>
-
+/******
 namespace EVAL
 {
 
@@ -16,7 +16,8 @@ public:
     void generate() override;
     void close() override;
     void testConvert();
-    Evaluator* load(const std::string &expression, const VarIndiceMap &varMap, int maxVarDepth, const std::string &comment) override;
+    //Evaluator* load(const std::string &expression, const VarIndiceMap &varMap, int maxVarDepth, const std::string &comment) override;
+    Evaluator* load(const std::string &expression, const RPNList &tokenizedExp, const std::string &comment) override;
     std::string convertToCode(const RPNList &rpnList);
     //std::string parse(const std::string &exp, const VarIndiceMap &varMap);
 private:
@@ -42,5 +43,5 @@ private:
 };
 
 }//namespace EVAL
-
+****/
 #endif //LIB_EVAL_LOADER_HPP

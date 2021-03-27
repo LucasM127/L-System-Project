@@ -2,28 +2,30 @@
 #define EVALUATOR_HPP
 
 #include <string>
-#include <stack>
-//#include "Numbers.hpp"
 #include "RPNToken.hpp"
-#include <array>
 
 namespace EVAL
 {
 
 class Loader;
 
+//call update with varMap and maxDepth.
 class Evaluator
 {
 public:
-    Evaluator(const std::string &exp, bool _isConst, RPNList &refList);
+    Evaluator(const std::string &exp, bool _isConst, bool global, RPNList &&refList);
     virtual ~Evaluator(){}
     virtual float evaluate(float *v) = 0;
-    virtual void update() = 0;
+    void update(const VarIndiceMap &varMap, const uint depth, const std::map<char, float*> &globalMap);
+    virtual void updateLocal(const VarIndiceMap &varMap, const uint depth) = 0;
+    virtual uint maxStackSz();
     const std::string expression;
     const bool isConst;
+    const bool hasGlobal;
     //protected????
     RPNList m_refList;//unsimplified tree form list use 'globals'
-//friend what????
+    RPNList m_tempList;//expanded simplified refList
+//friend what????  //Who owns?
     static void add(float*, uint&);
     static void subtract(float*, uint&);
     static void multiply(float*, uint&);
@@ -47,69 +49,41 @@ public:
     static void maxFn(float*, uint&);
 };
 
-Evaluator::Evaluator(const std::string &exp, bool _isConst, RPNList &refList)
-                     : expression(exp), isConst(_isConst), m_refList(std::move(refList))
-{}
-
 //so is a list that simplifies to a 'constant' value
 class ConstEvaluator : public Evaluator
 {
 public:
-    ConstEvaluator(const std::string &exp, RPNList &refList, float val) : Evaluator(exp, true, refList), m_val(val) {}
-    float evaluate(float *v) {return m_val;}
-    void update() override;
+    ConstEvaluator(const std::string &exp, RPNList &&refList, bool global);
+    float evaluate(float *v);
 private:
+    void updateLocal(const VarIndiceMap &varMap, const uint depth) override;//globals have been changed... so 'recalculate it out'
     float m_val;
 };
+
 
 //simplifies to a variable (singular)
 class SimpleEvaluator : public Evaluator
 {
 public:
-    SimpleEvaluator(const std::string &exp, RPNList &refList, uint i) : Evaluator(exp, false, refList), m_index(i) {}
-    ~SimpleEvaluator(){}
-    float evaluate(float *v) {return v[m_index];}
-    void update() override {}//never holds a global A(x,3+y) 'x' is simpleEvaluator
+    SimpleEvaluator(const std::string &exp, RPNList &&refList);
+    float evaluate(float *v);
 private:
-    const uint m_index;
+    void updateLocal(const VarIndiceMap &varMap, const uint depth) override;
+    uint m_index;
 };
 
 //now we just need to know the max stack size in advance...
 class ComplexEvaluator : public Evaluator
 {
 public:
-    ComplexEvaluator(const std::string &exp, const std::vector<RPN> &rpnList, RPNList &refList, uint offset)
-                    : Evaluator(exp, false, refList), m_rpnList(rpnList), m_offset(offset){}
-    ~ComplexEvaluator(){}
-    float evaluate(float *v)
-    {
-        uint top = m_offset;
-        for(auto &T : m_rpnList)
-        {
-            switch(T.type)
-            {
-                case RPN::TYPE::OP:
-                    T.fnPtr(v,top);
-                    break;
-                case RPN::TYPE::CONST:
-                    v[top++] = T.value;
-                    break;
-                case RPN::TYPE::VAR:
-                    v[top++] = v[T.index];
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        return v[m_offset];
-    }
-    void update() override {}
+    ComplexEvaluator(const std::string &exp, RPNList &&refList, bool global, uint offset);
+    float evaluate(float *v);
+    void updateLocal(const VarIndiceMap &varMap, const uint depth) override;
+    uint maxStackSz() override;
 private:
     std::vector<RPN> m_rpnList;
     const uint m_offset;
 };
-//stack -> array sped it up a bunch.  Iterators / if else switches / or virtual function calls(?) is the slow point now
 
 }//namespace EVAL
 

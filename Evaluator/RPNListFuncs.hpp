@@ -6,12 +6,12 @@
 namespace EVAL
 {
 
-static std::map<char,opFnPtr> binaryOpMap;
-static std::map<char,opFnPtr> unaryOpMap;
-static std::map<char,opFnPtr> funcOpMap;
+extern std::map<char,opFnPtr> binaryOpMap;
+extern std::map<char,opFnPtr> unaryOpMap;
+extern std::map<char,opFnPtr> funcOpMap;
 
-static std::map<char, bool> opLeftAssociativityMap;
-static std::map<char, int> opPriorityMap;
+extern std::map<char, bool> opLeftAssociativityMap;
+extern std::map<char, int> opPriorityMap;
 
 bool isUnary(const char op);
 bool isAnOp(const char op);
@@ -21,6 +21,8 @@ void expand(RPNList &rpnList, RPNList &rpnListFinal);
 
 void printStack(std::stack<char> &opStack);
 void printList(const RPNList &rpnList);
+
+void convertGlobalsToConst(RPNList &rpnList, const std::map<char, float*> &globalMap);
 
 } //namespace EVAL
 

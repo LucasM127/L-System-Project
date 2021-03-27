@@ -60,6 +60,21 @@ void printStack(std::stack<char> &opStack){}
 void printList(const RPNList &rpnList){}
 #endif
 
+bool isUnary(const char op)
+{
+    return unaryOpMap.find(op) != unaryOpMap.end();
+}
+
+bool isAnOp(const char op)
+{
+    return isUnary(op) || isAFunc(op) || binaryOpMap.find(op) != binaryOpMap.end();
+}
+
+bool isAFunc(const char op)
+{
+    return funcOpMap.find(op) != funcOpMap.end();
+}
+
 void expand(RPNList &rpnList, RPNList &rpnListFinal)
 {
     for(std::size_t i = 0; i < rpnList.size(); ++i)
@@ -73,6 +88,22 @@ void expand(RPNList &rpnList, RPNList &rpnListFinal)
         else
         {
             rpnListFinal.push_back(T);
+        }
+    }
+}
+
+void convertGlobalsToConst(RPNList &rpnList, const std::map<char, float*> &globalMap)
+{
+    for(auto &tok : rpnList)
+    {
+        if(tok.type == RPNToken::TYPE::GLOBAL)
+        {
+            tok.type = RPNToken::TYPE::CONST;
+            tok.value = *globalMap.at(tok.token);
+        }
+        else if(tok.type == RPNToken::TYPE::COMPLEX)
+        {
+            convertGlobalsToConst(*tok.rpnList, globalMap);
         }
     }
 }

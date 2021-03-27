@@ -1,15 +1,18 @@
 #include "EvalLoader.hpp"
 #include "../Parsing/ParsingFuncs.hpp"
 
+#include "RPNListFuncs.hpp"
+/******
 //convert to token form.  Replace strings with chars for easier parsing.
 //std::vector<std::pair<std::string, char>>
+//Send over the globalMap??? ok
+//EvalTokenizer Class almost -sheesh-
 std::vector<EVAL::RPNToken> EVAL::Loader::tokenize(const std::string &expression, const VarIndiceMap &varMap)
 {
-    hasGlobal = false;//seems hacky atm set to true if encounter a 'global' loading globalMap
     std::string exp = expression;
-    LSPARSE::findAndReplace(exp, tokenStringReplaceVector);
-    //LSPARSE::findAndReplace(exp, variableStrings)//user defined variable names > 1 character
-    //LSPARSE::findAndReplace(exp, globalStrings)//defined globals
+    LSPARSE::findAndReplace(exp, tokenStringReplaceVector);//ops
+//    LSPARSE::findAndReplace(exp, globalReplaceMap);//globals 'many words'
+//not necessary yet
 
     std::vector<EVAL::RPNToken> tokens;
     //just digits left
@@ -24,8 +27,13 @@ std::vector<EVAL::RPNToken> EVAL::Loader::tokenize(const std::string &expression
         else if(isAnOp(c_next))
             tokens.emplace_back(c_next,OP);
         else if(varMap.find(c_next) != varMap.end())
+        {
             tokens.emplace_back(c_next,VAR);
-        //elseif globalMap.find()
+        }
+        else if(globalMap.find(c_next) != globalMap.end())
+        {
+            tokens.emplace_back(c_next, GLB);//globalMap.at(c_next));//float*
+        }
         else if(isdigit(c_next) || c_next == '.')
         {
             float number;
@@ -36,4 +44,5 @@ std::vector<EVAL::RPNToken> EVAL::Loader::tokenize(const std::string &expression
     }
 
     return tokens;
-}
+}//RPN Token Vector that we can thus play with...
+*****/
