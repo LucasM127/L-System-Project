@@ -12,7 +12,8 @@ int main()
 {
     srand(time(NULL));
     
-    std::string exp="(x+1)(x-1)";
+//    std::string exp="2^(-x/2)";//"(x+1)(x-1)";
+    std::string exp="x*(0.3*(1-0.3))^0.5";
     std::map<char, VarIndice> varMap =
     {
         {'x',{0,0}}

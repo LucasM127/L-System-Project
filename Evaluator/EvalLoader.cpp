@@ -6,6 +6,8 @@
 namespace EVAL
 {
 
+//'linked' with the LSystem
+
 Evaluator *Loader::getBasicEval(const std::string &exp, const float f)
 {
     Evaluator * eval = new ConstEvaluator(exp, f);
@@ -16,9 +18,19 @@ Evaluator *Loader::getBasicEval(const std::string &exp, const float f)
 Evaluator* RuntimeLoader::load(const std::string &expression, const VarIndiceMap &varMap, int maxVarDepth, const std::string &comment)
 {
     RPNList rpnList;
-    shuntYardAlgorithm(tokenize(expression, varMap));
+    RPNList refList;
+    shuntYardAlgorithm(tokenize(expression, varMap)); //more like a function that returns a rpnList in 'tree' form from tokenized expression
+    //list is in m_rpnListStack.top()
+    //bool hasGlobal
+//have to simplify and expand to see what type we make, but also we need to preserve the old.
+    deepCopy(m_rpnListStack.top(),refList);
     simplify();
-    expand(rpnList);
+    expand(rpnList);//deletes
+    
+    //Need the varMap, globalMap to convert our data over... ???
+    //varMap for the index mapping. the 'new LVariable(varMap.at(T.token))
+    //don't need the global map if globals stay confirmed.
+    //but if they don't... !
 
     Evaluator * retEvalPtr;
     if(rpnList.size()==1)
@@ -66,33 +78,6 @@ Loader::~Loader()
         delete eval;
 }
 
-bool Loader::isUnary(const char op)
-{
-    return (unaryOpMap.find(op) != unaryOpMap.end());
-}
-
-bool Loader::isAnOp(const char op)
-{
-    return 	(unaryOpMap.find(op) != unaryOpMap.end()) ||
-            (binaryOpMap.find(op) != binaryOpMap.end()) ||
-            (funcOpMap.find(op) != funcOpMap.end());
-}
-
-bool Loader::isAFunc(const char op)
-{
-    return (funcOpMap.find(op) != funcOpMap.end());
-}
-
-void Loader::simplify()
-{
-    simplify(m_rpnListStack.top());
-}
-
-void Loader::expand(RPNList &target)
-{
-    expand(m_rpnListStack.top(), target);
-}
-
 RuntimeLoader::RuntimeLoader():Loader(), m_offset(0), m_maxStackSz(0){}
 
 void RuntimeLoader::setOffset(uint offset)
@@ -105,24 +90,10 @@ uint RuntimeLoader::getMaxStackSz()
     return m_maxStackSz;
 }
 
-uint RuntimeLoader::getMaxStackSz(const RPNList &rpnlist)
+
+void RuntimeLoader::updateGlobals()
 {
-    uint maxSz = 0;
-    uint curSz = 0;
-    for(auto T : rpnlist)
-    {
-        if(!T.isOp)
-        {
-            ++curSz;
-            if(curSz > maxSz) maxSz = curSz;
-        }
-        else
-        {
-            if(!isUnary(T.token))
-                --curSz;//currently only supports 2 parameters.. would be more if a function, but overkill is ok for now.
-        }
-    }
-    return maxSz;
+    //
 }
 
 } //namespace EVAL

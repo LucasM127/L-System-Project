@@ -1,8 +1,11 @@
 #include "EvalLoader.hpp"
 #include "../Parsing/ParsingFuncs.hpp"
 
+//convert to token form.  Replace strings with chars for easier parsing.
+//std::vector<std::pair<std::string, char>>
 std::vector<EVAL::RPNToken> EVAL::Loader::tokenize(const std::string &expression, const VarIndiceMap &varMap)
 {
+    hasGlobal = false;//seems hacky atm set to true if encounter a 'global' loading globalMap
     std::string exp = expression;
     LSPARSE::findAndReplace(exp, tokenStringReplaceVector);
     //LSPARSE::findAndReplace(exp, variableStrings)//user defined variable names > 1 character
@@ -17,18 +20,19 @@ std::vector<EVAL::RPNToken> EVAL::Loader::tokenize(const std::string &expression
         ++i;
         if(c_next == ' ') continue;
         if(c_next == '(' || c_next == ')' || c_next == ',')
-            tokens.emplace_back(c_next, OP);
+            tokens.emplace_back(c_next, SYM);
         else if(isAnOp(c_next))
             tokens.emplace_back(c_next,OP);
         else if(varMap.find(c_next) != varMap.end())
             tokens.emplace_back(c_next,VAR);
+        //elseif globalMap.find()
         else if(isdigit(c_next) || c_next == '.')
         {
             float number;
             LSPARSE::readNumber(exp, i, number);
             tokens.emplace_back(number);
         }
-        else throw;
+        else throw std::runtime_error("Unrecognized symbol " + std::string(&c_next,1) + " in exp: " + expression);
     }
 
     return tokens;

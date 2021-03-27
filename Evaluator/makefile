@@ -19,20 +19,20 @@ $(LF)/EvalLib.a: $(OBJS)
 $(LF)/LSParser.a:
 	make -C ../Parsing -f makefile
 
-$(OF)/LibEvalLoader.o: LibEvalLoader.cpp LibEvalLoader.hpp EvalLoader.o
+$(OF)/LibEvalLoader.o: LibEvalLoader.cpp LibEvalLoader.hpp $(OF)/EvalLoader.o
 	$(GCC) $< -c -o $@
 
-$(OF)/ShuntYardAlgorithm.o: ShuntYardAlgorithm.cpp EvalLoader.o
+$(OF)/ShuntYardAlgorithm.o: ShuntYardAlgorithm.cpp $(OF)/EvalLoader.o
 	$(GCC) $(DEF) $< -c -o $@
 
-$(OF)/EvalOpMap.o: EvalOpMap.cpp EvalLoader.o
+$(OF)/EvalOpMap.o: EvalOpMap.cpp $(OF)/EvalLoader.o
 	$(GCC) $(DEF) $< -c -o $@
 
-$(OF)/Tokenize.o: Tokenize.cpp EvalLoader.o $(LF)/LSParser.a
+$(OF)/Tokenize.o: Tokenize.cpp $(OF)/EvalLoader.o $(LF)/LSParser.a
 	$(GCC) $< -c -o $@
 
 $(OF)/EvalLoader.o: EvalLoader.cpp EvalLoader.hpp Evaluator.hpp\
-					 ../Containers/VarIndice.hpp RPNToken.o
+					 ../Containers/VarIndice.hpp $(OF)/RPNToken.o
 	$(GCC) $(DEF) $< -c -o $@
 
 $(OF)/RPNToken.o: RPNToken.cpp RPNToken.hpp Numbers.hpp

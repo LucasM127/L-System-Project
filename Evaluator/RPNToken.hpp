@@ -22,38 +22,45 @@ struct RPNToken;
 typedef void(*opFnPtr)(float*, uint&);
 typedef std::vector<RPNToken> RPNList;
 
-extern const bool OP;
-extern const bool VAR;
-
+void destroy(RPNList &list);
 void deepCopy(const RPNList &list, RPNList &target);
 
-//Two stages ... tokenized, vs instanciated ('+' -> pointer to add function)
+//Two stages ... tokenized, vs instantiated ('+' -> pointer to add function)
 struct RPNToken
 {
-    RPNToken();
-    RPNToken(char c, bool isOp);
-	RPNToken(float v);
-    RPNToken(float *v);
-    RPNToken(const RPNList &list);
-	RPNToken(const RPNList &&list);
-
     enum class TYPE
     {
         OP,
+        SYMBOL,//comma or brackets
         CONST,
         VAR,
         GLOBAL,
         COMPLEX
     } type;
 
+    RPNToken();
+    RPNToken(const RPNToken&) = default;//shallow copy
+    RPNToken(RPNToken&&) = default;// deletes the = operator??????
+    RPNToken& operator=(const RPNToken&) = default;
+    RPNToken& operator=(RPNToken&&) = default;//so many of these!!!!
+    RPNToken(char c, TYPE type);
+	RPNToken(float v);
+    RPNToken(float *v);
+    RPNToken(const RPNList &list);
+	RPNToken(const RPNList &&list);
+
 	union
 	{
         char token;
-        float value;
-        float *global;
+        float value;//I need these two
+        float *global;//for simplify() to work
         RPNList *rpnList;
 	};
 };
+
+extern const RPNToken::TYPE OP;
+extern const RPNToken::TYPE VAR;
+extern const RPNToken::TYPE SYM;
 
 struct RPN
 {
@@ -63,6 +70,11 @@ struct RPN
         CONST,
         VAR
     } const type;
+
+    RPN(float v);
+    RPN(uint i);
+    RPN(opFnPtr p);
+
     union
 	{
         const float value;//Global or constant

@@ -14,14 +14,16 @@ class Loader;
 
 class Evaluator
 {
-    friend class Loader;
 public:
-    Evaluator(const std::string &exp, bool _isConst) : expression(exp), isConst(_isConst) {}
+    Evaluator(const std::string &exp, bool _isConst, RPNList &refList);
     virtual ~Evaluator(){}
     virtual float evaluate(float *v) = 0;
+    virtual void update() = 0;
     const std::string expression;
     const bool isConst;
-protected:
+    //protected????
+    RPNList m_refList;//unsimplified tree form list use 'globals'
+//friend what????
     static void add(float*, uint&);
     static void subtract(float*, uint&);
     static void multiply(float*, uint&);
@@ -43,73 +45,68 @@ protected:
     static void testAnd(float*, uint& numberStack);
     static void testOr(float*, uint& numberStack);
     static void maxFn(float*, uint&);
-/*    static void add(std::stack<float>&);
-    static void subtract(std::stack<float>&);
-    static void multiply(std::stack<float>&);
-    static void divide(std::stack<float>&);
-    static void raiseByExponent(std::stack<float>&);
-    static void sin(std::stack<float>&);
-    static void cos(std::stack<float>&);
-    static void tan(std::stack<float>&);
-    static void cosecant(std::stack<float>&);
-    static void secant(std::stack<float>&);
-    static void cotangent(std::stack<float>&);
-    static void random(std::stack<float>&);
-    static void negate(std::stack<float>&);
-    static void testIfEqual(std::stack<float>&);
-    static void testIfGreaterThan(std::stack<float>&);
-    static void testIfLessThan(std::stack<float>&);
-    static void testIfGreaterOrEqualThan(std::stack<float>&);
-    static void testIfLessThanOrEqual(std::stack<float>&);
-    static void testAnd(std::stack<float>& numberStack);
-    static void testOr(std::stack<float>& numberStack);
-    static void maxFn(std::stack<float>&);*/
 };
 
+Evaluator::Evaluator(const std::string &exp, bool _isConst, RPNList &refList)
+                     : expression(exp), isConst(_isConst), m_refList(std::move(refList))
+{}
+
+//so is a list that simplifies to a 'constant' value
 class ConstEvaluator : public Evaluator
 {
 public:
-    ConstEvaluator(const std::string &exp, float val) : Evaluator(exp, true), m_val(val) {}
+    ConstEvaluator(const std::string &exp, RPNList &refList, float val) : Evaluator(exp, true, refList), m_val(val) {}
     float evaluate(float *v) {return m_val;}
+    void update() override;
 private:
-    const float m_val;
+    float m_val;
 };
 
+//simplifies to a variable (singular)
 class SimpleEvaluator : public Evaluator
 {
 public:
-    SimpleEvaluator(const std::string &exp, Number * n) : Evaluator(exp, n->isConst), m_numPtr(n) {}
-    ~SimpleEvaluator(){delete m_numPtr;}
-    float evaluate(float *v) {return m_numPtr->getVal(v);}
+    SimpleEvaluator(const std::string &exp, RPNList &refList, uint i) : Evaluator(exp, false, refList), m_index(i) {}
+    ~SimpleEvaluator(){}
+    float evaluate(float *v) {return v[m_index];}
+    void update() override {}//never holds a global A(x,3+y) 'x' is simpleEvaluator
 private:
-    const Number * m_numPtr;
+    const uint m_index;
 };
 
 //now we just need to know the max stack size in advance...
 class ComplexEvaluator : public Evaluator
 {
 public:
-    ComplexEvaluator(const std::string &exp, const RPNList &rpnList, uint offset)
-                    : Evaluator(exp, false), m_rpnList(rpnList), m_offset(offset){}
+    ComplexEvaluator(const std::string &exp, const std::vector<RPN> &rpnList, RPNList &refList, uint offset)
+                    : Evaluator(exp, false, refList), m_rpnList(rpnList), m_offset(offset){}
     ~ComplexEvaluator(){}
     float evaluate(float *v)
     {
         uint top = m_offset;
         for(auto &T : m_rpnList)
         {
-            if(T.isOp)
-                T.fnPtr(v, top);
-//                T.fnPtr(m_numStack);
-            else
-                v[top++] = T.numPtr->getVal(v);
-//                m_numStack.push(T.numPtr->getVal(v));
+            switch(T.type)
+            {
+                case RPN::TYPE::OP:
+                    T.fnPtr(v,top);
+                    break;
+                case RPN::TYPE::CONST:
+                    v[top++] = T.value;
+                    break;
+                case RPN::TYPE::VAR:
+                    v[top++] = v[T.index];
+                    break;
+                default:
+                    break;
+            }
         }
-        float answer = v[m_offset];//m_numStack.top();
-        //m_numStack.pop();
-        return answer;
+
+        return v[m_offset];
     }
+    void update() override {}
 private:
-    const RPNList m_rpnList;
+    std::vector<RPN> m_rpnList;
     const uint m_offset;
 };
 //stack -> array sped it up a bunch.  Iterators / if else switches / or virtual function calls(?) is the slow point now

@@ -1,4 +1,7 @@
 #include "EvalLoader.hpp"
+#include "RPNListFuncs.hpp"
+#include "Evaluator.hpp"
+
 #include <cmath>
 #include <random>
 
@@ -22,6 +25,7 @@ std::vector< std::pair<std::string, char> > Loader::tokenStringReplaceVector =
     {"acos", 		7 },
     {"atan", 		8 },
     {"sinf",  		3 },
+    {"rand",        9 },
     {"cosf",  		4 },
     {"cot", 		8 },
     {"csc",			6 },
@@ -44,7 +48,7 @@ std::vector< std::pair<std::string, char> > Loader::tokenStringReplaceVector =
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, '>', '<', '+', '-', '*', '/', '^'
 };*/
 
-std::map<char, int> Loader::opPriorityMap
+std::map<char, int> opPriorityMap
 {
 //	{')',  -1},//NEVER EVEN ON THE STACK
     { 0 ,	0},// ==
@@ -72,7 +76,7 @@ std::map<char, int> Loader::opPriorityMap
 };
 
 //fix the while loop parsing... for this...
-std::map<char, bool> Loader::opLeftAssociativityMap =
+std::map<char, bool> opLeftAssociativityMap =
 {
     { 0 ,	true},// ==
     { 1 ,	true},// >=
@@ -99,7 +103,7 @@ std::map<char, bool> Loader::opLeftAssociativityMap =
 
 //uses ascii code range 0-31 (unprintable control characters)
 //for where the tokens do not have a direct single character equivalent
-std::map<char,opFnPtr> Loader::binaryOpMap =
+std::map<char,opFnPtr> binaryOpMap =
 {
     {'+' , Evaluator::add},
     {'-' , Evaluator::subtract},
@@ -116,7 +120,7 @@ std::map<char,opFnPtr> Loader::binaryOpMap =
 };
 
 //associativity???  so far all right associative...
-std::map<char,opFnPtr> Loader::unaryOpMap =
+std::map<char,opFnPtr> unaryOpMap =
 {
     { 3  , Evaluator::sin},
     { 4  , Evaluator::cos},
@@ -128,7 +132,7 @@ std::map<char,opFnPtr> Loader::unaryOpMap =
     { 10 , Evaluator::negate}
 };
 
-std::map<char,opFnPtr> Loader::funcOpMap =
+std::map<char,opFnPtr> funcOpMap =
 {
     { 13 , Evaluator::maxFn}
 };
