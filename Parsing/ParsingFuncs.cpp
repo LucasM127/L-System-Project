@@ -47,6 +47,61 @@ bool readNumber(const std::string &string, unsigned int &i, float &number)
     return true;
 }
 
+//Dictionary
+/****
+ * Cat
+ * Dog
+ * Fir
+ * Fish
+ * Go
+ * Gold
+ * Golf
+****/
+/*
+//tired of find and replace
+bool readIdentifier(const std::string &string, unsigned int &index, std::vector<std::string> &dictionary)//sorted like a dictionary
+{
+    //Simplify further?
+    //Find Range,
+    //Find Subset
+    //hmmm
+    std::string matchString;
+    char c_next;
+    unsigned int i = index;
+    //vector_view class?
+    unsigned int lower_i = 0;
+    unsigned int upper_i = dictionary.size();
+    unsigned int letterNum = 0;
+    bool noMatch = false;
+    while(next(string, i, c_next))
+    {
+        //find valid 'range'
+        //lower range
+        while(lower_i < upper_i)
+        {
+            char c = dictionary[lower_i][letterNum];
+            if(c_next == c)
+                break;
+            ++lower_i;
+        }
+        if(lower_i == upper_i)
+        {
+            noMatch = true;
+            break;
+        }
+        //upper_i ?
+        unsigned int a=1;
+        while(lower_i+a < dictionary.size() && c_next == dictionary[lower_i+a][letterNum])
+        {
+            ++a;
+        }
+        upper_i = lower_i + a;
+        //what about words that don't match ?? GAH or skip because smaller? AB ABC remove AB from subset, mark as potential 'match'
+    }
+    
+}
+*/
+
 //http://bits.mdminhazulhaque.io/cpp/find-and-replace-all-occurrences-in-cpp-string.html
 void findAndReplace(std::string& source, const std::unordered_map<std::string, std::string> &replacementStrings)
 {
@@ -136,7 +191,7 @@ bool ensureBracketsMatch(const std::string& string)
     return !(numCurvedBrackets || numSquareBrackets);
 }
 
-std::string getLetters(const std::string& sentence)
+std::string getLetters(const std::string& sentence)//not used anymore
 {
     std::string output;
     char c;
@@ -162,7 +217,7 @@ std::string getLetters(const std::string& sentence)
     return output;
 }
 
-bool bracketsMatch(const std::string& sentence)
+bool bracketsMatch(const std::string& sentence)//not work for ([)]
 {
     int numCurvedBrackets = 0;
     int numSquareBrackets = 0;
@@ -182,7 +237,7 @@ bool getNextParam(const std::string &s, uint &i, std::string &param)
 {
     char c_next;
     if(!LSPARSE::next(s,i,c_next))
-        return false;
+        return false;//throw an error? No matching ')' at end.  No need.
     if(c_next == ')')
     {
         ++i;

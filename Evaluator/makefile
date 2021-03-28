@@ -5,10 +5,10 @@ LF = ../InternalLib
 #DEF = -D EVAL_DEBUG
 DEF=
 OBJS =  $(OF)/LibEvalLoader.o $(OF)/EvalLoader.o $(OF)/ShuntYardAlgorithm.o $(OF)/EvalOpMap.o\
-		$(OF)/Evaluator.o $(OF)/Simplify.o $(OF)/Tokenize.o $(OF)/RPNListFuncs.o $(OF)/RPNToken.o
+		$(OF)/Evaluator.o $(OF)/Simplify.o $(OF)/RPNListFuncs.o
 
 test: $(LF)/EvalLib.a $(LF)/LSParser.a test.o
-	$(GCC) test.o $(LF)/EvalLib.a $(LF)/LSParser.a -o test -ldl
+	$(GCC) test.o $(LF)/EvalLib.a $(LF)/LSParser.a $(LF)/LSContainers.a -o test -ldl
 
 test.o: test.cpp
 	$(GCC) $< -c -o $@
@@ -18,6 +18,9 @@ $(LF)/EvalLib.a: $(OBJS)
 
 $(LF)/LSParser.a:
 	make -C ../Parsing -f makefile
+
+$(LF)/LSContainers.a:
+	make -C ../Containers -f makefile
 
 $(OF)/LibEvalLoader.o: LibEvalLoader.cpp LibEvalLoader.hpp $(OF)/EvalLoader.o
 	$(GCC) $< -c -o $@
@@ -37,15 +40,9 @@ $(OF)/RPNListFuncs.o: RPNListFuncs.cpp RPNListFuncs.hpp
 $(OF)/EvalOpMap.o: EvalOpMap.cpp $(OF)/EvalLoader.o
 	$(GCC) $(DEF) $< -c -o $@
 
-$(OF)/Tokenize.o: Tokenize.cpp $(OF)/EvalLoader.o $(LF)/LSParser.a
-	$(GCC) $< -c -o $@
-
 $(OF)/EvalLoader.o: EvalLoader.cpp EvalLoader.hpp Evaluator.hpp\
 					 ../Containers/VarIndice.hpp $(OF)/RPNToken.o
 	$(GCC) $(DEF) $< -c -o $@
-
-$(OF)/RPNToken.o: RPNToken.cpp RPNToken.hpp Numbers.hpp
-	$(GCC) $< -c -o $@
 
 clean:
 	rm -f *.o $(OBJS) test $(LF)/EvalLib.a

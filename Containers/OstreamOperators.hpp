@@ -6,6 +6,7 @@
 #include "ProductionData.hpp"
 #include "Alphabet.hpp"
 #include "LSentence.hpp"
+#include "RPNToken.hpp"
 
 std::ostream& operator<<(std::ostream &os, const LSYSTEM::LSFileData &fd);
 
@@ -20,6 +21,10 @@ std::ostream& operator<<(std::ostream &os, const LSYSTEM::LSystemData &lsd);
 std::ostream &operator<<(std::ostream &os, const LSYSTEM::Alphabet &alphabet);
 
 std::ostream &operator<<(std::ostream &os, const LSYSTEM::LSentence &lsentence);
+
+std::ostream &operator<<(std::ostream &os, const EVAL::RPNToken &token);
+
+std::ostream &operator<<(std::ostream &os, const EVAL::RPNList &rpnList);
 
 //https://stackoverflow.com/questions/535444/custom-manipulator-for-c-iostream
 namespace OSManip 

@@ -1,5 +1,5 @@
 #include "EvalLoader.hpp"
-#include "RPNToken.hpp"
+#include "../Containers/RPNToken.hpp"
 #include <iostream>
 #include <string>
 #include <cmath>
@@ -28,6 +28,7 @@ int main()
         {'c', &globals[0]},
         {'z', &globals[1]}
     };
+    std::unordered_set<char> globalSet = {'c','z'};
 
     //changes with every module
     std::map<char, VarIndice> varMap =
@@ -56,12 +57,13 @@ int main()
     uint numVals = 1;
     float x_val = 4.f;
     
-    EVAL::RuntimeLoader evR;
+    EVAL::RuntimeLoader evR(globalSet);
     evR.setOffset(numVals);
     evR.init();
     
     //load
-    EVAL::Evaluator *evalR = evR.load(exp, tokenizedExp, "foo");
+    EVAL::Evaluator *evalR = evR.load(exp, varMap, 1, "foo");
+//    EVAL::Evaluator *evalR = evR.load(exp, tokenizedExp, "foo");
     evR.generate();
 
     evR.update(globalMap);

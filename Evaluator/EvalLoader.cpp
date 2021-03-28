@@ -3,6 +3,7 @@
 
 #include "../Logger/Logger.hpp"
 #include "ShuntYardAlgorithm.hpp"
+#include "../Parsing/RPNTokenize.hpp"
 
 #include "RPNListFuncs.hpp"
 
@@ -19,9 +20,10 @@ Evaluator *Loader::getBasicEval(const std::string &exp, const float f)
 }
 
 //call AFTER setOffset()
-//Evaluator* RuntimeLoader::load(const std::string &expression, const VarIndiceMap &varMap, int maxVarDepth, const std::string &comment)
-Evaluator *RuntimeLoader::load(const std::string &expression, const RPNList &tokenizedExp, const std::string &comment)
+Evaluator* RuntimeLoader::load(const std::string &expression, const VarIndiceMap &varMap, int maxVarDepth, const std::string &comment)
+//Evaluator *RuntimeLoader::load(const std::string &expression, const RPNList &tokenizedExp, const std::string &comment)
 {
+    RPNList tokenizedExp = EVALPARSE::tokenize(expression, varMap, maxVarDepth, globalIds);
     //go through the tokenized list and see what type it resolves to...
     uint numGlobals = 0;
     uint numVars = 0;
@@ -58,7 +60,8 @@ Loader::~Loader()
         delete eval;
 }
 
-RuntimeLoader::RuntimeLoader():Loader(), m_offset(0), m_maxStackSz(0){}
+//kinda ties it to the lsystem, but that's ok, they are not too expensive
+RuntimeLoader::RuntimeLoader(const std::unordered_set<char> &_globalIds):Loader(), m_offset(0), m_maxStackSz(0), globalIds(_globalIds){}
 
 void RuntimeLoader::setOffset(uint offset)
 {

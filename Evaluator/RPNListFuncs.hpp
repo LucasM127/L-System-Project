@@ -1,7 +1,9 @@
 #ifndef RPN_LIST_FUNCS_HPP
 #define RPN_LIST_FUNCS_HPP
 
-#include "RPNToken.hpp"
+#include "../Containers/RPNToken.hpp"
+#include <stack>
+#include <map>
 
 namespace EVAL
 {
@@ -16,7 +18,6 @@ extern std::map<char, int> opPriorityMap;
 bool isUnary(const char op);
 bool isAnOp(const char op);
 bool isAFunc(const char op);
-
 
 void printStack(std::stack<char> &opStack);
 void printList(const RPNList &rpnList);

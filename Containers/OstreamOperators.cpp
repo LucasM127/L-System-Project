@@ -131,6 +131,47 @@ std::ostream &operator<<(std::ostream &os, const LSYSTEM::LSentence &lsentence)
     return os;
 }
 
+std::ostream &operator<<(std::ostream &os, const EVAL::RPNToken &token)
+{
+    switch (token.type)
+    {
+    case EVAL::RPNToken::TYPE::CONST:
+        os<<"VAL"<<token.value;
+        break;
+    case EVAL::RPNToken::TYPE::GLOBAL:
+        os<<"GLB:"<<token.token;
+        break;
+    case EVAL::RPNToken::TYPE::SYMBOL:
+        os<<"SYM:"<<token.token;
+        break;
+    case EVAL::RPNToken::TYPE::OP:
+        os<<"OP:"<<token.token;
+        break;
+    case EVAL::RPNToken::TYPE::VAR:
+        os<<"VAR:"<<token.index;//Don't want to send in the varIndiceMap so there we have it
+        break;
+    default:
+        break;
+    }
+    os<<" ";
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const EVAL::RPNList &rpnList)
+{
+    os<<"[";
+    for(auto &tok : rpnList)
+    {
+        if(tok.type == EVAL::RPNToken::TYPE::COMPLEX)
+            os<<*tok.rpnList;
+        else
+            os<<tok;
+    }
+    os<<"]";
+
+    return os;
+}
+
 //https://stackoverflow.com/questions/535444/custom-manipulator-for-c-iostream
 namespace OSManip 
 {

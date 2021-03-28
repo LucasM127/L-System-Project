@@ -8,9 +8,10 @@ namespace LSYSTEM
 {
 
 //need to add if can't find...????
+//should I pass it an evalLoader?  Particularly if is making a 'file'
 LSystem::LSystem(const LSData &lsData)// : alphabet(lsData.abc), skippableLetters(lsData.skippableLetters),
                                         //        m_evalLoader(nullptr), 
-                                        : m_maxDepth(0), m_maxWidth(0), m_valArray(nullptr)
+                                        : m_maxDepth(0), m_maxWidth(0), m_valArray(nullptr), globals(nullptr)
 {
     LSDataParser lsdp;
     lsdp.parse(lsData);
@@ -94,15 +95,23 @@ LSystem::LSystem(const LSData &lsData)// : alphabet(lsData.abc), skippableLetter
     }
     else
     {
-        m_evalLoader = new EVAL::RuntimeLoader;//EVAL::LibLoader;
+        m_evalLoader = new EVAL::RuntimeLoader(lsdp.globalSet);//EVAL::LibLoader;
         m_evalLoader->init();
         dynamic_cast<EVAL::RuntimeLoader*>(m_evalLoader)->setOffset(m_maxDepth*m_maxWidth);//ooops
+        globals = new float[lsdp.globalSet.size()];//DELETE ME
+        //lsdp.globalVarMap;//iterate me
+        uint i = 0;
+        for(auto &it : lsdp.globalVarMap)//char float
+        {
+            m_globalMap[it.first] = &globals[i];
+            globals[i++] = it.second;   
+        }//OBTUSE
 
         BasicParametricProduction *tempProduction = 0;
         for(const ProductionData &productionData : lsdp.productionDatas)
         {
             try
-            {
+           {
                 if(productionData.lContext.size()||productionData.rContext.size())
                     tempProduction = new ParametricProduction(productionData, m_alphabet, m_skippableLetters, *m_evalLoader, m_maxDepth);
                 else
@@ -113,7 +122,7 @@ LSystem::LSystem(const LSData &lsData)// : alphabet(lsData.abc), skippableLetter
                 for(auto pMap : m_productionMap)
                     for(BasicProduction* pRule : pMap.second)
                         delete pRule;
-                throw e;
+                throw std::runtime_error(e.what());
             }
             m_productionMap[productionData.letter[0]].push_back(tempProduction);
         }
@@ -149,6 +158,10 @@ LSystem::LSystem(const LSData &lsData)// : alphabet(lsData.abc), skippableLetter
         }
 
         m_evalLoader->generate();
+        dynamic_cast<EVAL::RuntimeLoader*>(m_evalLoader)->update(m_globalMap);//hmmm
+        //then HAVE TO update my products.
+        //Stochastic weight may be a function of a global!
+        //BLECH
 
         uint maxStackSz = dynamic_cast<EVAL::RuntimeLoader*>(m_evalLoader)->getMaxStackSz();
         m_valArray = new float[m_maxDepth * m_maxWidth + maxStackSz];
@@ -175,7 +188,7 @@ void LSystem::iterate(const VLSentence &oldSentence, VLSentence &newSentence)
 
     //match appropiate iteration 'type'
     bool applyDecompositions = m_decompositionMap.size() > 0;
-    //bool applyCut = oldSentence.m_alphabet.find('%') != oldSentence.m_alphabet.end();
+    
     if(applyDecompositions)
     {
         LSentence tempSentence;

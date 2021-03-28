@@ -27,7 +27,7 @@ $(LF)/LSystem.a: $(OBJS)
 $(OF)/LSInterpreter.o: LSInterpreter.cpp LSInterpreter.hpp $(OF)/LSystem.o
 	$(GCC) $< -c -o $@
 
-$(OF)/LSystem.o: LSystem.cpp LSystem.hpp $(OF)/ParametricProduction.o
+$(OF)/LSystem.o: LSystem.cpp LSystem.hpp $(OF)/ParametricProduction.o $(OF)/ProductionParser.o
 	$(GCC) $< -c -o $@
 
 $(OF)/ProductChooser.o: ProductChooser.cpp ProductChooser.hpp $(OF)/Production.o

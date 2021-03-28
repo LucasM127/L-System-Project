@@ -46,6 +46,11 @@ private:
     EVAL::Loader *m_evalLoader;//not necessarily 'owned' though is atm
     unsigned int m_maxDepth, m_maxWidth;//smallest dimensions of m_valArray to prevent access violations
     float *m_valArray;//utility, not multithreading safe, each thread should have own copy
+
+    std::map<char, float*> m_globalMap;
+    //???
+
+    float *globals;
 };
 
 } // namespace LSYSTEM

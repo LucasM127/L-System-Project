@@ -3,13 +3,22 @@
 namespace LSYSTEM
 {
 
+//So the issue has migrated over here at last!
+//WHY THE ALPHABET???
+//How tokenize? VarIndiceMap, in the product data, OK
+//should I just tokenize it and send it ... hmmmmm
+//ALL BECAUSE I CALL EV.Load
 ParametricProduct::ParametricProduct(const ProductData &pd, const Alphabet &pnm, VarIndiceMap &varIndiceMap, EVAL::Loader &ev, const unsigned int arrayDepth)
                                     : Product(this, pd.product)
 {
     createProductEvaluations(pd, ev, varIndiceMap, arrayDepth);
 //load is ok, getBasicEval is not
     if(pd.productWeight.size())
-        stochasticWeightEvaluator = ev.load(pd.productWeight, varIndiceMap, arrayDepth, pd.rawStatement);
+        stochasticWeightEvaluator = ev.load(pd.productWeight, varIndiceMap, arrayDepth, pd.rawStatement);//OK
+        //ev.load(exp, RPNList, comment);//THIS is nice...
+        //else ev.load(exp, varIndiceMap, globalMap(string,id), comment)
+        //call setMaxDepth to evloader??? during setOffset? so can know... probably
+        //could probably send globalMap too. but then that's 'parsing'
     else
         stochasticWeightEvaluator = ev.getBasicEval(pd.rawStatement, 1.f);
     if(pd.conditional.size())

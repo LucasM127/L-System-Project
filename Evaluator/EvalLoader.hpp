@@ -4,8 +4,11 @@
 #include <map>
 #include <vector>
 
+#include <unordered_set>
+
 #include "Evaluator.hpp"
-#include "RPNToken.hpp"
+#include "../Containers/RPNToken.hpp"
+#include "../Containers/VarIndice.hpp"
 
 namespace EVAL
 {
@@ -22,8 +25,7 @@ public:
     virtual void generate(){}
     virtual void close(){}
     //uses the VarIndiceMap 'container'
-    //virtual Evaluator* load(const std::string &expression, const VarIndiceMap &varMap, int maxVarDepth, const std::string &comment) = 0;
-    virtual Evaluator* load(const std::string &expression, const RPNList &tokenizedExp, const std::string &comment) = 0;
+    virtual Evaluator* load(const std::string &expression, const VarIndiceMap &varMap, int maxVarDepth, const std::string &comment) = 0;
     Evaluator *getBasicEval(const std::string &exp, const float f);
 protected:
 /*
@@ -47,9 +49,9 @@ protected:
 class RuntimeLoader : public Loader
 {
 public:
-    RuntimeLoader();
-    Evaluator* load(const std::string &expression, const RPNList &tokenizedExp, const std::string &comment) override;
-    //Evaluator* load(const std::string &expression, const VarIndiceMap &varMap, int maxVarDepth, const std::string &comment) override;
+    RuntimeLoader(const std::unordered_set<char> &_globalIds);
+    //Evaluator* load(const std::string &expression, const RPNList &tokenizedExp, const std::string &comment) override;
+    Evaluator* load(const std::string &expression, const VarIndiceMap &varMap, int maxVarDepth, const std::string &comment) override;
     void setOffset(uint offset);
     //call each ...
     void update(const std::map<char, float*> &globalMap);
@@ -60,6 +62,8 @@ private:
 
     uint getMaxStackSz(const RPNList &rpnlist);
 
+    const std::unordered_set<char> &globalIds;
+    //RPNList tokenize(const std::string &expression, const VarIndiceMap &varMap, int maxVarDepth);
 };
 
 }//namespace EVAL

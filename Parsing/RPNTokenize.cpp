@@ -1,6 +1,8 @@
 #include "RPNTokenize.hpp"
 #include "../Parsing/ParsingFuncs.hpp"
-#include <unordered_set>
+
+namespace EVALPARSE
+{
 
 //sorted by decreasing string size
 static const std::vector< std::pair<std::string, char> > tokenStringReplaceVector =
@@ -38,13 +40,14 @@ static const std::unordered_set<char> opSet =
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, '>', '<', '+', '-', '*', '/', '^'
 };
 
+//Just support 'single' char globals for now.
 EVAL::RPNList tokenize(const std::string &expression, const VarIndiceMap &varMap, const uint varDepth,
-                        std::unordered_map<std::string, char> &globalNameMap, std::unordered_map<char, float> &globalVarMap)
+                        const std::unordered_set<char> &globalSet)
 {
     std::string exp = expression;
     //TODO... maybe have a better way of tokenizing instead of just using Find and replace all the time...
     LSPARSE::findAndReplace(exp, tokenStringReplaceVector);//ops
-    LSPARSE::findAndReplace(exp, globalNameMap);//globals 'many words'
+    //LSPARSE::findAndReplace(exp, globalNameMap);//globals 'many words'
 
     auto isAnOp = [](char c)->bool
     {
@@ -53,7 +56,7 @@ EVAL::RPNList tokenize(const std::string &expression, const VarIndiceMap &varMap
 
     auto isAGlob = [&](char c)->bool
     {
-        return globalVarMap.count(c) > 0;
+        return globalSet.count(c) > 0;
     };
 
     std::vector<EVAL::RPNToken> tokens;
@@ -88,3 +91,5 @@ EVAL::RPNList tokenize(const std::string &expression, const VarIndiceMap &varMap
 
     return tokens;
 }//RPN Token Vector that we can thus play with...
+
+}//namespace EVALPARSE

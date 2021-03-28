@@ -1,7 +1,7 @@
 #ifndef SHUNT_YARD_ALGORITHM_HPP
 #define SHUNT_YARD_ALGORITHM_HPP
 
-#include "RPNToken.hpp"
+#include "../Containers/RPNToken.hpp"
 #include <stack>
 
 namespace EVAL

@@ -3,7 +3,7 @@ GCC = g++ -g -Wall
 OF = ../Obj
 LF = ../InternalLib
 #DEF = -D EVAL_DEBUG
-OBJS = $(OF)/Alphabet.o $(OF)/LSentence.o $(OF)/OstreamOperators.o
+OBJS = $(OF)/Alphabet.o $(OF)/RPNToken.o $(OF)/LSentence.o $(OF)/OstreamOperators.o
 
 test: main.o $(LF)/LSContainers.a
 	$(GCC) main.o $(OBJS) -o test
@@ -19,6 +19,9 @@ $(OF)/OstreamOperators.o: OstreamOperators.cpp OstreamOperators.hpp\
 	$(GCC) $< -c -o $@
 
 $(OF)/LSentence.o: LSentence.cpp LSentence.hpp $(OF)/Alphabet.o
+	$(GCC) $< -c -o $@
+
+$(OF)/RPNToken.o: RPNToken.cpp RPNToken.hpp
 	$(GCC) $< -c -o $@
 
 $(OF)/Alphabet.o: Alphabet.cpp Alphabet.hpp

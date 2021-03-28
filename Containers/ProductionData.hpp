@@ -20,6 +20,7 @@ namespace LSYSTEM
 struct LSData;//and remove LSystemData as loaded in house, validated with the functions...
 
 //can load from file, or personally, and put in LSystem loader...
+//Fine, 'user-friendly' one
 struct LSData
 {//global mapping//constants??? defines???
     std::vector<std::string> productions;
@@ -29,23 +30,15 @@ struct LSData
     std::vector<std::pair<std::string, float> > globals;
 };
 
-//has been parsed... yes.  product, is just the raw 'string' of chars needed for the product loader...
-//varIndiceMap too.
-//OK
-
-//Make another struct? One for 'decomposed' strings
-//One for 'converted' data... 
-//sigh
+//Send to loader.  Let the 'evalLoader' worry about tokenizing it.  too complicated otherwise
 struct ProductData
 {
     std::string rawStatement;
-    std::string product;
-    EVAL::RPNList productWeight;
-//    std::string productWeight;
-    EVAL::RPNList conditional;//no this doesn't seem right.
-//    std::string conditional;
-    std::vector< std::vector<EVAL::RPNList> > evalStrings;
-    VarIndiceMap varIndiceMap;//send this to the 'ProductData' side
+    std::string product;//no parameters
+    std::string productWeight;
+    std::string conditional;
+    std::vector< std::vector<std::string> > evalStrings;
+    VarIndiceMap varIndiceMap;
 };
 
 struct ProductionData

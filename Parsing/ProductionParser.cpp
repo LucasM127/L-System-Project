@@ -12,6 +12,9 @@ void LSDataParser::parse(const LSYSTEM::LSData &lsData)
     loadProductionDatas(lsData.homomorphisms,  homomorphicProductionDatas,   alphabet);
 
     assertAlphabet();
+
+    //find and replaceGlobals???
+    tokenizeGlobals();
 }
 
 void LSDataParser::mapGlobals(const std::vector<std::pair<std::string, float> > &globalPairs)
@@ -19,17 +22,20 @@ void LSDataParser::mapGlobals(const std::vector<std::pair<std::string, float> > 
     //give unique token id... local to this LSystem (for global identification)
     //char is 'signed' as I realized so lets use the negative numbers.
     //TODO convert char to uint8_t but that's another days job
+    
     char globalId = -1;
     for(auto &pair : globalPairs)
     {
         globalVarMap[globalId] = pair.second;
         globalNameMap[pair.first] = globalId;
+        globalSet.insert(globalId);
         --globalId;
-    }
+    }//DO WE WANT TO ???
+    
 }
 
 void LSDataParser::loadProductionDatas(const std::vector<std::string> &productionStrings, std::vector<LSYSTEM::ProductionData> &productionDatas, LSYSTEM::Alphabet &abc)
-{
+{//OK
     for(auto &productionString : productionStrings)
     {
         LSYSTEM::ProductionData pd;
@@ -47,9 +53,8 @@ try
 
         if(pd.letter.size() != 1)
             throw std::runtime_error(pd.products[0].rawStatement + " doesn't have a singular predicate letter.");
-        //pass in the varIndiceMap here?
-        //i guess so
-        pd.products[0].product = getProductEvalStrings(pd.products[0].product,pd.products[0].evalStrings,pd.products[0].varIndiceMap, abc);
+        
+        pd.products[0].product = getProductEvalStrings(pd.products[0].product, pd.products[0].evalStrings, abc);
 }
 catch(std::runtime_error &e)
 {
@@ -256,7 +261,7 @@ std::string LSDataParser::parseContextString(const std::string &contextString, u
     return letters;
 }
 
-std::string LSDataParser::getProductEvalStrings(const std::string &rawProductString,std::vector<std::vector<EVAL::RPNList> > &evalStrings, LSYSTEM::Alphabet &abc)
+std::string LSDataParser::getProductEvalStrings(const std::string &rawProductString,std::vector<std::vector<std::string> > &evalStrings, LSYSTEM::Alphabet &abc)
 {
     std::string letters;
     std::string paramString;
@@ -273,9 +278,7 @@ std::string LSDataParser::getProductEvalStrings(const std::string &rawProductStr
         {
             if(paramString.size() == 0)
                 throw std::runtime_error("No Rule to generate parameter(s) in letter \'" + std::string(&cur_letter,1) + "\'");
-                tokenize(paramString, varMap, depth, globalNameMap, globalVarMap);
-            evalStrings.back().push_back(std::move(RPNTokenize());//I guess so...
-//            evalStrings.back().push_back(paramString);
+            evalStrings.back().push_back(paramString);
             ++paramNum;
             paramString.clear();
         }
@@ -317,4 +320,46 @@ void LSDataParser::assertAlphabet()
                 if(alphabet.at(pd.product[i]) != pd.evalStrings[i].size())
                     throw std::runtime_error("Wrong number of parameters for letter '" + std::string(&pd.product[i],1) + "' in production " + pd.rawStatement);
             }
+}
+
+//need to get a better method than find and replace...
+//so can just do it as we parse the string(s)... google?
+//that's another job
+void LSDataParser::tokenizeGlobals()
+{
+    for(auto &ppd : productionDatas)
+    {
+        for(auto &pd : ppd.products)
+        {
+            LSPARSE::findAndReplace(pd.conditional, globalNameMap);
+            LSPARSE::findAndReplace(pd.productWeight, globalNameMap);
+            for(auto &v : pd.evalStrings)
+                for(auto &s : v)
+                    LSPARSE::findAndReplace(s,globalNameMap);
+        }
+    }
+
+    for(auto &ppd : decompositionProductionDatas)
+    {
+        for(auto &pd : ppd.products)
+        {
+            LSPARSE::findAndReplace(pd.conditional, globalNameMap);
+            LSPARSE::findAndReplace(pd.productWeight, globalNameMap);
+            for(auto &v : pd.evalStrings)
+                for(auto &s : v)
+                    LSPARSE::findAndReplace(s,globalNameMap);
+        }
+    }
+
+    for(auto &ppd : homomorphicProductionDatas)
+    {
+        for(auto &pd : ppd.products)
+        {
+            LSPARSE::findAndReplace(pd.conditional, globalNameMap);
+            LSPARSE::findAndReplace(pd.productWeight, globalNameMap);
+            for(auto &v : pd.evalStrings)
+                for(auto &s : v)
+                    LSPARSE::findAndReplace(s,globalNameMap);
+        }
+    }
 }

@@ -3,8 +3,7 @@ GCC = g++ -g -Wall
 OF = ../Obj
 LF = ../InternalLib
 #DEF = -D EVAL_DEBUG
-OBJS = $(OF)/ProductionParser.o $(OF)/LSParseFuncs.o $(OF)/LSFileParser.o $(OF)/ParsingFuncs.o
-
+OBJS = $(OF)/ProductionParser.o $(OF)/LSParseFuncs.o $(OF)/LSFileParser.o $(OF)/RPNTokenize.o $(OF)/ParsingFuncs.o
 
 test: main.o $(LF)/LSParser.a
 	g++ -g -Wall main.o $(LF)/LSParser.a $(LF)/LSContainers.a -o test
@@ -27,6 +26,9 @@ $(OF)/LSParseFuncs.o: LSParseFuncs.cpp LSParseFuncs.hpp ../Containers/LSentence.
 
 $(OF)/LSFileParser.o: LSFileParser.cpp LSFileParser.hpp ../Containers/LSFileData.hpp\
 						 ../Containers/ProductionData.hpp
+	$(GCC) $< -c -o $@
+
+$(OF)/RPNTokenize.o: RPNTokenize.cpp RPNTokenize.hpp ../Containers/RPNToken.hpp ../Containers/VarIndice.hpp
 	$(GCC) $< -c -o $@
 
 $(OF)/ParsingFuncs.o: ParsingFuncs.cpp ParsingFuncs.hpp

@@ -1,7 +1,7 @@
 #ifndef EVAL_RPNTOKEN_SIMPLIFY_HPP
 #define EVAL_RPNTOKEN_SIMPLIFY_HPP
 
-#include "RPNToken.hpp"
+#include "../Containers/RPNToken.hpp"
 
 namespace EVAL
 {
