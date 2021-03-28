@@ -9,6 +9,9 @@
 //#define OP  true,false
 //#define NUM false,true
 
+//WILL HAVE TO UPDATE ... at the end.
+
+
 int main()
 {
     srand(time(NULL));
@@ -35,7 +38,7 @@ int main()
     std::string exp="x*(z*(c-z))^0.5";//rowoftrees example algorithm
     EVAL::RPNList tokenizedExp = 
     {
-        {'x',EVAL::VAR},
+        {(uint)0},//'x' mapped
         {'*',EVAL::OP},
         {'(',EVAL::SYM},
         {'z',EVAL::GLB},
@@ -61,7 +64,7 @@ int main()
     EVAL::Evaluator *evalR = evR.load(exp, tokenizedExp, "foo");
     evR.generate();
 
-    evR.update(varMap, 1, globalMap);
+    evR.update(globalMap);
 
     uint stackSz = evR.getMaxStackSz();
     float *V = new float[numVals + stackSz];
@@ -72,7 +75,7 @@ int main()
 //    V[0] = rand()%100;
 //while(true){
     float n;
-    //for(uint i = 0; i < 100000; ++i)
+    for(uint i = 0; i < 100000; ++i)
     n = evalR->evaluate(V);
 //}
 //    while(true)
@@ -83,10 +86,14 @@ int main()
     std::cout<<"Max stack size was "<<stackSz<<"\n";
 
     globals[1] = 0.5f;//vs 0.3
-    evR.update(varMap, 1, globalMap);
+    evR.update(globalMap);
     n = evalR->evaluate(V);
     std::cout<<n<<" is answer duration "<<duration.count()<<"\n";
-
+    globals[1] = 0.75f;//vs 0.3
+    evR.update(globalMap);
+    n = evalR->evaluate(V);
+    std::cout<<n<<" is answer duration "<<duration.count()<<"\n";
+//2 is answer...
     evR.close();
 
     return 0;

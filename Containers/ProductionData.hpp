@@ -3,6 +3,7 @@
 
 #include "VarIndice.hpp"
 #include "Alphabet.hpp"
+#include "RPNToken.hpp"//hmm???
 #include <string>
 #include <vector>
 #include <set>
@@ -28,13 +29,22 @@ struct LSData
     std::vector<std::pair<std::string, float> > globals;
 };
 
+//has been parsed... yes.  product, is just the raw 'string' of chars needed for the product loader...
+//varIndiceMap too.
+//OK
+
+//Make another struct? One for 'decomposed' strings
+//One for 'converted' data... 
+//sigh
 struct ProductData
 {
     std::string rawStatement;
     std::string product;
-    std::string productWeight;
-    std::string conditional;
-    std::vector< std::vector<std::string> > evalStrings;
+    EVAL::RPNList productWeight;
+//    std::string productWeight;
+    EVAL::RPNList conditional;//no this doesn't seem right.
+//    std::string conditional;
+    std::vector< std::vector<EVAL::RPNList> > evalStrings;
     VarIndiceMap varIndiceMap;//send this to the 'ProductData' side
 };
 

@@ -11,7 +11,7 @@ Evaluator::Evaluator(const std::string &exp, bool _isConst, bool global, RPNList
                      : expression(exp), isConst(_isConst), hasGlobal(global), m_refList(std::move(refList))
 {}
 
-void Evaluator::update(const VarIndiceMap &varMap, const uint depth, const std::map<char, float*> &globalMap)
+void Evaluator::update(const std::map<char, float*> &globalMap)
 {
     m_tempList.clear();
     RPNList tempTreeList;
@@ -21,7 +21,7 @@ void Evaluator::update(const VarIndiceMap &varMap, const uint depth, const std::
     S(tempTreeList);//all is const now again!
     expand(tempTreeList, m_tempList);//flattens the tree
     //convert
-    updateLocal(varMap, depth);
+    updateLocal();
 }
 
 uint Evaluator::maxStackSz(){return 1;}
@@ -30,7 +30,7 @@ ConstEvaluator::ConstEvaluator(const std::string &exp, RPNList &&refList, bool g
 float ConstEvaluator::evaluate(float *v) {return m_val;}
 
 
-void ConstEvaluator::updateLocal(const VarIndiceMap &varMap, const uint depth)
+void ConstEvaluator::updateLocal()
 {
     assert(m_tempList.size()==1);
     m_val = m_tempList[0].value;
@@ -39,11 +39,10 @@ void ConstEvaluator::updateLocal(const VarIndiceMap &varMap, const uint depth)
 SimpleEvaluator::SimpleEvaluator(const std::string &exp, RPNList &&refList) : Evaluator(exp, false, false, std::move(refList)) {}
 float SimpleEvaluator::evaluate(float *v) {return v[m_index];}
 
-void SimpleEvaluator::updateLocal(const VarIndiceMap &varMap, const uint depth)
+void SimpleEvaluator::updateLocal()
 {
     assert(m_tempList.size()==1);
-    VarIndice V = varMap.at(m_tempList[0].token);
-    m_index = V.letterNum * depth + V.paramNum;
+    m_index = m_tempList[0].index;
 }
 
 ComplexEvaluator::ComplexEvaluator(const std::string &exp, RPNList &&refList, bool global, uint offset)
@@ -73,7 +72,7 @@ float ComplexEvaluator::evaluate(float *v)
     return v[m_offset];
 }
 
-void ComplexEvaluator::updateLocal(const VarIndiceMap &varMap, const uint depth)
+void ComplexEvaluator::updateLocal()
 {
     m_rpnList.clear();
     for(auto &T : m_tempList)
@@ -91,10 +90,9 @@ void ComplexEvaluator::updateLocal(const VarIndiceMap &varMap, const uint depth)
         {
             if(T.type == RPNToken::TYPE::CONST)
                 m_rpnList.emplace_back(T.value);
-            else
+            else//VAR
             {
-                VarIndice V = varMap.at(T.token);
-                m_rpnList.emplace_back(V.letterNum * depth + V.paramNum);
+                m_rpnList.emplace_back(T.index);
             }
         }
     }

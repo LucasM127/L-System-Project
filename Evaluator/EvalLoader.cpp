@@ -70,12 +70,12 @@ uint RuntimeLoader::getMaxStackSz()
     return m_maxStackSz;
 }
 
-void RuntimeLoader::update(const VarIndiceMap &varMap, const uint depth, const std::map<char, float*> &globalMap)
+void RuntimeLoader::update(const std::map<char, float*> &globalMap)
 {
     m_maxStackSz = 0;
     for(auto eval : m_evaluators)
     {
-        eval->update(varMap, depth, globalMap);
+        eval->update(globalMap);
         uint stackSz = eval->maxStackSz();
         if(stackSz > m_maxStackSz) m_maxStackSz = stackSz;
     }

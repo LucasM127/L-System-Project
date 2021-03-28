@@ -75,23 +75,6 @@ bool isAFunc(const char op)
     return funcOpMap.find(op) != funcOpMap.end();
 }
 
-void expand(RPNList &rpnList, RPNList &rpnListFinal)
-{
-    for(std::size_t i = 0; i < rpnList.size(); ++i)
-    {
-        auto &T = rpnList[i];
-        if(T.type == RPNToken::TYPE::COMPLEX)
-        {
-                expand(*T.rpnList, rpnListFinal);
-                delete T.rpnList;
-        }
-        else
-        {
-            rpnListFinal.push_back(T);
-        }
-    }
-}
-
 void convertGlobalsToConst(RPNList &rpnList, const std::map<char, float*> &globalMap)
 {
     for(auto &tok : rpnList)

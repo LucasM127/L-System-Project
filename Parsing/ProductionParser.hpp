@@ -25,7 +25,8 @@ private:
 
 //    void fillVarMap(const std::string&,uint&,VarIndiceMap&,LSYSTEM::Alphabet &pnm);
     std::string parseContextString(const std::string &contextString, uint &varIndex, VarIndiceMap& varIndiceMap, LSYSTEM::Alphabet &abc);
-    std::string getProductEvalStrings(const std::string& rawProductString,std::vector<std::vector<std::string> >&, LSYSTEM::Alphabet &pnm);
+    std::string getProductEvalStrings(const std::string& rawProductString,std::vector<std::vector<EVAL::RPNList> >&,
+                                        VarIndiceMap& varIndiceMap, LSYSTEM::Alphabet &pnm);
 
     void assertAlphabet();
 };

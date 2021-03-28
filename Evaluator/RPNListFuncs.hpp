@@ -17,11 +17,11 @@ bool isUnary(const char op);
 bool isAnOp(const char op);
 bool isAFunc(const char op);
 
-void expand(RPNList &rpnList, RPNList &rpnListFinal);
 
 void printStack(std::stack<char> &opStack);
 void printList(const RPNList &rpnList);
 
+//used in Evaluator.cpp
 void convertGlobalsToConst(RPNList &rpnList, const std::map<char, float*> &globalMap);
 
 } //namespace EVAL

@@ -52,7 +52,7 @@ public:
     //Evaluator* load(const std::string &expression, const VarIndiceMap &varMap, int maxVarDepth, const std::string &comment) override;
     void setOffset(uint offset);
     //call each ...
-    void update(const VarIndiceMap &varMap, const uint depth, const std::map<char, float*> &globalMap);
+    void update(const std::map<char, float*> &globalMap);
     uint getMaxStackSz();
 private:
     uint m_offset;

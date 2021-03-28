@@ -16,8 +16,8 @@ public:
     Evaluator(const std::string &exp, bool _isConst, bool global, RPNList &&refList);
     virtual ~Evaluator(){}
     virtual float evaluate(float *v) = 0;
-    void update(const VarIndiceMap &varMap, const uint depth, const std::map<char, float*> &globalMap);
-    virtual void updateLocal(const VarIndiceMap &varMap, const uint depth) = 0;
+    void update(const std::map<char, float*> &globalMap);
+    virtual void updateLocal() = 0;
     virtual uint maxStackSz();
     const std::string expression;
     const bool isConst;
@@ -56,7 +56,7 @@ public:
     ConstEvaluator(const std::string &exp, RPNList &&refList, bool global);
     float evaluate(float *v);
 private:
-    void updateLocal(const VarIndiceMap &varMap, const uint depth) override;//globals have been changed... so 'recalculate it out'
+    void updateLocal() override;//globals have been changed... so 'recalculate it out'
     float m_val;
 };
 
@@ -68,7 +68,7 @@ public:
     SimpleEvaluator(const std::string &exp, RPNList &&refList);
     float evaluate(float *v);
 private:
-    void updateLocal(const VarIndiceMap &varMap, const uint depth) override;
+    void updateLocal() override;
     uint m_index;
 };
 
@@ -78,7 +78,7 @@ class ComplexEvaluator : public Evaluator
 public:
     ComplexEvaluator(const std::string &exp, RPNList &&refList, bool global, uint offset);
     float evaluate(float *v);
-    void updateLocal(const VarIndiceMap &varMap, const uint depth) override;
+    void updateLocal() override;
     uint maxStackSz() override;
 private:
     std::vector<RPN> m_rpnList;
