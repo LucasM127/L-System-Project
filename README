@@ -41,8 +41,8 @@ Stochastic Set:
 B(x) => B(x) : x
 B(x) => C : 1
 
-Contextual Set: (the production rules applied from greater to lesser context size)
-BC < D > E => X (tried second)
+Contextual Set: (the production rules applied from both right and left contexts defined, only one defined, none defined)
+BC < D => X (tried second)
 ABC < D > E[F]G => X (tried first)
 D => (tried last)
 A skippable set of letters may be defined to ignore certain letters in context matching.
