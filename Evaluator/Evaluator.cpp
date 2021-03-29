@@ -12,8 +12,8 @@ Evaluator::Evaluator(const std::string &exp, bool _isConst, bool global, RPNList
 {}
 
 Evaluator::~Evaluator()
-{
-    destroy(m_refList);
+{//??
+    //destroy(m_refList);
 }
 
 void Evaluator::update(const std::unordered_map<char,float> &globalMap)

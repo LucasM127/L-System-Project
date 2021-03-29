@@ -28,6 +28,7 @@ Evaluator* RuntimeLoader::load(const std::string &expression, const VarIndiceMap
     uint numGlobals = 0;
     uint numVars = 0;
     uint numVals = 0;
+    bool hasRand = false;
     for(auto &tok : tokenizedExp)
     {
         if(tok.type == RPNToken::TYPE::CONST)
@@ -35,18 +36,21 @@ Evaluator* RuntimeLoader::load(const std::string &expression, const VarIndiceMap
         else if(tok.type == RPNToken::TYPE::GLOBAL)
             ++numGlobals;
         else if(tok.type == RPNToken::TYPE::VAR)
-            ++numVars;    
+            ++numVars;
+        else if(tok.type == RPNToken::TYPE::OP && tok.token == 9)//random
+            hasRand = true;
     }
 
     ShuntYardAlgorithm SYA;
     RPNList &treeList = SYA.apply(tokenizedExp);
-
+//If there is RAND it fails!!!  rand does not simplify... so rand(10) will need to be a complex evaluator
+//FIX!!! THIS BETTER 
     //create appropiate Evaluator
     Evaluator * retEvalPtr;
-    if(numVars == 0)//simplifies to a simple constant
+    if(numVars == 0 && !hasRand)//simplifies to a simple constant
         retEvalPtr = new ConstEvaluator(expression, std::move(treeList), numGlobals > 0);
-    else if(numGlobals == 0 && numVals == 0 && numVars == 1)//just the one variable number
-        retEvalPtr = new SimpleEvaluator(expression, std::move(treeList));
+    else if(numGlobals == 0 && numVals == 0 && numVars == 1 && !hasRand)//just the one variable number
+        retEvalPtr = new SimpleEvaluator(expression, std::move(treeList));//Size has to be one.
     else
         retEvalPtr = new ComplexEvaluator(expression, std::move(treeList), numGlobals > 0, m_offset);
 
