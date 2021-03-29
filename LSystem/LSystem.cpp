@@ -50,7 +50,7 @@ LSystem::LSystem(const LSData &lsData)// : alphabet(lsData.abc), skippableLetter
     loadProductions(lsdp);
 
     m_evalLoader.generate();
-    m_evalLoader.update();//actually simplify with the globals
+    update();
 
     m_maxStackSz = m_evalLoader.getMaxStackSz();
 }
@@ -251,6 +251,15 @@ void LSystem::updateGlobal(const std::string &globalString, const float val)
 void LSystem::update()
 {
     m_evalLoader.update();
+    for(auto &pm : m_productionMap)
+        for(auto &p : pm.second)
+            p->update();
+    for(auto &pm : m_decompositionMap)
+        for(auto &p : pm.second)
+            p->update();
+    for(auto &pm : m_homomorphismMap)
+        for(auto &p : pm.second)
+            p->update();
 }
 
 void LSystem::loadProductions(LSDataParser &lsdp)
