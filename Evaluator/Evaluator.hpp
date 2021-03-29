@@ -15,7 +15,7 @@ class Evaluator
 {
 public:
     Evaluator(const std::string &exp, bool _isConst, bool global, RPNList &&refList);
-    virtual ~Evaluator(){}
+    virtual ~Evaluator();
     virtual float evaluate(float *v) = 0;
     void update(const std::unordered_map<char, float> &globalMap);
     virtual void updateLocal() = 0;

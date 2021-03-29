@@ -11,6 +11,11 @@ Evaluator::Evaluator(const std::string &exp, bool _isConst, bool global, RPNList
                      : expression(exp), isConst(_isConst), hasGlobal(global), m_refList(std::move(refList))
 {}
 
+Evaluator::~Evaluator()
+{
+    destroy(m_refList);
+}
+
 void Evaluator::update(const std::unordered_map<char,float> &globalMap)
 {
     m_tempList.clear();
