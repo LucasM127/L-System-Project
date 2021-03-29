@@ -23,7 +23,7 @@ Evaluator *Loader::getBasicEval(const std::string &exp, const float f)
 Evaluator* RuntimeLoader::load(const std::string &expression, const VarIndiceMap &varMap, int maxVarDepth, const std::string &comment)
 //Evaluator *RuntimeLoader::load(const std::string &expression, const RPNList &tokenizedExp, const std::string &comment)
 {
-    RPNList tokenizedExp = EVALPARSE::tokenize(expression, varMap, maxVarDepth, globalIds);
+    RPNList tokenizedExp = EVALPARSE::tokenize(expression, varMap, maxVarDepth, *globalMapPtr);
     //go through the tokenized list and see what type it resolves to...
     uint numGlobals = 0;
     uint numVars = 0;
@@ -61,11 +61,16 @@ Loader::~Loader()
 }
 
 //kinda ties it to the lsystem, but that's ok, they are not too expensive
-RuntimeLoader::RuntimeLoader(const std::unordered_set<char> &_globalIds):Loader(), m_offset(0), m_maxStackSz(0), globalIds(_globalIds){}
+RuntimeLoader::RuntimeLoader():Loader(), m_offset(0), m_maxStackSz(0), globalMapPtr(nullptr){}
 
 void RuntimeLoader::setOffset(uint offset)
 {
     m_offset = offset;
+}
+
+void RuntimeLoader::setGlobalMap(const std::unordered_map<char,float> &globalMap)
+{
+    globalMapPtr = &globalMap;
 }
 
 uint RuntimeLoader::getMaxStackSz()
@@ -73,12 +78,12 @@ uint RuntimeLoader::getMaxStackSz()
     return m_maxStackSz;
 }
 
-void RuntimeLoader::update(const std::map<char, float*> &globalMap)
+void RuntimeLoader::update()
 {
     m_maxStackSz = 0;
     for(auto eval : m_evaluators)
     {
-        eval->update(globalMap);
+        eval->update(*globalMapPtr);
         uint stackSz = eval->maxStackSz();
         if(stackSz > m_maxStackSz) m_maxStackSz = stackSz;
     }

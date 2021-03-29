@@ -5,6 +5,8 @@
 #include "../Containers/ProductionData.hpp"
 #include "LSInterpreter.hpp"
 
+#include "../Parsing/ProductionParser.hpp"
+
 //More as in production application functions
 //cut symbol is a special production that doesn't lend itself to a product, more so a procedure
 //productions & decompositions linked as a singular step
@@ -19,21 +21,23 @@ class LSystem
 {
 public:
     LSystem(const LSData &lsData);
-    //LSystem(const LSystemData &lsData);
     ~LSystem();
     void iterate(const VLSentence &sentence, VLSentence &newSentence);
     void interpret(VLSentence &sentence, LSInterpreter &I, LSReinterpreter &R);
     void interpret(VLSentence &sentence, LSInterpreter &I);
+    void updateGlobal(const std::string &id, const float val);
+    void update();
 private:
+    Product * findMatch(const unsigned int i, const LSentence &refLS, std::unordered_map<char, std::vector<BasicProduction*> > &productionMap,
+                        float *V, unsigned int *indiceHolder);
     void applyCut(const LSentence &oldSentence, unsigned int &i);
-    Product * findMatch(const unsigned int i, const LSentence &refLS, std::unordered_map<char, std::vector<BasicProduction*> > &productionMap, float *V);
-    void applyProduct(const LSentence &oldSentence, LSentence &newSentence, unsigned int &curIndex,
-                                std::unordered_map<char, std::vector<BasicProduction*> > &productMap, float *V);
-    void applyProductionRecursively(const LSentence &sentence, const unsigned int curIndex, LSentence &newSentence,
-                                        ProductionMap &pm, float *V);
-    void decompose(const LSentence &undecomposedSentence, LSentence &newSentence, float *V);
-    //void decompose(const LSentence &undecomposedSentence, LSentence &newSentence, const unsigned int curIndex, float *V);
     void applyBasicProduct(const LSentence &oldSentence, LSentence &newSentence, const unsigned int curIndex);
+    void applyProduct(const LSentence &oldSentence, LSentence &newSentence, unsigned int &curIndex,
+                                std::unordered_map<char, std::vector<BasicProduction*> > &productMap, float *V, unsigned int *indiceHolder);
+    void applyProductionRecursively(const LSentence &sentence, const unsigned int curIndex, LSentence &newSentence,
+                                        ProductionMap &pm, float *V, unsigned int *indiceHolder);
+    void decompose(const LSentence &undecomposedSentence, LSentence &newSentence, float *V, unsigned int *indiceHolder);
+    
     std::unordered_map<char, std::vector<BasicProduction*> > m_productionMap;
     std::unordered_map<char, std::vector<BasicProduction*> > m_decompositionMap;
     std::unordered_map<char, std::vector<BasicProduction*> > m_homomorphismMap;
@@ -41,16 +45,18 @@ private:
     void contract(LSYSTEM::VLSentence &vlsentence);
 
     Alphabet m_alphabet;//can't use a conflicting alphabet or the productions may try to write to a non-existant parameter
-    std::set<char> m_skippableLetters;//for context matching, cut symbol cut off branch?
 
-    EVAL::Loader *m_evalLoader;//not necessarily 'owned' though is atm
+    EVAL::RuntimeLoader m_evalLoader;
+
     unsigned int m_maxDepth, m_maxWidth;//smallest dimensions of m_valArray to prevent access violations
-    float *m_valArray;//utility, not multithreading safe, each thread should have own copy
+    unsigned int m_maxStackSz;
 
-    std::map<char, float*> m_globalMap;
-    //???
+    std::set<char> m_skippableLetters;
+    std::unordered_map<std::string, char> m_globalNameMap;
+    std::unordered_map<char, float> m_globalVarMap;
 
-    float *globals;
+    void loadProductions(LSDataParser &lsdp);
+    bool amSimple;
 };
 
 } // namespace LSYSTEM

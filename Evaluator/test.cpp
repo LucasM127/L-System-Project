@@ -16,17 +16,12 @@ int main()
 {
     srand(time(NULL));
 
-    float globals[] = 
-    {
-        1.f,//'c'
-        0.3,//'z'
-    };
     
     //constant for whole iteration cycle
-    std::map<char, float*> globalMap = 
+    std::unordered_map<char, float> globalMap = 
     {
-        {'c', &globals[0]},
-        {'z', &globals[1]}
+        {'c', 1.f},
+        {'z', 0.3f}
     };
     std::unordered_set<char> globalSet = {'c','z'};
 
@@ -57,8 +52,9 @@ int main()
     uint numVals = 1;
     float x_val = 4.f;
     
-    EVAL::RuntimeLoader evR(globalSet);
+    EVAL::RuntimeLoader evR;
     evR.setOffset(numVals);
+    evR.setGlobalMap(globalMap);//char float
     evR.init();
     
     //load
@@ -66,7 +62,7 @@ int main()
 //    EVAL::Evaluator *evalR = evR.load(exp, tokenizedExp, "foo");
     evR.generate();
 
-    evR.update(globalMap);
+    evR.update();
 
     uint stackSz = evR.getMaxStackSz();
     float *V = new float[numVals + stackSz];
@@ -87,12 +83,12 @@ int main()
     std::cout<<n<<" is answer duration "<<duration.count()<<"\n";
     std::cout<<"Max stack size was "<<stackSz<<"\n";
 
-    globals[1] = 0.5f;//vs 0.3
-    evR.update(globalMap);
+    globalMap['z'] = 0.5f;//vs 0.3
+    evR.update();
     n = evalR->evaluate(V);
     std::cout<<n<<" is answer duration "<<duration.count()<<"\n";
-    globals[1] = 0.75f;//vs 0.3
-    evR.update(globalMap);
+    globalMap['z'] = 0.75f;//vs 0.3
+    evR.update();
     n = evalR->evaluate(V);
     std::cout<<n<<" is answer duration "<<duration.count()<<"\n";
 //2 is answer...

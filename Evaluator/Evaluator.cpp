@@ -11,7 +11,7 @@ Evaluator::Evaluator(const std::string &exp, bool _isConst, bool global, RPNList
                      : expression(exp), isConst(_isConst), hasGlobal(global), m_refList(std::move(refList))
 {}
 
-void Evaluator::update(const std::map<char, float*> &globalMap)
+void Evaluator::update(const std::unordered_map<char,float> &globalMap)
 {
     m_tempList.clear();
     RPNList tempTreeList;

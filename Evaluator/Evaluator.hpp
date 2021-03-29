@@ -2,7 +2,7 @@
 #define EVALUATOR_HPP
 
 #include <string>
-#include <map>
+#include <unordered_map>
 #include "../Containers/RPNToken.hpp"
 
 namespace EVAL
@@ -17,7 +17,7 @@ public:
     Evaluator(const std::string &exp, bool _isConst, bool global, RPNList &&refList);
     virtual ~Evaluator(){}
     virtual float evaluate(float *v) = 0;
-    void update(const std::map<char, float*> &globalMap);
+    void update(const std::unordered_map<char, float> &globalMap);
     virtual void updateLocal() = 0;
     virtual uint maxStackSz();
     const std::string expression;

@@ -3,7 +3,7 @@ GCC = g++ -g -Wall
 OF = ../Obj
 LF = ../InternalLib
 OBJS = $(OF)/VLSentence.o $(OF)/Production.o $(OF)/ParametricProduction.o\
-		 $(OF)/ProductChooser.o $(OF)/LSystem.o $(OF)/LSInterpreter.o
+		 $(OF)/ProductChooser.o $(OF)/Product.o $(OF)/LSystem.o $(OF)/LSInterpreter.o
 STATIC_LIBS = $(LF)/LSystem.a $(LF)/EvalLib.a $(LF)/LSParser.a $(LF)/LSContainers.a
 
 test:  main.o $(STATIC_LIBS)
@@ -31,6 +31,9 @@ $(OF)/LSystem.o: LSystem.cpp LSystem.hpp $(OF)/ParametricProduction.o $(OF)/Prod
 	$(GCC) $< -c -o $@
 
 $(OF)/ProductChooser.o: ProductChooser.cpp ProductChooser.hpp $(OF)/Production.o
+	$(GCC) $< -c -o $@
+
+$(OF)/Product.o: Product.cpp Product.hpp
 	$(GCC) $< -c -o $@
 
 $(OF)/ParametricProduction.o: ParametricProduction.cpp ParametricProduction.hpp\

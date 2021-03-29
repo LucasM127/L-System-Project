@@ -4,70 +4,73 @@
 namespace LSYSTEM
 {
 
-Product::Product(const std::string &_productString, float w) : product(_productString), m_stochasticWeight(w)
-{}
-
-Product::Product(ParametricProduct *P, const std::string &_productString) : product(_productString) {}
-
-//non parametric
-void Product::apply(LSentence &lsentence, float * V)
+BasicProduction::BasicProduction(const ProductionData &ppd, EVAL::Loader &ev, const unsigned int arrayDepth) : m_arrayDepth(arrayDepth)
 {
-    for(auto c : product)
+    bool isConditional = false;
+    bool isVariableWeight = false;
+    for(const ProductData &pd : ppd.products)
     {
-        lsentence.push_back(c,0);
+        m_products.emplace_back(pd, ev, arrayDepth);
+        if(pd.conditional.size()>0)
+            isConditional = true;//has a conditional statement
+        if(!m_products.back().isFixedWeight())
+            isVariableWeight = true;//weights vary on variables
     }
-}
-
-bool Product::isValid(float * V){return true;}
-const float Product::getWeight(){return m_stochasticWeight;}
-const float Product::calcWeight(float * V){return m_stochasticWeight;}
-
-BasicProduction::BasicProduction(const std::vector<ProductData> &pds)
-{
-    Product *P_temp;
-    for(const ProductData &pd : pds)
+    if(m_products.size()==1)
     {
-        if(pd.productWeight.size()) P_temp = new Product(pd.product, std::stof(pd.productWeight));
-        else P_temp = new Product(pd.product);
-        m_products.push_back(P_temp);
+        if(isConditional)
+            m_chooser = new ConditionalProductChooser(m_products);
+        else
+            m_chooser = new ProductChooser(m_products);
     }
-    if(m_products.size() == 1) m_chooser = new ProductChooser(m_products);
-    else m_chooser = new StochasticProductChooser(m_products);
+    else
+    {
+        if(isVariableWeight)
+        {
+            if(isConditional)
+                m_chooser = new VariableStochasticConditionalProductChooser(m_products);
+            else
+                m_chooser = new VariableStochasticProductChooser(m_products);
+        }
+        else
+        {
+            if(isConditional)
+                m_chooser = new StochasticConditionalProductChooser(m_products);
+            else
+                m_chooser = new StochasticProductChooser(m_products);
+        }
+        
+    }
 }
 
 BasicProduction::~BasicProduction()
 {
-    for(Product *P : m_products) delete P;
-    //delete m_chooser;
+    delete m_chooser;
 }
 
-ProductChooser *BasicProduction::pass(const LSentence &lsentence, const unsigned int i, float * V, unsigned int arrayDepth)
+void BasicProduction::update()
 {
-    return m_chooser;
+    m_chooser->update();//may have to recalculate stochastic weights
 }
 
-Product *BasicProduction::getProduct(){return m_chooser->choose(nullptr);}
+Product *BasicProduction::pass(const LSentence &lsentence, const unsigned int i, float * V, unsigned int *indiceHolder)
+{
+    return m_chooser->choose(V);
+}
 
-//FIX THIS! STATE SHOULD NOT BE HELD HERE
 ProductionContext::ProductionContext(const std::string &lc, const std::string &rc, const std::set<char> &_skippableLetters)
                                     : lContext(lc), rContext(rc), skippableLetters(_skippableLetters)
-{
-    lContextIndices = new unsigned int[lc.size()];
-    rContextIndices = new unsigned int[rc.size()];
-}
+{}
 
 ProductionContext::~ProductionContext()
-{
-    delete[] lContextIndices;
-    delete[] rContextIndices;
-}
+{}
 
 bool isSkippable(char c, const std::set<char> &skippableLetters)
 {
     return skippableLetters.count(c) > 0;
 }
 
-bool ProductionContext::passLContext(const LSentence &lsentence, const unsigned int curLetterIndex)
+bool ProductionContext::passLContext(const LSentence &lsentence, const unsigned int curLetterIndex, unsigned int *lContextIndices)
 {
     unsigned int i = lContext.size() - 1;//start at the right, go left
     int curLvl = 0;
@@ -115,7 +118,7 @@ bool ProductionContext::passLContext(const LSentence &lsentence, const unsigned 
 
 //matches rcontext [x][y] to letter 'a' in a[d][x][c][y]b but not a[y][x]b, fixed order
 //also ax[y] not equivalent to a[x][y]
-bool ProductionContext::passRContext(const LSentence &lsentence, const unsigned int curLetterIndex)
+bool ProductionContext::passRContext(const LSentence &lsentence, const unsigned int curLetterIndex, unsigned int *rContextIndices)
 {
 //no numSkipStack this time!
     unsigned int i = 0;//going right
@@ -189,20 +192,21 @@ bool ProductionContext::passRContext(const LSentence &lsentence, const unsigned 
     return true;
 }
 
-Production::Production(const std::vector<ProductData> &pds, const Alphabet &abc, const std::string &lc, const std::string &rc, const std::set<char> &_skippableLetters)
-                        : BasicProduction(pds), ProductionContext(lc, rc, _skippableLetters)
+Production::Production(const ProductionData &ppd, EVAL::Loader &ev, const unsigned int arrayDepth,
+                        const std::set<char> &skippableLetters)
+                        : BasicProduction(ppd, ev, arrayDepth), ProductionContext(ppd.lContext, ppd.rContext, skippableLetters)
 {}
 
 Production::~Production()
 {}
 
-ProductChooser* Production::pass(const LSentence &lsentence, const unsigned int i, float * V, unsigned int arrayDepth)
+Product *Production::pass(const LSentence &lsentence, const unsigned int i, float * V, unsigned int *indiceHolder)
 {
-    if(!passLContext(lsentence,i))
+    if(!passLContext(lsentence,i,indiceHolder))
         return nullptr;
-    if(!passRContext(lsentence,i))
+    if(!passRContext(lsentence,i,&indiceHolder[lContext.size()]))
         return nullptr;
-    return m_chooser;
+    return m_chooser->choose(V);
 }
 
 } // namespace LSYSTEM

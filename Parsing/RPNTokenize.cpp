@@ -1,6 +1,8 @@
 #include "RPNTokenize.hpp"
 #include "../Parsing/ParsingFuncs.hpp"
 
+#include <unordered_set>
+
 namespace EVALPARSE
 {
 
@@ -42,7 +44,7 @@ static const std::unordered_set<char> opSet =
 
 //Just support 'single' char globals for now.
 EVAL::RPNList tokenize(const std::string &expression, const VarIndiceMap &varMap, const uint varDepth,
-                        const std::unordered_set<char> &globalSet)
+                        const std::unordered_map<char,float> &globalMap)
 {
     std::string exp = expression;
     //TODO... maybe have a better way of tokenizing instead of just using Find and replace all the time...
@@ -56,7 +58,7 @@ EVAL::RPNList tokenize(const std::string &expression, const VarIndiceMap &varMap
 
     auto isAGlob = [&](char c)->bool
     {
-        return globalSet.count(c) > 0;
+        return globalMap.count(c) > 0;
     };
 
     std::vector<EVAL::RPNToken> tokens;

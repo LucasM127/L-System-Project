@@ -1,7 +1,7 @@
 #ifndef EVAL_LOADER_HPP
 #define EVAL_LOADER_HPP
 
-#include <map>
+#include <unordered_map>
 #include <vector>
 
 #include <unordered_set>
@@ -49,12 +49,13 @@ protected:
 class RuntimeLoader : public Loader
 {
 public:
-    RuntimeLoader(const std::unordered_set<char> &_globalIds);
+    RuntimeLoader();
     //Evaluator* load(const std::string &expression, const RPNList &tokenizedExp, const std::string &comment) override;
     Evaluator* load(const std::string &expression, const VarIndiceMap &varMap, int maxVarDepth, const std::string &comment) override;
     void setOffset(uint offset);
+    void setGlobalMap(const std::unordered_map<char,float> &globalMap);
     //call each ...
-    void update(const std::map<char, float*> &globalMap);
+    void update();//update for global map
     uint getMaxStackSz();
 private:
     uint m_offset;
@@ -62,8 +63,7 @@ private:
 
     uint getMaxStackSz(const RPNList &rpnlist);
 
-    const std::unordered_set<char> &globalIds;
-    //RPNList tokenize(const std::string &expression, const VarIndiceMap &varMap, int maxVarDepth);
+    const std::unordered_map<char,float> *globalMapPtr;
 };
 
 }//namespace EVAL

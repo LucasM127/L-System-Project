@@ -4,6 +4,7 @@
 #include "../Containers/RPNToken.hpp"
 #include <stack>
 #include <map>
+#include <unordered_map>
 
 namespace EVAL
 {
@@ -23,7 +24,7 @@ void printStack(std::stack<char> &opStack);
 void printList(const RPNList &rpnList);
 
 //used in Evaluator.cpp
-void convertGlobalsToConst(RPNList &rpnList, const std::map<char, float*> &globalMap);
+void convertGlobalsToConst(RPNList &rpnList, const std::unordered_map<char,float> &globalMap);
 
 } //namespace EVAL
 

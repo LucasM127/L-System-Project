@@ -2,7 +2,6 @@
 
 #include "../Evaluator/LibEvalLoader.hpp"
 //just include parsing here???
-#include "../Parsing/ProductionParser.hpp"
 
 namespace LSYSTEM
 {
@@ -11,12 +10,13 @@ namespace LSYSTEM
 //should I pass it an evalLoader?  Particularly if is making a 'file'
 LSystem::LSystem(const LSData &lsData)// : alphabet(lsData.abc), skippableLetters(lsData.skippableLetters),
                                         //        m_evalLoader(nullptr), 
-                                        : m_maxDepth(0), m_maxWidth(0), m_valArray(nullptr), globals(nullptr)
+                                        : m_maxDepth(0), m_maxWidth(0), amSimple(true)
 {
     LSDataParser lsdp;
     lsdp.parse(lsData);
     m_alphabet = std::move(lsdp.alphabet);
-    m_skippableLetters = std::move(lsdp.skippableLetters);
+    m_globalNameMap = std::move(lsdp.globalNameMap);
+    m_globalVarMap = std::move(lsdp.globalVarMap);
 
     //calculate size of containers needed to hold variables
     for(auto &pair : m_alphabet)
@@ -41,143 +41,28 @@ LSystem::LSystem(const LSData &lsData)// : alphabet(lsData.abc), skippableLetter
         unsigned int contextSize = pd.lContext.size() + 1 + pd.rContext.size();
         if(contextSize > m_maxWidth) m_maxWidth = contextSize;
     }
-    bool isSimple = (m_maxDepth == 0);
+    amSimple = (m_maxDepth == 0);
 
-    if(isSimple)
-    {
-        BasicProduction *tempProduction = nullptr;
-        for(const ProductionData &productionData : lsdp.productionDatas)
-        {
-            try
-            {
-                if(productionData.lContext.size()||productionData.rContext.size())
-                    tempProduction = new Production(productionData.products, m_alphabet, productionData.lContext, productionData.rContext, m_skippableLetters);
-                else
-                    tempProduction = new BasicProduction(productionData.products);
-            }
-            catch(const std::exception& e)
-            {
-                for(auto pMap : m_productionMap)
-                for(BasicProduction* pRule : pMap.second)
-                    delete pRule;
-                throw e;
-            }
-            m_productionMap[productionData.letter[0]].push_back(tempProduction);
-        }
-        for(const ProductionData &productionData : lsdp.decompositionProductionDatas)
-        {
-            try {tempProduction = new BasicProduction(productionData.products);}
-            catch(std::exception& e)
-            {
-                for(auto pMap : m_decompositionMap)
-                    for(BasicProduction* pRule : pMap.second)
-                        delete pRule;
-                throw e;
-            }
+    m_evalLoader.init();
+    m_evalLoader.setOffset(m_maxDepth*m_maxWidth);
+    m_evalLoader.setGlobalMap(m_globalVarMap);//for parsing and simplifying
 
-            m_decompositionMap[productionData.letter[0]].push_back(tempProduction);
-        }
+    loadProductions(lsdp);
 
-        //non contextual by definition (?)
-        for(const ProductionData &productionData : lsdp.homomorphicProductionDatas)
-        {
-            try {tempProduction = new BasicProduction(productionData.products);}
-            catch(std::exception& e)
-            {
-                for(auto pMap : m_homomorphismMap)
-                    for(BasicProduction* pRule : pMap.second)
-                        delete pRule;
-                throw e;
-            }
+    m_evalLoader.generate();
+    m_evalLoader.update();//actually simplify with the globals
 
-            m_homomorphismMap[productionData.letter[0]].push_back(tempProduction);
-        }
-    }
-    else
-    {
-        m_evalLoader = new EVAL::RuntimeLoader(lsdp.globalSet);//EVAL::LibLoader;
-        m_evalLoader->init();
-        dynamic_cast<EVAL::RuntimeLoader*>(m_evalLoader)->setOffset(m_maxDepth*m_maxWidth);//ooops
-        globals = new float[lsdp.globalSet.size()];//DELETE ME
-        //lsdp.globalVarMap;//iterate me
-        uint i = 0;
-        for(auto &it : lsdp.globalVarMap)//char float
-        {
-            m_globalMap[it.first] = &globals[i];
-            globals[i++] = it.second;   
-        }//OBTUSE
-
-        BasicParametricProduction *tempProduction = 0;
-        for(const ProductionData &productionData : lsdp.productionDatas)
-        {
-            try
-           {
-                if(productionData.lContext.size()||productionData.rContext.size())
-                    tempProduction = new ParametricProduction(productionData, m_alphabet, m_skippableLetters, *m_evalLoader, m_maxDepth);
-                else
-                    tempProduction = new BasicParametricProduction(productionData, m_alphabet, *m_evalLoader, m_maxDepth);
-            }
-            catch(std::exception& e)
-            {
-                for(auto pMap : m_productionMap)
-                    for(BasicProduction* pRule : pMap.second)
-                        delete pRule;
-                throw std::runtime_error(e.what());
-            }
-            m_productionMap[productionData.letter[0]].push_back(tempProduction);
-        }
-
-        //non contextual by definition (?)
-        for(const ProductionData &productionData : lsdp.decompositionProductionDatas)
-        {
-            try {tempProduction = new BasicParametricProduction(productionData, m_alphabet, *m_evalLoader, m_maxDepth);}
-            catch(std::exception& e)
-            {
-                for(auto pMap : m_decompositionMap)
-                    for(BasicProduction* pRule : pMap.second)
-                        delete pRule;
-                throw e;
-            }
-
-            m_decompositionMap[productionData.letter[0]].push_back(tempProduction);
-        }
-
-        //non contextual by definition (?)
-        for(const ProductionData &productionData : lsdp.homomorphicProductionDatas)
-        {
-            try {tempProduction = new BasicParametricProduction(productionData, m_alphabet, *m_evalLoader, m_maxDepth);}
-            catch(std::exception& e)
-            {
-                for(auto pMap : m_homomorphismMap)
-                    for(BasicProduction* pRule : pMap.second)
-                        delete pRule;
-                throw e;
-            }
-
-            m_homomorphismMap[productionData.letter[0]].push_back(tempProduction);
-        }
-
-        m_evalLoader->generate();
-        dynamic_cast<EVAL::RuntimeLoader*>(m_evalLoader)->update(m_globalMap);//hmmm
-        //then HAVE TO update my products.
-        //Stochastic weight may be a function of a global!
-        //BLECH
-
-        uint maxStackSz = dynamic_cast<EVAL::RuntimeLoader*>(m_evalLoader)->getMaxStackSz();
-        m_valArray = new float[m_maxDepth * m_maxWidth + maxStackSz];
-    }
-//just singular atm
-    
+    m_maxStackSz = m_evalLoader.getMaxStackSz();
 }
 
 LSystem::~LSystem()
-{
-    if(m_valArray)
-        delete[] m_valArray;
-}
+{}//YAY is empty
 
 void LSystem::iterate(const VLSentence &oldSentence, VLSentence &newSentence)
 {
+    float *V = new float[m_maxWidth*m_maxDepth+m_maxStackSz];
+    unsigned int *indiceHolder = new unsigned int[m_maxWidth];
+
     if(!compatible(oldSentence.m_alphabet, m_alphabet))
         throw std::runtime_error("LSentence Incompatible with production alphabet");
     combine(m_alphabet, newSentence.m_alphabet);
@@ -197,8 +82,8 @@ void LSystem::iterate(const VLSentence &oldSentence, VLSentence &newSentence)
             applyCut(oldLSentence, i);
             if(i >= oldLSentence.size()) break;
             tempSentence.clear();
-            applyProduct(oldLSentence, tempSentence, i, m_productionMap, m_valArray);
-            decompose(tempSentence, newLSentence, m_valArray);
+            applyProduct(oldLSentence, tempSentence, i, m_productionMap, V, indiceHolder);
+            decompose(tempSentence, newLSentence, V, indiceHolder);
         }
         return;
     }
@@ -206,12 +91,17 @@ void LSystem::iterate(const VLSentence &oldSentence, VLSentence &newSentence)
     {
         applyCut(oldLSentence, i);
         if(i >= oldLSentence.size()) break;
-        applyProduct(oldLSentence, newLSentence, i, m_productionMap, m_valArray);
+        applyProduct(oldLSentence, newLSentence, i, m_productionMap, V, indiceHolder);
     }
+
+    delete[] V;
+    delete[] indiceHolder;
 }
 
 void LSystem::interpret(VLSentence &vlsentence, LSInterpreter &I, LSReinterpreter &R)
 {
+    float *V = new float[m_maxWidth*m_maxDepth+m_maxStackSz];
+
     if(!compatible(vlsentence.m_alphabet, m_alphabet))
         throw;
     combine(m_alphabet, vlsentence.m_alphabet);
@@ -226,15 +116,19 @@ void LSystem::interpret(VLSentence &vlsentence, LSInterpreter &I, LSReinterprete
     for(uint i = 0; i < lsentence.size(); i = lsentence.next(i))
     {
         tempLSentence.clear();
-        applyProductionRecursively(lsentence, i, tempLSentence, m_homomorphismMap, m_valArray);
+        applyProductionRecursively(lsentence, i, tempLSentence, m_homomorphismMap, V, nullptr);
         for(uint j = 0; j < tempLSentence.size(); j = tempLSentence.next(j))
             I.interpret({tempLSentence, j});//tempLSentence, j);
         R.reinterpret(lsentence, i, vlsentence);
     }
+
+    delete[] V;
 }
 
 void LSystem::interpret(VLSentence &vlsentence, LSInterpreter &I)
 {
+    float *V = new float[m_maxWidth*m_maxDepth+m_maxStackSz];
+
     if(!compatible(vlsentence.m_alphabet, m_alphabet))
         throw;
     combine(m_alphabet, vlsentence.m_alphabet);
@@ -247,7 +141,7 @@ void LSystem::interpret(VLSentence &vlsentence, LSInterpreter &I)
     for(uint i = 0; i < lsentence.size(); i = lsentence.next(i))
     {
         tempLSentence.clear();
-        applyProductionRecursively(lsentence, i, tempLSentence, m_homomorphismMap, m_valArray);
+        applyProductionRecursively(lsentence, i, tempLSentence, m_homomorphismMap, V, nullptr);
         for(uint j = 0; j < tempLSentence.size(); j = tempLSentence.next(j))
             I.interpret({tempLSentence, j});//tempLSentence, j);
     }
@@ -260,7 +154,8 @@ void LSystem::contract(LSYSTEM::VLSentence &vlsentence)
     combine(m_alphabet, vlsentence.m_alphabet);
 }
 
-Product* LSystem::findMatch(const unsigned int i, const LSentence &refLS, std::unordered_map<char, std::vector<BasicProduction*> > &productionMap, float *V)
+Product* LSystem::findMatch(const unsigned int i, const LSentence &refLS, std::unordered_map<char, std::vector<BasicProduction*> > &productionMap,
+                            float *V, unsigned int *indiceHolder)
 {
     char c = refLS[i].id;
 
@@ -270,12 +165,11 @@ Product* LSystem::findMatch(const unsigned int i, const LSentence &refLS, std::u
     }
 
     std::vector<BasicProduction*> &pRules = productionMap[c];
-    ProductChooser* chooser;
 
     for(unsigned int j = 0; j<pRules.size(); j++)
     {
-        chooser = pRules[j]->pass(refLS,i,V,m_maxDepth);//updates the variables in the array we pass
-        if(chooser) return chooser->choose(V);
+        Product* product = pRules[j]->pass(refLS,i,V,indiceHolder);//updates the variables in the array we pass
+        if(product) return product;
     }
 
     return nullptr;
@@ -291,18 +185,17 @@ void LSystem::applyBasicProduct(const LSentence &oldSentence, LSentence &newSent
     return;
 }
 
-void LSystem::applyProduct(const LSentence &oldSentence, LSentence &newSentence, unsigned int &curIndex,//why by reference? why not const???????
-                            std::unordered_map<char, std::vector<BasicProduction*> > &productMap, float *V)
+void LSystem::applyProduct(const LSentence &oldSentence, LSentence &newSentence, unsigned int &curIndex,
+                            std::unordered_map<char, std::vector<BasicProduction*> > &productMap, float *V, unsigned int *indiceHolder)
 {
-    Product *product = findMatch(curIndex, oldSentence, productMap, V);
+    Product *product = findMatch(curIndex, oldSentence, productMap, V, indiceHolder);
     if(product == nullptr)
     {//Just duplicate it
         applyBasicProduct(oldSentence, newSentence, curIndex);
         return;
     }
 
-    try {product->apply(newSentence, V);}
-    catch (std::exception &e) {throw e;}
+    product->apply(newSentence, V);
 }
 
 void LSystem::applyCut(const LSentence &oldLSentence, unsigned int &curIndex)
@@ -321,68 +214,20 @@ void LSystem::applyCut(const LSentence &oldLSentence, unsigned int &curIndex)
     //cur Index resumes after the 'brackets' need to check validity though
     return;
 }
-/*
-//THIS CODE IS JUST WRONG... I can create a seperate function for removing 'empty' brackets later,
-//but they may be needed later
-void LSystem::applyCut(const LSentence &LString, LSentence &LString, unsigned int &curIndex)
-{
-    //just no skip letters
-    char c = oldSentence[curIndex].id;
-    bool poppedBack = false;
-    if(c != '%') return;
 
-    //go back in newSentence, see if had a prior '[' to remove
-    unsigned int newIndex;
-    unsigned int numToPop = 0;
-    if(newSentence.getLastLetterIndex(newIndex))
-    {
-        do
-        {
-            ++numToPop;
-            c = newSentence[newIndex].id;
-            if(!isSkippable(c, skippableLetters))
-                break;
-        } while (newSentence.last(newIndex,newIndex));
-    }
-    if(c == '[')
-    {//remove '[' if the whole branch is cut off anyways ahead, so no "[]" in string
-        poppedBack = true;
-        for(uint i = 0; i < numToPop; ++i)
-            newSentence.pop_back();
-    }
-    
-    int curLvl = 0;
-    while (oldSentence.next(curIndex,curIndex))
-    {
-        c = oldSentence[curIndex].id;
-        if(c == '[') curLvl++;
-        if(c == ']' && curLvl == 0) break;
-        if(c == ']') curLvl--;
-    }
-    if(poppedBack)
-    {
-        if(oldSentence.next(curIndex,curIndex) && oldSentence[curIndex].id == '%')
-            applyCut(oldSentence, newSentence, curIndex);//tail recursion
-        //CAN GO OUT OF BOUNDS
-    }
-
-//    std::cout<<"After cut at curIndex "<<curIndex<<" "<<(char)oldSentence[curIndex].id<<"\n";
-}*/
-//CREATE AN ITERATION LOOP WITHOUT THIS DECOMPOSE SHIT!!!!
-void LSystem::decompose(const LSentence &undecomposedSentence, LSentence &newSentence, float *V)
+void LSystem::decompose(const LSentence &undecomposedSentence, LSentence &newSentence, float *V, unsigned int *indiceHolder)
 {
     for(uint i = 0; i < undecomposedSentence.size(); i = undecomposedSentence.next(i))
     {
-        applyProductionRecursively(undecomposedSentence, i, newSentence, m_decompositionMap, V);
-//        decompose(undecomposedSentence, newSentence, curIndex, V);
+        applyProductionRecursively(undecomposedSentence, i, newSentence, m_decompositionMap, V, indiceHolder);
     }
 }
 
 void LSystem::applyProductionRecursively(const LSentence &lsentence, const unsigned int i, LSentence &newLSentence,
-                                        ProductionMap &pm, float *V)
+                                        ProductionMap &pm, float *V, unsigned int *indiceHolder)
 {   
     LSentence tempSentence;
-    Product *P = findMatch(i, lsentence, pm, V);
+    Product *P = findMatch(i, lsentence, pm, V, indiceHolder);
     if(P == nullptr)
     {
         applyBasicProduct(lsentence, newLSentence, i);
@@ -392,27 +237,126 @@ void LSystem::applyProductionRecursively(const LSentence &lsentence, const unsig
     P->apply(tempSentence, V);
     for(uint j = 0; j < tempSentence.size(); j = tempSentence.next(j))
     {
-        applyProductionRecursively(tempSentence,j, newLSentence, pm, V);
+        applyProductionRecursively(tempSentence,j, newLSentence, pm, V, indiceHolder);
     }
 }
 
-/*
-void LSystem::decompose(const LString &undecomposedSentence, LString &newSentence, const unsigned int curIndex, float *V)
+void LSystem::updateGlobal(const std::string &globalString, const float val)
 {
-    
-    LString tempSentence;
-    Product *P = findMatch(curIndex, undecomposedSentence, m_decompositionMap, V);
-    if(P == nullptr)
+    auto it = m_globalNameMap.find(globalString);
+    if(it == m_globalNameMap.end()) return;
+    m_globalVarMap[it->second] = val;
+}
+
+void LSystem::update()
+{
+    m_evalLoader.update();
+}
+
+void LSystem::loadProductions(LSDataParser &lsdp)
+{
+    if(amSimple)
     {
-        applyBasicProduct(undecomposedSentence, newSentence, curIndex);
-        return;
+        BasicProduction *tempProduction = nullptr;
+        for(const ProductionData &productionData : lsdp.productionDatas)
+        {
+            try
+            {
+                if(productionData.lContext.size()||productionData.rContext.size())
+                    tempProduction = new Production(productionData, m_evalLoader, m_maxDepth, m_skippableLetters);
+                else
+                    tempProduction = new BasicProduction(productionData, m_evalLoader, m_maxDepth);
+            }
+            catch(const std::exception& e)
+            {
+                for(auto pMap : m_productionMap)
+                for(BasicProduction* pRule : pMap.second)
+                    delete pRule;
+                throw e;
+            }
+            m_productionMap[productionData.letter[0]].push_back(tempProduction);
+        }
+        for(const ProductionData &productionData : lsdp.decompositionProductionDatas)
+        {
+            try {tempProduction = new BasicProduction(productionData, m_evalLoader, m_maxDepth);}
+            catch(std::exception& e)
+            {
+                for(auto pMap : m_decompositionMap)
+                    for(BasicProduction* pRule : pMap.second)
+                        delete pRule;
+                throw e;
+            }
+
+            m_decompositionMap[productionData.letter[0]].push_back(tempProduction);
+        }
+
+        //non contextual by definition (?)
+        for(const ProductionData &productionData : lsdp.homomorphicProductionDatas)
+        {
+            try {tempProduction = new BasicProduction(productionData, m_evalLoader, m_maxDepth);}
+            catch(std::exception& e)
+            {
+                for(auto pMap : m_homomorphismMap)
+                    for(BasicProduction* pRule : pMap.second)
+                        delete pRule;
+                throw e;
+            }
+
+            m_homomorphismMap[productionData.letter[0]].push_back(tempProduction);
+        }
     }
-    
-    P->apply(tempSentence, V);
-    for(uint i = 0; i < tempSentence.size(); i = tempSentence.next(i))
+    else
     {
-        decompose(tempSentence, newSentence, i, V);
+        BasicParametricProduction *tempProduction = 0;
+        for(const ProductionData &productionData : lsdp.productionDatas)
+        {
+            try
+           {
+                if(productionData.lContext.size()||productionData.rContext.size())
+                    tempProduction = new ParametricProduction(productionData, m_evalLoader, m_maxDepth, m_skippableLetters);
+                else
+                    tempProduction = new BasicParametricProduction(productionData, m_evalLoader, m_maxDepth);
+            }
+            catch(std::exception& e)
+            {
+                for(auto pMap : m_productionMap)
+                    for(BasicProduction* pRule : pMap.second)
+                        delete pRule;
+                throw std::runtime_error(e.what());
+            }
+            m_productionMap[productionData.letter[0]].push_back(tempProduction);
+        }
+
+        //non contextual by definition (?)
+        for(const ProductionData &productionData : lsdp.decompositionProductionDatas)
+        {
+            try {tempProduction = new BasicParametricProduction(productionData, m_evalLoader, m_maxDepth);}
+            catch(std::exception& e)
+            {
+                for(auto pMap : m_decompositionMap)
+                    for(BasicProduction* pRule : pMap.second)
+                        delete pRule;
+                throw e;
+            }
+
+            m_decompositionMap[productionData.letter[0]].push_back(tempProduction);
+        }
+
+        //non contextual by definition (?)
+        for(const ProductionData &productionData : lsdp.homomorphicProductionDatas)
+        {
+            try {tempProduction = new BasicParametricProduction(productionData, m_evalLoader, m_maxDepth);}
+            catch(std::exception& e)
+            {
+                for(auto pMap : m_homomorphismMap)
+                    for(BasicProduction* pRule : pMap.second)
+                        delete pRule;
+                throw e;
+            }
+
+            m_homomorphismMap[productionData.letter[0]].push_back(tempProduction);
+        }
     }
-}*/
+}
 
 } // namespace LSYSTEM

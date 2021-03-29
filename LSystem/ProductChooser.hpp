@@ -11,18 +11,20 @@ class Product;
 class ProductChooser
 {
 public:
-    ProductChooser(std::vector<Product*> &_products);
+    ProductChooser(std::vector<Product> &_products);
     virtual ~ProductChooser(){}
     virtual Product* choose(float *V);
+    virtual void update(){}
 protected:
-    std::vector<Product*> &products;
+    std::vector<Product> &products;
 };
 
 class StochasticProductChooser: public ProductChooser
 {
 public:
-    StochasticProductChooser(std::vector<Product*>& _products);
+    StochasticProductChooser(std::vector<Product>& _products);
     Product *choose(float *V) override;
+    void update() override;
 protected:
     float m_weightTotal;
 };
@@ -31,14 +33,14 @@ protected:
 class ConditionalProductChooser:public ProductChooser
 {
 public:
-    ConditionalProductChooser(std::vector<Product*>& pds);
+    ConditionalProductChooser(std::vector<Product>& pds);
     Product* choose(float *V) override;
 };
 
 class StochasticConditionalProductChooser:public ProductChooser//stochastic with conditionals
 {
 public:
-    StochasticConditionalProductChooser(std::vector<Product*>& pds);
+    StochasticConditionalProductChooser(std::vector<Product>& pds);
     Product* choose(float *V) override;
 private:
     std::vector<Product*> m_validProducts;//subset of products dependant on context and conditional
@@ -47,14 +49,14 @@ private:
 class VariableStochasticProductChooser:public ProductChooser//stochastic with unknown variable weights, no conditionals
 {
 public:
-    VariableStochasticProductChooser(std::vector<Product*>& pds);
+    VariableStochasticProductChooser(std::vector<Product>& pds);
     Product* choose(float *V) override;
 };
 
 class VariableStochasticConditionalProductChooser:public ProductChooser
 {
 public:
-    VariableStochasticConditionalProductChooser(std::vector<Product*>& pds);
+    VariableStochasticConditionalProductChooser(std::vector<Product>& pds);
     Product* choose(float *V) override;
 private:
     std::vector<Product*> m_validProducts;

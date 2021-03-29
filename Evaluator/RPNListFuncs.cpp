@@ -75,14 +75,14 @@ bool isAFunc(const char op)
     return funcOpMap.find(op) != funcOpMap.end();
 }
 
-void convertGlobalsToConst(RPNList &rpnList, const std::map<char, float*> &globalMap)
+void convertGlobalsToConst(RPNList &rpnList, const std::unordered_map<char,float> &globalMap)
 {
     for(auto &tok : rpnList)
     {
         if(tok.type == RPNToken::TYPE::GLOBAL)
         {
             tok.type = RPNToken::TYPE::CONST;
-            tok.value = *globalMap.at(tok.token);
+            tok.value = globalMap.at(tok.token);
         }
         else if(tok.type == RPNToken::TYPE::COMPLEX)
         {
