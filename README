@@ -14,7 +14,7 @@ Special Symbols:
 Currently only support splitting operations.  Tree graph.  No cyclic cycles unfortunately. :(  Perhaps storing individual lsentences as nodes somehow?
 
 Alphabet:
-Set of letters and corresponding parameter count.  Stored as std::unordered_map<char,uint> in which a letter cannot having conflicting parameter counts.
+Set of letters and corresponding parameter count.  Stored as std::unordered_map<char,uint> in which a letter cannot have conflicting parameter counts.
 
 LSentence:
 String of letter modules.
