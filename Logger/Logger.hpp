@@ -1,6 +1,7 @@
 #ifndef LOGGER_HPP
 #define LOGGER_HPP
 
+//i got this code from somewhere i forget where then i simplified it...
 //or ostream<< (ostream<<&, type T) thingy... sounds like another job day
 
 #include <ostream>
