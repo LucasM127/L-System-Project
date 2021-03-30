@@ -144,6 +144,8 @@ void LSystem::interpret(VLSentence &vlsentence, LSInterpreter &I)
         for(uint j = 0; j < tempLSentence.size(); j = tempLSentence.next(j))
             I.interpret({tempLSentence, j});//tempLSentence, j);
     }
+
+    delete[] V;
 }
 
 void LSystem::contract(LSYSTEM::VLSentence &vlsentence)

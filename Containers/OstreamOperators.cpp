@@ -45,7 +45,7 @@ std::ostream& operator<<(std::ostream &os, const LSYSTEM::LSData &ld)
     os<<"\n";
 //        os<<ld.skipString<<"\n";
     os<<"Globals:\n";
-    for(const auto &pair : ld.globals)
+    for(const auto &pair : ld.globalMap)
         os<<pair.first<<" = "<<pair.second<<"\n";
     
     return os;
