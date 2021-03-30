@@ -31,7 +31,7 @@ int main()
         {'x',{0,0}}
     };
 //0.45826 YAY
-    std::string exp="x*(z*(c-z))^0.5";//rowoftrees example algorithm
+    std::string exp="xcz";//"x*(z*(c-z))^0.5";//rowoftrees example algorithm
     EVAL::RPNList tokenizedExp = 
     {
         {(uint)0},//'x' mapped
@@ -91,8 +91,19 @@ int main()
     evR.update();
     n = evalR->evaluate(V);
     std::cout<<n<<" is answer duration "<<duration.count()<<"\n";
+    globalMap['c'] = 2.f;//vs 1
+    globalMap['z'] = 0.3f;
+    evR.update();
+    n = evalR->evaluate(V);
+    std::cout<<n<<" is answer duration "<<duration.count()<<"\n";
+    globalMap['c'] = 1.f;//vs 0.3
+    evR.update();
+    n = evalR->evaluate(V);
+    std::cout<<n<<" is answer duration "<<duration.count()<<"\n";
 //2 is answer...
     evR.close();
+
+    delete[] V;
 
     return 0;
 }

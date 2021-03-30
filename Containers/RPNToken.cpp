@@ -18,14 +18,17 @@ RPNToken::RPNToken(float v)              : type(TYPE::CONST),   value(v) {}
 RPNToken::RPNToken(unsigned int i)       : type(TYPE::VAR),     index(i) {}
 RPNToken::RPNToken(const RPNList &list)  : type(TYPE::COMPLEX), rpnList(new RPNList(list)) {}//points to the address passed
 RPNToken::RPNToken(const RPNList &&list) : type(TYPE::COMPLEX), rpnList(new RPNList(list)) {}
+//this should work
 
 void destroy(RPNList &list)
 {
     for(auto &tok : list)
     {
         if(tok.type == RPNToken::TYPE::COMPLEX)
+        {
             destroy(*tok.rpnList);
-        delete tok.rpnList;
+            delete tok.rpnList;
+        }
     }
 }
 
@@ -34,12 +37,13 @@ void deepCopy(const RPNList &list, RPNList &target)
     target.reserve(list.size());
     for(auto &tok : list)
     {
-        target.push_back(tok);//just copy it over
         if(tok.type == RPNToken::TYPE::COMPLEX)
-        {//the pointer points to the old .. make a new personal list...
-            target.back().rpnList = new RPNList();
+        {
+            target.emplace_back(RPNList());//this is fine
             deepCopy(*tok.rpnList,*target.back().rpnList);
         }
+        else
+            target.emplace_back(tok);
     }
 }
 

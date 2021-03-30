@@ -12,8 +12,8 @@ Evaluator::Evaluator(const std::string &exp, bool _isConst, bool global, RPNList
 {}
 
 Evaluator::~Evaluator()
-{//??
-    //destroy(m_refList);
+{
+    destroy(m_refList);
 }
 
 void Evaluator::update(const std::unordered_map<char,float> &globalMap)
@@ -51,7 +51,9 @@ void SimpleEvaluator::updateLocal()
 }
 
 ComplexEvaluator::ComplexEvaluator(const std::string &exp, RPNList &&refList, bool global, uint offset)
-                    : Evaluator(exp, false, global, std::move(refList)), m_offset(offset){}
+                    : Evaluator(exp, false, global, std::move(refList)), m_offset(offset)
+{
+}
 
 float ComplexEvaluator::evaluate(float *v)
 {
