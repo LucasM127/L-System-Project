@@ -48,6 +48,7 @@ private:
     void contract(LSYSTEM::VLSentence &vlsentence);
 
     Alphabet m_alphabet;//can't use a conflicting alphabet or the productions may try to write to a non-existant parameter
+    std::set<char> m_skippableLetters;
 
     EVAL::RuntimeLoader m_evalLoader;
 

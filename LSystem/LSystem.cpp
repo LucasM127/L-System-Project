@@ -16,6 +16,7 @@ LSystem::LSystem(const LSData &lsData)// : alphabet(lsData.abc), skippableLetter
     lsdp.parse(lsData);
     m_alphabet = std::move(lsdp.data.abc);
     m_globalMap = std::move(lsdp.data.globalMap);
+    m_skippableLetters = std::move(lsdp.data.skippableLetters);
 
     //calculate size of containers needed to hold variables
     for(auto &pair : m_alphabet)
@@ -274,7 +275,7 @@ void LSystem::loadProductions(LSDataParser &lsdp)
             try
             {
                 if(productionData.lContext.size()||productionData.rContext.size())
-                    tempProduction = new Production(productionData, m_evalLoader, m_maxDepth, lsdp.data.skippableLetters);
+                    tempProduction = new Production(productionData, m_evalLoader, m_maxDepth, m_skippableLetters);
                 else
                     tempProduction = new BasicProduction(productionData, m_evalLoader, m_maxDepth);
             }
@@ -324,7 +325,7 @@ void LSystem::loadProductions(LSDataParser &lsdp)
             try
            {
                 if(productionData.lContext.size()||productionData.rContext.size())
-                    tempProduction = new ParametricProduction(productionData, m_evalLoader, m_maxDepth, lsdp.data.skippableLetters);
+                    tempProduction = new ParametricProduction(productionData, m_evalLoader, m_maxDepth, m_skippableLetters);
                 else
                     tempProduction = new BasicParametricProduction(productionData, m_evalLoader, m_maxDepth);
             }
