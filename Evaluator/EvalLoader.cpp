@@ -24,35 +24,32 @@ Evaluator* RuntimeLoader::load(const std::string &expression, const VarIndiceMap
 //Evaluator *RuntimeLoader::load(const std::string &expression, const RPNList &tokenizedExp, const std::string &comment)
 {
     RPNList tokenizedExp = EVALPARSE::tokenize(expression, varMap, maxVarDepth, *globalMapPtr);
+
     //go through the tokenized list and see what type it resolves to...
-    uint numGlobals = 0;
     uint numVars = 0;
-    uint numVals = 0;
+    bool hasGlobals = false;
     bool hasRand = false;
     for(auto &tok : tokenizedExp)
     {
-        if(tok.type == RPNToken::TYPE::CONST)
-            ++numVals;
-        else if(tok.type == RPNToken::TYPE::GLOBAL)
-            ++numGlobals;
-        else if(tok.type == RPNToken::TYPE::VAR)
+        if(tok.type == RPNToken::TYPE::VAR)
             ++numVars;
+        else if(tok.type == RPNToken::TYPE::GLOBAL)
+            hasGlobals = true;
         else if(tok.type == RPNToken::TYPE::OP && tok.token == 9)//random
             hasRand = true;
     }
 
     ShuntYardAlgorithm SYA;
     RPNList &treeList = SYA.apply(tokenizedExp);
-//If there is RAND it fails!!!  rand does not simplify... so rand(10) will need to be a complex evaluator
-//FIX!!! THIS BETTER 
+
     //create appropiate Evaluator
     Evaluator * retEvalPtr;
     if(numVars == 0 && !hasRand)//simplifies to a simple constant
-        retEvalPtr = new ConstEvaluator(expression, std::move(treeList), numGlobals > 0);
-    else if(numGlobals == 0 && numVals == 0 && numVars == 1 && !hasRand)//just the one variable number
+        retEvalPtr = new ConstEvaluator(expression, std::move(treeList), hasGlobals);
+    else if(tokenizedExp.size()==1)//just the one variable number
         retEvalPtr = new SimpleEvaluator(expression, std::move(treeList));//Size has to be one.
     else
-        retEvalPtr = new ComplexEvaluator(expression, std::move(treeList), numGlobals > 0, m_offset);
+        retEvalPtr = new ComplexEvaluator(expression, std::move(treeList), hasGlobals, m_offset);
 
     m_evaluators.push_back(retEvalPtr);
     return retEvalPtr;
