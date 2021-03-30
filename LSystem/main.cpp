@@ -15,20 +15,25 @@ using namespace LSYSTEM;
 int main()
 {//Fix the MakeFiles now
     LSData lsd;
-    lsd.globals = 
+    lsd.globalMap = 
     {
-        {"c", 0.3f},
-        {"z", 1.0f}
+        {'c', 0.3f},
+        {'z', 1.0f}
     };
     lsd.productions = 
     {
-        "A(x,t):t==0 => A(x*c,2)+A(x*(c*(z-c))^0.5,1)--A(x*(c*(z-c))^0.5,1)+A(x*(1-c),0)",
-        "A(x,t):t>0=>A(x,t-1)"
+        "!(x) => !(x+0.1)",
+        "G(x) => G(x*1.1)",
+        "A => G(1)[+(25)!(0.1)XA][-(25)!(0.1)XA]",
+        "X => X : 2",
+        "X => A% : 1"
+        //"A(x,t):t==0 => A(x*c,2)+A(x*(c*(z-c))^0.5,1)--A(x*(c*(z-c))^0.5,1)+A(x*(1-c),0)",
+        //"A(x,t):t>0=>A(x,t-1)"
     };
     
     LSystem L(lsd);
-
-    VLSentence axiom("A(5,0)");
+srand(time(NULL));
+    VLSentence axiom("A");
     VLSentence A,B;
     VLSentence *oldSentence = &axiom;
     VLSentence *newSentence = &A;

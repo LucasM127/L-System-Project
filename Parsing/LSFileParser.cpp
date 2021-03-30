@@ -220,19 +220,26 @@ void LSFile::loadGlobals()
     {
         //if value is not a value, not a global
         std::stringstream sstream;
-        std::string name;
+        std::string name, valString;
         float value;
         
         sstream << string;
         sstream >> name;
-
-        sstream >> value;
-        if(sstream.fail())
+        if(name.size() != 1)
         {
-            std::string errorString = "Global string " + string + " usage [target] [value] has to have value of numeric type.";
+            std::string errorString = "Multi character global names are not supported at this time.";
+            throw std::runtime_error(errorString);
+        }
+        char id = name[0];
+
+        sstream >> valString;
+        unsigned int i = 0;//maybe make it return the index offset instead of applying directly?
+        if(sstream.fail() || !LSPARSE::readNumber(valString, i, value))//is an lvalue !!!
+        {
+            std::string errorString = "Invalid syntax.  Expected [global id] [value] at: " + string;
             throw std::runtime_error(errorString);
         }
 
-        m_lsData.globals.push_back({name, value});
+        m_lsData.globalMap.emplace(id, value);
     }
 }

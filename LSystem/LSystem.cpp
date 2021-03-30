@@ -14,9 +14,8 @@ LSystem::LSystem(const LSData &lsData)// : alphabet(lsData.abc), skippableLetter
 {
     LSDataParser lsdp;
     lsdp.parse(lsData);
-    m_alphabet = std::move(lsdp.alphabet);
-    m_globalNameMap = std::move(lsdp.globalNameMap);
-    m_globalVarMap = std::move(lsdp.globalVarMap);
+    m_alphabet = std::move(lsdp.data.abc);
+    m_globalMap = std::move(lsdp.data.globalMap);
 
     //calculate size of containers needed to hold variables
     for(auto &pair : m_alphabet)
@@ -26,17 +25,17 @@ LSystem::LSystem(const LSData &lsData)// : alphabet(lsData.abc), skippableLetter
             m_maxDepth = pair.second;
         }
     }
-    for(const ProductionData &pd : lsdp.productionDatas)
+    for(const ProductionData &pd : lsdp.data.productionDatas)
     {
         unsigned int contextSize = pd.lContext.size() + 1 + pd.rContext.size();
         if(contextSize > m_maxWidth) m_maxWidth = contextSize;
     }
-    for(const ProductionData &pd : lsdp.decompositionProductionDatas)
+    for(const ProductionData &pd : lsdp.data.decompositionProductionDatas)
     {
         unsigned int contextSize = pd.lContext.size() + 1 + pd.rContext.size();
         if(contextSize > m_maxWidth) m_maxWidth = contextSize;
     }
-    for(const ProductionData &pd : lsdp.homomorphicProductionDatas)
+    for(const ProductionData &pd : lsdp.data.homomorphicProductionDatas)
     {
         unsigned int contextSize = pd.lContext.size() + 1 + pd.rContext.size();
         if(contextSize > m_maxWidth) m_maxWidth = contextSize;
@@ -45,7 +44,7 @@ LSystem::LSystem(const LSData &lsData)// : alphabet(lsData.abc), skippableLetter
 
     m_evalLoader.init();
     m_evalLoader.setOffset(m_maxDepth*m_maxWidth);
-    m_evalLoader.setGlobalMap(m_globalVarMap);//for parsing and simplifying
+    m_evalLoader.setGlobalMap(m_globalMap);//for parsing and simplifying
 
     loadProductions(lsdp);
 
@@ -241,11 +240,12 @@ void LSystem::applyProductionRecursively(const LSentence &lsentence, const unsig
     }
 }
 
-void LSystem::updateGlobal(const std::string &globalString, const float val)
+//some way... to communicate...
+void LSystem::updateGlobal(char globalId, const float val)
 {
-    auto it = m_globalNameMap.find(globalString);
-    if(it == m_globalNameMap.end()) return;
-    m_globalVarMap[it->second] = val;
+    auto it = m_globalMap.find(globalId);
+    if(it == m_globalMap.end()) return;
+    it->second = val;
 }
 
 void LSystem::update()
@@ -267,12 +267,12 @@ void LSystem::loadProductions(LSDataParser &lsdp)
     if(amSimple)
     {
         BasicProduction *tempProduction = nullptr;
-        for(const ProductionData &productionData : lsdp.productionDatas)
+        for(const ProductionData &productionData : lsdp.data.productionDatas)
         {
             try
             {
                 if(productionData.lContext.size()||productionData.rContext.size())
-                    tempProduction = new Production(productionData, m_evalLoader, m_maxDepth, m_skippableLetters);
+                    tempProduction = new Production(productionData, m_evalLoader, m_maxDepth, lsdp.data.skippableLetters);
                 else
                     tempProduction = new BasicProduction(productionData, m_evalLoader, m_maxDepth);
             }
@@ -285,7 +285,7 @@ void LSystem::loadProductions(LSDataParser &lsdp)
             }
             m_productionMap[productionData.letter[0]].push_back(tempProduction);
         }
-        for(const ProductionData &productionData : lsdp.decompositionProductionDatas)
+        for(const ProductionData &productionData : lsdp.data.decompositionProductionDatas)
         {
             try {tempProduction = new BasicProduction(productionData, m_evalLoader, m_maxDepth);}
             catch(std::exception& e)
@@ -300,7 +300,7 @@ void LSystem::loadProductions(LSDataParser &lsdp)
         }
 
         //non contextual by definition (?)
-        for(const ProductionData &productionData : lsdp.homomorphicProductionDatas)
+        for(const ProductionData &productionData : lsdp.data.homomorphicProductionDatas)
         {
             try {tempProduction = new BasicProduction(productionData, m_evalLoader, m_maxDepth);}
             catch(std::exception& e)
@@ -317,12 +317,12 @@ void LSystem::loadProductions(LSDataParser &lsdp)
     else
     {
         BasicParametricProduction *tempProduction = 0;
-        for(const ProductionData &productionData : lsdp.productionDatas)
+        for(const ProductionData &productionData : lsdp.data.productionDatas)
         {
             try
            {
                 if(productionData.lContext.size()||productionData.rContext.size())
-                    tempProduction = new ParametricProduction(productionData, m_evalLoader, m_maxDepth, m_skippableLetters);
+                    tempProduction = new ParametricProduction(productionData, m_evalLoader, m_maxDepth, lsdp.data.skippableLetters);
                 else
                     tempProduction = new BasicParametricProduction(productionData, m_evalLoader, m_maxDepth);
             }
@@ -337,7 +337,7 @@ void LSystem::loadProductions(LSDataParser &lsdp)
         }
 
         //non contextual by definition (?)
-        for(const ProductionData &productionData : lsdp.decompositionProductionDatas)
+        for(const ProductionData &productionData : lsdp.data.decompositionProductionDatas)
         {
             try {tempProduction = new BasicParametricProduction(productionData, m_evalLoader, m_maxDepth);}
             catch(std::exception& e)
@@ -352,7 +352,7 @@ void LSystem::loadProductions(LSDataParser &lsdp)
         }
 
         //non contextual by definition (?)
-        for(const ProductionData &productionData : lsdp.homomorphicProductionDatas)
+        for(const ProductionData &productionData : lsdp.data.homomorphicProductionDatas)
         {
             try {tempProduction = new BasicParametricProduction(productionData, m_evalLoader, m_maxDepth);}
             catch(std::exception& e)

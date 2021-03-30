@@ -25,8 +25,11 @@ public:
     void iterate(const VLSentence &sentence, VLSentence &newSentence);
     void interpret(VLSentence &sentence, LSInterpreter &I, LSReinterpreter &R);
     void interpret(VLSentence &sentence, LSInterpreter &I);
-    void updateGlobal(const std::string &id, const float val);
+
+    void updateGlobal(char id, const float val);
     void update();
+
+    const std::unordered_map<char,float> getGlobalMap();
 private:
     Product * findMatch(const unsigned int i, const LSentence &refLS, std::unordered_map<char, std::vector<BasicProduction*> > &productionMap,
                         float *V, unsigned int *indiceHolder);
@@ -51,9 +54,7 @@ private:
     unsigned int m_maxDepth, m_maxWidth;//smallest dimensions of m_valArray to prevent access violations
     unsigned int m_maxStackSz;
 
-    std::set<char> m_skippableLetters;
-    std::unordered_map<std::string, char> m_globalNameMap;
-    std::unordered_map<char, float> m_globalVarMap;
+    std::unordered_map<char, float> m_globalMap;
 
     void loadProductions(LSDataParser &lsdp);
     bool amSimple;

@@ -49,7 +49,6 @@ EVAL::RPNList tokenize(const std::string &expression, const VarIndiceMap &varMap
     std::string exp = expression;
     //TODO... maybe have a better way of tokenizing instead of just using Find and replace all the time...
     LSPARSE::findAndReplace(exp, tokenStringReplaceVector);//ops
-    //LSPARSE::findAndReplace(exp, globalNameMap);//globals 'many words'
 
     auto isAnOp = [](char c)->bool
     {

@@ -19,7 +19,7 @@ bool next(const std::string &string, const unsigned int index, char &c)
 //Reads all the digits of a number in a string from certain index i
 //if a number is read number holds the value, and i is the index one past the number
 bool readNumber(const std::string &string, unsigned int &i, float &number)
-{
+{//OOPS invalid id... FIX if empty string
     char c = string[i];
     std::string tempString;
     bool decimalPoint = false;

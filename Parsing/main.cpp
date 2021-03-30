@@ -6,24 +6,8 @@
 
 int main()
 {
-    
-    LSYSTEM::LSData lsData;
-    lsData.productions = 
-    {
-        //"F(a,b)=>F(0,a)+G-F(b,2)"
-    };
-    lsData.homomorphisms = 
-    {
-        "A(,y,,x)<G(z,d)=>F(1,3+(22)1,slfjkd)"
-    };//what can I do, if I infer....
-    LSDataParser P;
-    P.parse(lsData);
-
-    for(auto &pd : P.productionDatas)
-        std::cout<<pd<<"\n";
-    for(auto &pd : P.homomorphicProductionDatas)
-        std::cout<<pd<<"\n";
-
+    LSFile lsfile;
+    lsfile.loadFile("test.ls");
 
     LSYSTEM::LSentence L = loadLSentence("A(3,5)B(44.24)C");
     std::cout<<L<<std::endl;

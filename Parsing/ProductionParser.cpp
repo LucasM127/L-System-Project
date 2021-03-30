@@ -5,33 +5,13 @@
 
 void LSDataParser::parse(const LSYSTEM::LSData &lsData)
 {
-    mapGlobals(lsData.globals);
-    skippableLetters = lsData.skippableLetters;//"Redundant?"  "akylgk";//maybe want to m ove over ....
-    loadProductionDatas(lsData.productions,    productionDatas,              alphabet);
-    loadProductionDatas(lsData.decompositions, decompositionProductionDatas, alphabet);
-    loadProductionDatas(lsData.homomorphisms,  homomorphicProductionDatas,   alphabet);
+    data.skippableLetters = std::move(lsData.skippableLetters);
+    data.globalMap = std::move(lsData.globalMap);
+    loadProductionDatas(lsData.productions,    data.productionDatas,              data.abc);
+    loadProductionDatas(lsData.decompositions, data.decompositionProductionDatas, data.abc);
+    loadProductionDatas(lsData.homomorphisms,  data.homomorphicProductionDatas,   data.abc);
 
-    assertAlphabet();
-
-    //find and replaceGlobals???
-    tokenizeGlobals();
-}
-
-void LSDataParser::mapGlobals(const std::vector<std::pair<std::string, float> > &globalPairs)
-{
-    //give unique token id... local to this LSystem (for global identification)
-    //char is 'signed' as I realized so lets use the negative numbers.
-    //TODO convert char to uint8_t but that's another days job
-    
-    char globalId = -1;
-    for(auto &pair : globalPairs)
-    {
-        globalVarMap[globalId] = pair.second;
-        globalNameMap[pair.first] = globalId;
-        globalSet.insert(globalId);
-        --globalId;
-    }//DO WE WANT TO ???
-    
+    assertAlphabet(data.abc);//
 }
 
 void LSDataParser::loadProductionDatas(const std::vector<std::string> &productionStrings, std::vector<LSYSTEM::ProductionData> &productionDatas, LSYSTEM::Alphabet &abc)
@@ -297,69 +277,27 @@ std::string LSDataParser::getProductEvalStrings(const std::string &rawProductStr
     return letters;
 }
 
-void LSDataParser::assertAlphabet()
+void LSDataParser::assertAlphabet(const LSYSTEM::Alphabet &abc)
 {
-    for(auto &ppd : productionDatas)
+    for(auto &ppd : data.productionDatas)
         for(auto &pd : ppd.products)
             for(uint i = 0; i < pd.product.size(); ++i)
             {
-                if(alphabet.at(pd.product[i]) != pd.evalStrings[i].size())
+                if(abc.at(pd.product[i]) != pd.evalStrings[i].size())
                     throw std::runtime_error("Wrong number of parameters for letter '" + std::string(&pd.product[i],1) + "' in production " + pd.rawStatement);
             }
-    for(auto &ppd : decompositionProductionDatas)
+    for(auto &ppd : data.decompositionProductionDatas)
         for(auto &pd : ppd.products)
             for(uint i = 0; i < pd.product.size(); ++i)
             {
-                if(alphabet.at(pd.product[i]) != pd.evalStrings[i].size())
+                if(abc.at(pd.product[i]) != pd.evalStrings[i].size())
                     throw std::runtime_error("Wrong number of parameters for letter '" + std::string(&pd.product[i],1) + "' in production " + pd.rawStatement);
             }
-    for(auto &ppd : homomorphicProductionDatas)
+    for(auto &ppd : data.homomorphicProductionDatas)
         for(auto &pd : ppd.products)
             for(uint i = 0; i < pd.product.size(); ++i)
             {
-                if(alphabet.at(pd.product[i]) != pd.evalStrings[i].size())
+                if(abc.at(pd.product[i]) != pd.evalStrings[i].size())
                     throw std::runtime_error("Wrong number of parameters for letter '" + std::string(&pd.product[i],1) + "' in production " + pd.rawStatement);
             }
-}
-
-//need to get a better method than find and replace...
-//so can just do it as we parse the string(s)... google?
-//that's another job
-void LSDataParser::tokenizeGlobals()
-{
-    for(auto &ppd : productionDatas)
-    {
-        for(auto &pd : ppd.products)
-        {
-            LSPARSE::findAndReplace(pd.conditional, globalNameMap);
-            LSPARSE::findAndReplace(pd.productWeight, globalNameMap);
-            for(auto &v : pd.evalStrings)
-                for(auto &s : v)
-                    LSPARSE::findAndReplace(s,globalNameMap);
-        }
-    }
-
-    for(auto &ppd : decompositionProductionDatas)
-    {
-        for(auto &pd : ppd.products)
-        {
-            LSPARSE::findAndReplace(pd.conditional, globalNameMap);
-            LSPARSE::findAndReplace(pd.productWeight, globalNameMap);
-            for(auto &v : pd.evalStrings)
-                for(auto &s : v)
-                    LSPARSE::findAndReplace(s,globalNameMap);
-        }
-    }
-
-    for(auto &ppd : homomorphicProductionDatas)
-    {
-        for(auto &pd : ppd.products)
-        {
-            LSPARSE::findAndReplace(pd.conditional, globalNameMap);
-            LSPARSE::findAndReplace(pd.productWeight, globalNameMap);
-            for(auto &v : pd.evalStrings)
-                for(auto &s : v)
-                    LSPARSE::findAndReplace(s,globalNameMap);
-        }
-    }
 }

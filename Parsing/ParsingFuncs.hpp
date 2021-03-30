@@ -17,6 +17,8 @@ bool next(const std::string &string, const unsigned int index, char &c);
 //if a number is read number holds the value, and i is the index one past the number
 bool readNumber(const std::string &string, unsigned int &i, float &number);//string_view???
 
+bool isNum(const std::string &string, float &number);
+
 //http://bits.mdminhazulhaque.io/cpp/find-and-replace-all-occurrences-in-cpp-string.html
 void findAndReplace(std::string& source, const std::unordered_map<std::string, std::string> &replacementStrings);
 void findAndReplace(std::string& source, const std::vector<std::pair<std::string, char> > &stringReplacementChars);

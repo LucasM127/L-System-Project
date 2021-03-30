@@ -27,7 +27,8 @@ struct LSData
     std::vector<std::string> decompositions;
     std::vector<std::string> homomorphisms;
     std::set<char> skippableLetters;
-    std::vector<std::pair<std::string, float> > globals;
+    std::unordered_map<char, float> globalMap;
+    //std::vector<std::pair<std::string, float> > globals;
 };
 
 //Send to loader.  Let the 'evalLoader' worry about tokenizing it.  too complicated otherwise
@@ -58,6 +59,7 @@ struct LSystemData
     std::vector<ProductionData> productionDatas;
     std::vector<ProductionData> decompositionProductionDatas;
     std::vector<ProductionData> homomorphicProductionDatas;
+    std::unordered_map<char, float> globalMap;
     Alphabet abc;
 };
 
