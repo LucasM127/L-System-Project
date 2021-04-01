@@ -168,7 +168,7 @@ Product* LSystem::findMatch(const unsigned int i, const LSentence &refLS, std::u
 
     std::vector<BasicProduction*> &pRules = productionMap[c];
 
-    for(unsigned int j = 0; j<pRules.size(); j++)
+    for(unsigned int j = 0; j<pRules.size(); ++j)
     {
         Product* product = pRules[j]->pass(refLS,i,V,indiceHolder);//updates the variables in the array we pass
         if(product) return product;
@@ -208,9 +208,9 @@ void LSystem::applyCut(const LSentence &oldLSentence, unsigned int &curIndex)
     while ((curIndex = oldLSentence.next(curIndex)) < oldLSentence.size())
     {
         c = oldLSentence[curIndex].id;
-        if(c == '[') curLvl++;
+        if(c == '[') ++curLvl;
         if(c == ']' && curLvl == 0) break;
-        if(c == ']') curLvl--;
+        if(c == ']') --curLvl;
     }
     //curIndex = oldLSentence.next(curIndex);
     //cur Index resumes after the 'brackets' need to check validity though

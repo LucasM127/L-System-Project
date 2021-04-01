@@ -63,9 +63,9 @@ void LSDataParser::sortProductions(std::vector<LSYSTEM::ProductionData>& product
         {
             sortedProductions.push_back(*it);
             productions.erase(it);
-            it--;
+            --it;
         }
-        it++;
+        ++it;
     }
     //only one of the contexts exist?
     it = productions.begin();
@@ -75,9 +75,9 @@ void LSDataParser::sortProductions(std::vector<LSYSTEM::ProductionData>& product
         {
             sortedProductions.push_back(*it);
             productions.erase(it);
-            it--;
+            --it;
         }
-        it++;
+        ++it;
     }
 
     for(auto &pd : productions) sortedProductions.push_back(pd);

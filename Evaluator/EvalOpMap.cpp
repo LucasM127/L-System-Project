@@ -122,7 +122,7 @@ void Evaluator::subtract(float *stackVals, uint &top)//-
 }
 
 void Evaluator::multiply(float *stackVals, uint &top)//*
-{
+{//it should be a zero...
     --top;
     float rhs = stackVals[top];
     float lhs = stackVals[top-1];

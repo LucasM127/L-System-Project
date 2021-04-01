@@ -25,7 +25,7 @@ void LSReinterpreter::modify(LSYSTEM::VLSentence &vlsentence, const uint i, cons
     LSYSTEM::LSentence &lsentence = vlsentence.m_lsentence;
 
     lsentence[i].id = M.id;
-    for(uint j = 1; j <= M.numVals; ++ j)
+    for(uint j = 1; j <= M.numVals; ++j)
     {
         lsentence[i+j].value = M.vals[j];
     }
@@ -38,7 +38,7 @@ void LSReinterpreter::modifyParams(LSYSTEM::VLSentence &vlsentence, const uint i
 
     assert(lsentence[i].numParams >= numVals);
 
-    for(uint j = 1; j <= numVals; ++ j)
+    for(uint j = 1; j <= numVals; ++j)
     {
         lsentence[i+j].value = newVals[j];
     }

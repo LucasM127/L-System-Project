@@ -91,12 +91,12 @@ bool ProductionContext::passLContext(const LSentence &lsentence, const unsigned 
         }
         else if( (curChar == ']') || (curChar == '[') )
         {
-            if( curChar == ']' ) curLvl++;//skip over [] to left
+            if( curChar == ']' ) ++curLvl;//skip over [] to left
             while(curLvl > 0)
             {
                 curIndex = lsentence.last(curIndex);
-                if(lsentence[curIndex].id == ']') curLvl++;
-                else if(lsentence[curIndex].id == '[') curLvl--;
+                if(lsentence[curIndex].id == ']') ++curLvl;
+                else if(lsentence[curIndex].id == '[') --curLvl;
             }
             //Not sure if this makes sense though.
             //if(curChar == '[' && curChar == lContext[i]))//AM checking for beginning of branch, 'optional'
@@ -133,7 +133,7 @@ bool ProductionContext::passRContext(const LSentence &lsentence, const unsigned 
 
     auto advanceToEndOfBranch = [&]()->void
     {
-        curLvl++;
+        ++curLvl;
         while(curLvl > 0)
         {
             curIndex = lsentence.next(curIndex);

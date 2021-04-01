@@ -165,13 +165,13 @@ int getNumParams(const std::string &string, const unsigned int index, int &lastI
     if(!next(string, index, c_next)) return numParams;
     if(c_next != '(') return numParams;
     int nextIndex = index + 1;
-    numParams++;
+    ++numParams;
     while(next(string, nextIndex, c_next))
     {
         lastIndex = nextIndex+1;
-        nextIndex++;
+        ++nextIndex;
         if(c_next == ')') return numParams;
-        if(c_next == ',') numParams++;
+        if(c_next == ',') ++numParams;
     }
     return -1;//error
 }
@@ -196,14 +196,14 @@ std::string getLetters(const std::string& sentence)//not used anymore
     std::string output;
     char c;
     int curLevel = 0;
-    for(unsigned int i = 0; i<sentence.size();i++)
+    for(unsigned int i = 0; i<sentence.size();++i)
     {
         c = sentence[i];
         if(c == ' ') continue;
         if(c != '(') output.push_back(c);
         else while(true)
         {
-            i++;
+            ++i;
             c = sentence[i];
             if(c == ')')
             {
@@ -211,7 +211,7 @@ std::string getLetters(const std::string& sentence)//not used anymore
                 if(curLevel == 0) break;
                 curLevel--;
             }
-            else if(c == '(') curLevel++;
+            else if(c == '(') ++curLevel;
         }
     }
     return output;
@@ -223,10 +223,10 @@ bool bracketsMatch(const std::string& sentence)//not work for ([)]
     int numSquareBrackets = 0;
     for(char c : sentence)
     {
-        if(c == '(') numCurvedBrackets++;
-        else if(c == '[') numSquareBrackets++;
-        else if(c == ')') numCurvedBrackets--;
-        else if(c == ']') numSquareBrackets--;
+        if(c == '(') ++numCurvedBrackets;
+        else if(c == '[') ++numSquareBrackets;
+        else if(c == ')') --numCurvedBrackets;
+        else if(c == ']') --numSquareBrackets;
     }
 
     return !(numCurvedBrackets || numSquareBrackets);

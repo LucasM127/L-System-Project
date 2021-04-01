@@ -81,7 +81,7 @@ Product* VariableStochasticProductChooser::choose(float *V)
 
     float randomNum = float(rand())/float(RAND_MAX)*runningTotal;
     runningTotal = 0;
-    for(unsigned int i = 0;i<products.size();i++)
+    for(unsigned int i = 0;i<products.size();++i)
     {
         runningTotal += products[i].getWeight(V);
         if(runningTotal > randomNum) return &products[i];

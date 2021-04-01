@@ -38,11 +38,12 @@ Product* ParametricProduction::pass(const LSentence &lsentence, const unsigned i
     unsigned int vi = 0;//valHolderIndex
     unsigned int L = lContext.size();
     unsigned int R = rContext.size() + L;
-    for(unsigned int n = 0;n < L;++n)
-        updateValHolder(lsentence, indiceHolder[n], vi++, V);
-    updateValHolder(lsentence,i,vi++,V);
-    for(unsigned int n = L; n < R; ++n)
-        updateValHolder(lsentence,indiceHolder[n],vi++,V);
+    for(unsigned int n = 0;n < L;++n,++vi)
+        updateValHolder(lsentence, indiceHolder[n], vi, V);
+    updateValHolder(lsentence,i,vi,V);
+    ++vi;
+    for(unsigned int n = L; n < R; ++n,++vi)
+        updateValHolder(lsentence,indiceHolder[n],vi,V);
 
     return m_chooser->choose(V);
 }

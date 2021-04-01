@@ -12,7 +12,7 @@ const size_t OUT_OF_RANGE = -1;
 //Helper function
 size_t locateNextConstant(const RPNList& rpnList, size_t k)
 {
-    for(size_t i = k;i < rpnList.size()-1; i++)
+    for(size_t i = k;i < rpnList.size()-1; ++i)
     {
         const RPNToken &curToken = rpnList[i];
         if(curToken.type == RPNToken::TYPE::OP)
@@ -267,7 +267,7 @@ void Simplify::distribute(RPNList &rpnList, int complexIt)//for left Associative
             rpnList.emplace_back('^',OP);//just push back for now instead of inserting at 'appropiate spot
             complexList.erase(complexList.begin());
             complexList.pop_back();
-            complexIt++;
+            ++complexIt;
         }
         //advance it to see if can pull to the right
         while(true)
