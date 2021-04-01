@@ -15,28 +15,18 @@ using namespace LSYSTEM;
 int main()
 {//Fix the MakeFiles now
     LSData lsd;
-    lsd.globalMap = 
-    {
-        {'c', 0.3f},
-        {'z', 1.0f}
-    };
     lsd.productions = 
     {
-        "!(x) => !(x+0.1)",
-        "G(x) => G(x*1.1)",
-        "A => G(1)[+(25)!(0.1)XA][-(25)!(0.1)XA]",
-        "X => X : 2",
-        "X => A% : 1"
-        //"A(x,t):t==0 => A(x*c,2)+A(x*(c*(z-c))^0.5,1)--A(x*(c*(z-c))^0.5,1)+A(x*(1-c),0)",
-        //"A(x,t):t>0=>A(x,t-1)"
+        "A(a,b)<A(x,y)>A(c,d)=>A(a+x,b+y)B(c+x,d+y)"
     };
     
     LSystem L(lsd);
 srand(time(NULL));
-    VLSentence axiom("A");
+    VLSentence axiom("A(1,2)A(3,4)A(5,6)");
     VLSentence A,B;
     VLSentence *oldSentence = &axiom;
     VLSentence *newSentence = &A;
+    std::cout<<*oldSentence<<"\n";
 //see the time difference for 13 iterations
     //while (true)
     {
@@ -44,7 +34,7 @@ srand(time(NULL));
         oldSentence = &A;
         newSentence = &B;
         auto start = std::chrono::high_resolution_clock::now();
-        for(int i = 0; i < 3; ++i)//15 iterations
+        for(int i = 0; i < 1; ++i)//15 iterations
         {
             L.iterate(*oldSentence, *newSentence);
             oldSentence->clear();
