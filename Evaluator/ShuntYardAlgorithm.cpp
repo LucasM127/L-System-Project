@@ -13,8 +13,8 @@ RPNList &ShuntYardAlgorithm::apply(const RPNList &tokenizedExpression)
     while(!m_rpnListStack.empty()) m_rpnListStack.pop();
     m_rpnListStack.push(RPNList());
     auto rpnList = &m_rpnListStack.top();
-
-    const int startOpLvl = 0;//-1 comparison operators
+//make sure is -1 if want to use >= type operators, 
+    const int startOpLvl = -1;//-1 comparison operators
     bool lastWasANumber = false;
 
     std::stack<int> curOpLvlStack;
