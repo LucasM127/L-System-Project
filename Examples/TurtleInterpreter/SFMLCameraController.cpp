@@ -137,7 +137,7 @@ void SphericalCameraController::update(float dt)
         updateProjMat();
 }
 
-glm::mat4 const &SphericalCameraController::getVPMat()
+glm::mat4 const &GLCameraController::getVPMat()
 {
     if(amUpdated)
     {

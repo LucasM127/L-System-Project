@@ -21,7 +21,6 @@ public:
     virtual ~GLCameraController(){}
     virtual void handleEvent(sf::Event &event) = 0;
     virtual void update(float dt) = 0;
-    //virtual void setView(sf::Vector2u &viewSz) = 0;
 protected:
     glm::mat4 m_viewMatrix, m_projMatrix;//glViewCommand?
 };
