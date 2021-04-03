@@ -3,25 +3,15 @@
 
 #include "SFMLCameraController.hpp"
 
-struct Bounds
-{
-    float min_x, max_x;
-    float min_y, max_y;
-    float min_z, max_z;
-
-    sf::Vector2f pos;
-    sf::Vector2f size;
-};
-
 //2D case
-class OrthoCamera : public Controller
+class OrthoCamera : public Camera
 {
 public:
     OrthoCamera(sf::Window &_window);
-    void handleEvent(sf::Event &event) override;
+    void handleEvent(const sf::Event &event) override;
     void update(float dt) override;
-    void update(float min_x, float max_x, float min_y, float max_y);
-    glm::mat4 const &getMatrix();
+    void setToBounds(const Bounds &bounds);
+    glm::mat4 const &getMatrix() override;
 private:
     glm::mat4 m_orthoMatrix;
     sf::Window &window;

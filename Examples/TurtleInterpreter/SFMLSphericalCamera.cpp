@@ -4,13 +4,13 @@
 
 SphericalCamera::SphericalCamera(const sf::Vector2u &winSize, float scaleFactor, glm::vec3 targetPos)
     : m_winSize(winSize), m_scaleFactor(scaleFactor),
-    m_phi(90.f), m_theta(0.f), m_upVector(0,1,0), m_targetPos(targetPos)
+    m_phi(90.f), m_theta(0.f), m_targetPos(targetPos), m_upVector(0,1,0)
 {
     updateProjMat();
     updateViewMat();
 }
 
-void SphericalCamera::handleEvent(sf::Event &event)
+void SphericalCamera::handleEvent(const sf::Event &event)
 {
     switch (event.type)
     {
@@ -33,7 +33,6 @@ void SphericalCamera::handleEvent(sf::Event &event)
     default:
         break;
     }
-    sf::Vector2f mousePos = screenToWorld(m_mouseScreenPos);
 }
 
 glm::mat4 const &SphericalCamera::getMatrix()
@@ -68,8 +67,6 @@ void SphericalCamera::resize(unsigned int newWidth, unsigned int newHeight)
     glViewport(0,0,newWidth,newHeight);
 }
 
-#include <iostream>
-
 void SphericalCamera::pan()//or rotate
 {
     //updateViewMat
@@ -91,7 +88,7 @@ void SphericalCamera::pan()//or rotate
         m_theta -= 360.f;
     if(m_theta < 0.f)
         m_theta += 360.f;
-std::cout<<m_phi<<" "<<m_theta<<std::endl;
+
     updateViewMat();
 }
 
@@ -132,4 +129,12 @@ void SphericalCamera::updateViewMat()
 
     m_viewMatrix = glm::lookAt(m_targetPos, m_targetPos + cameraPos, m_upVector);
     amUpdated = true;
+}
+
+void SphericalCamera::setToBounds(const Bounds &bounds)
+{
+    m_scaleFactor = bounds.maxDimension();
+    m_targetPos = bounds.centroid();
+    updateViewMat();
+    updateProjMat();
 }

@@ -76,7 +76,7 @@ void SphericalCameraController::setZoom(float zoom)
     updateProjMat();
 }
 
-void SphericalCameraController::handleEvent(sf::Event &event)
+void SphericalCameraController::handleEvent(const sf::Event &event)
 {}
 
 void SphericalCameraController::update(float dt)

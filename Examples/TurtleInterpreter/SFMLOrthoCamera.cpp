@@ -15,7 +15,7 @@ glm::mat4 const &OrthoCamera::getMatrix()
     return m_orthoMatrix;
 }
 
-void OrthoCamera::handleEvent(sf::Event &event)
+void OrthoCamera::handleEvent(const sf::Event &event)
 {
     switch (event.type)
     {
@@ -38,32 +38,28 @@ void OrthoCamera::handleEvent(sf::Event &event)
     default:
         break;
     }
-    sf::Vector2f mousePos = screenToWorld(m_mouseScreenPos);
-    //std::cout<<mousePos.x<<" "<<mousePos.y<<std::endl;
 }
 
-//next to do 'resizes'
-//setToBounds()
-void OrthoCamera::update(float min_x, float max_x, float min_y, float max_y)
+void OrthoCamera::setToBounds(const Bounds &bounds)
 {
     //width height and ... aspectRatio! winSize! (figure that out later :/)
-    float width = (max_x - min_x);
-    float height = (max_y - min_y);
+    float width = (bounds.max_x - bounds.min_x);
+    float height = (bounds.max_y - bounds.min_y);
 
     if(width > height)
     {
-        m_viewPos.x = min_x;
-        m_viewSize.x = max_x - min_x;
+        m_viewPos.x = bounds.min_x;
+        m_viewSize.x = bounds.max_x - bounds.min_x;
         float y_offset = (width - height) / 2.f;
-        m_viewPos.y = min_y - y_offset;
+        m_viewPos.y = bounds.min_y - y_offset;
         m_viewSize.y = m_viewSize.x;//1:1
     }
     else
     {
-        m_viewPos.y = min_y;
-        m_viewSize.y = max_y - min_y;
+        m_viewPos.y = bounds.min_y;
+        m_viewSize.y = bounds.max_y - bounds.min_y;
         float x_offset = (height - width) / 2.f;
-        m_viewPos.x = min_x - x_offset;
+        m_viewPos.x = bounds.min_x - x_offset;
         m_viewSize.x = m_viewSize.y;//1:1
     }
     

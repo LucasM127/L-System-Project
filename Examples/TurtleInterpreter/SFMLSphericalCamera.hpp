@@ -5,13 +5,14 @@
 
 //give target 'bounds'
 
-class SphericalCamera : public Controller
+class SphericalCamera : public Camera
 {
 public:
     SphericalCamera(const sf::Vector2u &winSize, float scaleFactor = 10.f, glm::vec3 targetPos = glm::vec3(0,0,0));
-    void handleEvent(sf::Event &event) override;
+    void handleEvent(const sf::Event &event) override;
     void update(float dt) override {}
-    glm::mat4 const &getMatrix();
+    void setToBounds(const Bounds &bounds) override;
+    glm::mat4 const &getMatrix() override;
 private:
     glm::mat4 m_viewMatrix;
     glm::mat4 m_projMatrix;
