@@ -161,12 +161,13 @@ Product* LSystem::findMatch(const unsigned int i, const LSentence &refLS, std::u
 {
     char c = refLS[i].id;
 
-    if(productionMap.find(c)==productionMap.end())//KEEP GETTING HERE IN SIMPLE WHILE LOOP 
+    auto it = productionMap.find(c);
+    if(it == productionMap.end())
     {
         return nullptr;
     }
 
-    std::vector<BasicProduction*> &pRules = productionMap[c];
+    std::vector<BasicProduction*> &pRules = it->second;
 
     for(unsigned int j = 0; j<pRules.size(); ++j)
     {

@@ -17,12 +17,13 @@ int main()
     LSData lsd;
     lsd.productions = 
     {
-        "A(a,b)<A(x,y)>A(c,d)=>A(a+x,b+y)B(c+x,d+y)"
+        "F=>FF",
+        "X=>F[+X][-X]+FX"
     };
     
     LSystem L(lsd);
 srand(time(NULL));
-    VLSentence axiom("A(1,2)A(3,4)A(5,6)");
+    VLSentence axiom("F");
     VLSentence A,B;
     VLSentence *oldSentence = &axiom;
     VLSentence *newSentence = &A;
@@ -34,12 +35,12 @@ srand(time(NULL));
         oldSentence = &A;
         newSentence = &B;
         auto start = std::chrono::high_resolution_clock::now();
-        for(int i = 0; i < 1; ++i)//15 iterations
+        for(int i = 0; i < 20; ++i)//15 iterations
         {
             L.iterate(*oldSentence, *newSentence);
             oldSentence->clear();
             std::swap(oldSentence,newSentence);
-            std::cout<<*oldSentence<<"\n";
+            //std::cout<<*oldSentence<<"\n";
         }
         auto end = std::chrono::high_resolution_clock::now();
         auto duration = end - start;
