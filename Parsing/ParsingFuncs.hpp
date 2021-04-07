@@ -24,6 +24,8 @@ void findAndReplace(std::string& source, const std::unordered_map<std::string, s
 void findAndReplace(std::string& source, const std::vector<std::pair<std::string, char> > &stringReplacementChars);
 void findAndReplace(std::string& source, const std::unordered_map<std::string, char> &stringReplacementChars);
 
+unsigned int readFromDictionary(const std::string &string, const unsigned int i, const std::vector<std::string> &dictionary);
+
 void removeSpaces(std::string& s);
 
 bool getNextLine(std::istream &istream, std::string &nextLine, const std::string &tagline);

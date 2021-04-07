@@ -57,50 +57,75 @@ bool readNumber(const std::string &string, unsigned int &i, float &number)
  * Gold
  * Golf
 ****/
-/*
-//tired of find and replace
-bool readIdentifier(const std::string &string, unsigned int &index, std::vector<std::string> &dictionary)//sorted like a dictionary
+//Sorted Dictionary
+//https://stackoverflow.com/questions/39712883/finding-range-index-of-a-sorted-array-on-a-specific-element
+unsigned int readFromDictionary(const std::string &string, const unsigned int i, const std::vector<std::string> &dictionary)
 {
-    //Simplify further?
-    //Find Range,
-    //Find Subset
-    //hmmm
-    std::string matchString;
-    char c_next;
-    unsigned int i = index;
-    //vector_view class?
-    unsigned int lower_i = 0;
-    unsigned int upper_i = dictionary.size();
-    unsigned int letterNum = 0;
-    bool noMatch = false;
-    while(next(string, i, c_next))
+    unsigned int matchId = -1;
+
+    unsigned int lowerId = 0;
+    unsigned int higherId = dictionary.size() - 1;
+    char curLetter = string[i];
+    unsigned int j = 0;
+    unsigned int letterId = 0;
+
+    while (lowerId < higherId)
     {
-        //find valid 'range'
-        //lower range
-        while(lower_i < upper_i)
+        //find lower Higher
+        unsigned int min = lowerId;
+        unsigned int max = higherId;
+        if(dictionary[lowerId][letterId] < curLetter)
+        while(true)
         {
-            char c = dictionary[lower_i][letterNum];
-            if(c_next == c)
+            if(min == max)
+            {
+                lowerId = min;
                 break;
-            ++lower_i;
+            }
+            unsigned int mid = (min + max) / 2;
+            if(dictionary[mid][letterId] < curLetter)
+                min = mid + 1;
+            else
+                max = mid;
         }
-        if(lower_i == upper_i)
+        if(dictionary[lowerId][letterId] != curLetter)
+            return matchId;
+        min = lowerId;
+        max = higherId;
+        if(dictionary[higherId][letterId] > curLetter)
+        while(true)
         {
-            noMatch = true;
-            break;
+            if(min == max)
+            {
+                higherId = min;
+                break;
+            }
+            unsigned int mid = (min + max + 1)/2;
+            if(dictionary[mid][letterId] > curLetter)
+                max = mid - 1;
+            else
+                min = mid;
         }
-        //upper_i ?
-        unsigned int a=1;
-        while(lower_i+a < dictionary.size() && c_next == dictionary[lower_i+a][letterNum])
+
+        ++j;
+        curLetter = string[i+j];
+        ++letterId;
+
+        if(dictionary[lowerId].size() == letterId)
         {
-            ++a;
+            matchId = lowerId;
+            ++lowerId;
         }
-        upper_i = lower_i + a;
-        //what about words that don't match ?? GAH or skip because smaller? AB ABC remove AB from subset, mark as potential 'match'
     }
-    
+    //maybe just the one potential match word remaining...
+    for(;j < dictionary[lowerId].size();++j)
+    {
+        if(string[i+j] != dictionary[lowerId][j])
+            return matchId;
+    }
+
+    return lowerId;
 }
-*/
 
 //http://bits.mdminhazulhaque.io/cpp/find-and-replace-all-occurrences-in-cpp-string.html
 void findAndReplace(std::string& source, const std::unordered_map<std::string, std::string> &replacementStrings)
