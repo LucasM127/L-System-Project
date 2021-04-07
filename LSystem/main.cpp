@@ -1,6 +1,6 @@
 #include "LSystem.hpp"
 #include <iostream>
-
+#include "../Parsing/LSFileParser.hpp"//hmm
 
 #include <chrono>
 //Sentence has its own 'local' alphabet
@@ -14,20 +14,25 @@ using namespace LSYSTEM;
 
 int main()
 {//Fix the MakeFiles now
+    //LSFile lsfile;
+    //lsfile.loadFile("../Examples/TurtleInterpreter/PineConeIdea.ls");
     LSData lsd;
     lsd.productions = 
     {
-        "F=>FF",
-        "X=>F[+X][-X]+FX"
+        "A(x) => BA(x)"
+    };
+    lsd.decompositions = 
+    {
+        "A(x) : x > 0 => A(x-1)A(x-1)"
     };
     
     LSystem L(lsd);
 srand(time(NULL));
-    VLSentence axiom("F");
+    VLSentence axiom("A(2)");//"F");
     VLSentence A,B;
     VLSentence *oldSentence = &axiom;
     VLSentence *newSentence = &A;
-    std::cout<<*oldSentence<<"\n";
+    //std::cout<<*oldSentence<<"\n";
 //see the time difference for 13 iterations
     //while (true)
     {
@@ -35,17 +40,20 @@ srand(time(NULL));
         oldSentence = &A;
         newSentence = &B;
         auto start = std::chrono::high_resolution_clock::now();
-        for(int i = 0; i < 20; ++i)//15 iterations
+        //for(int i = 0; i < 3; ++i)//15 iterations
         {
-            L.iterate(*oldSentence, *newSentence);
-            oldSentence->clear();
-            std::swap(oldSentence,newSentence);
+//            std::cout<<A<<"\n";
+            //L.iterate(*oldSentence,*newSentence);
+            //oldSentence->clear();
+            //std::swap(oldSentence,newSentence);
             //std::cout<<*oldSentence<<"\n";
+            L.iterate(A,3);
+            std::cout<<A<<"\n";
         }
         auto end = std::chrono::high_resolution_clock::now();
         auto duration = end - start;
         std::cout<<"Duration "<<duration.count()<<"\n";
-        
+        //std::cout<<*oldSentence<<"\n";
         A.clear();
         B.clear();
     }

@@ -1,31 +1,75 @@
 #include "OstreamOperators.hpp"
 #include <iostream>
+#include <stack>
+
+using namespace EVAL;
+
+class RPNTokenIterator
+{
+public:
+    RPNTokenIterator(RPNList &list_) : i(-1), list(&list_){}
+    unsigned int i;
+    RPNList *list;
+    std::stack<std::pair<unsigned int, RPNList&> > stack;
+    bool next(RPNToken &T_next)
+    {
+        ++i;
+        if(i >= list->size())
+        {
+            if(stack.empty())
+                return false;
+            list = &stack.top().second;
+            i = stack.top().first;
+            stack.pop();
+            return next(T_next);
+        }
+        if((*list)[i].type == RPNToken::TYPE::COMPLEX)
+        {
+            stack.push({i,*list});
+            list = (*list)[i].rpnList;
+            i = -1;
+            return next(T_next);
+        }
+        T_next = (*list)[i];
+        return true;
+    }
+};
+
+//just 'flatten it' ??
+//find the common substrings
+//How to replace?
 
 int main()
 {
-    LSYSTEM::Alphabet abc = 
+    //5x^2+36
+    RPNList A =
     {
-        {'b', 4},
-        {'f', 42},
-        {'j', 0}
+        RPNToken(5.f),
+        RPNToken({
+            RPNToken(0u),
+            RPNToken(2.f),
+            RPNToken('^',OP)
+        })
     };
 
-    std::cout<<abc<<"\n";
+    RPNList B = 
+    {
+        RPNToken(0u),
+        RPNToken(2.f),
+        RPNToken('^',OP)
+    };
 
-    LSYSTEM::LSentence l;
-    l.push_back('a',2);
-    l.push_back(5);
-    l.push_back(7);
-
-    l.push_back('b',0);
-
-    l.push_back('c',1);
-    l.push_back(2);
-
-    l.push_back('a',0);
-    l.push_back('d',0);
-
-    std::cout<<OSManip::letter<<l<<" "<<l<<"\n";
+    RPNTokenIterator IA(A);
+    RPNTokenIterator IB(B);
+    RPNToken TA,TB;
+    IA.next(TA);
+    while(IB.next(TB) && IA.next(TA))
+    {
+        if(TA == TB)
+            std::cout<<"Yes ";
+        else std::cout<<"No ";
+    }
+    std::cout<<"\n";
 
     return 0;
 }

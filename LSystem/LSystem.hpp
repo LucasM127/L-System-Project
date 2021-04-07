@@ -23,6 +23,7 @@ public:
     LSystem(const LSData &lsData);
     ~LSystem();
     void iterate(const VLSentence &sentence, VLSentence &newSentence);
+    void iterate(VLSentence &sentence, unsigned int n = 1);
     void interpret(VLSentence &sentence, LSInterpreter &I, LSReinterpreter &R);
     void interpret(VLSentence &sentence, LSInterpreter &I);
 
@@ -44,8 +45,6 @@ private:
     std::unordered_map<char, std::vector<BasicProduction*> > m_productionMap;
     std::unordered_map<char, std::vector<BasicProduction*> > m_decompositionMap;
     std::unordered_map<char, std::vector<BasicProduction*> > m_homomorphismMap;
-
-    void contract(LSYSTEM::VLSentence &vlsentence);
 
     Alphabet m_alphabet;//can't use a conflicting alphabet or the productions may try to write to a non-existant parameter
     std::set<char> m_skippableLetters;

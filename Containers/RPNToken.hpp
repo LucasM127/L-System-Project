@@ -50,6 +50,8 @@ struct RPNToken
         float value;//I need these two
         RPNList *rpnList;    
 	};
+
+    bool operator==(const RPNToken &other) const;
 };
 
 extern const RPNToken::TYPE OP;

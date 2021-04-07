@@ -8,6 +8,7 @@ LSInterpreter::~LSInterpreter(){}
 
 LSReinterpreter::LSReinterpreter(const LSYSTEM::Alphabet a) : alphabet(a){}
 
+//hmmm
 void LSReinterpreter::contract(LSYSTEM::VLSentence &vlsentence)
 {
     if(!compatible(alphabet, vlsentence.m_alphabet))

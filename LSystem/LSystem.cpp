@@ -58,6 +58,7 @@ LSystem::LSystem(const LSData &lsData)// : alphabet(lsData.abc), skippableLetter
 LSystem::~LSystem()
 {}//YAY is empty
 
+//iterate once from old -> new
 void LSystem::iterate(const VLSentence &oldSentence, VLSentence &newSentence)
 {
     float *V = new float[m_maxWidth*m_maxDepth+m_maxStackSz];
@@ -66,7 +67,7 @@ void LSystem::iterate(const VLSentence &oldSentence, VLSentence &newSentence)
     if(!compatible(oldSentence.m_alphabet, m_alphabet))
         throw std::runtime_error("LSentence Incompatible with production alphabet");
     combine(m_alphabet, newSentence.m_alphabet);
-//    combine(oldSentence.m_alphabet, newSentence.m_alphabet);//hmmm
+    combine(oldSentence.m_alphabet, newSentence.m_alphabet);
 
     const LSentence &oldLSentence = oldSentence.m_lsentence;
     LSentence &newLSentence = newSentence.m_lsentence;
@@ -92,6 +93,58 @@ void LSystem::iterate(const VLSentence &oldSentence, VLSentence &newSentence)
         applyCut(oldLSentence, i);
         if(i >= oldLSentence.size()) break;
         applyProduct(oldLSentence, newLSentence, i, m_productionMap, V, indiceHolder);
+    }
+
+    delete[] V;
+    delete[] indiceHolder;
+}
+
+//iterate many times into the same sentence
+void LSystem::iterate(VLSentence &sentence, unsigned int n)
+{
+    float *V = new float[m_maxWidth*m_maxDepth+m_maxStackSz];
+    unsigned int *indiceHolder = new unsigned int[m_maxWidth];
+
+    if(!compatible(sentence.m_alphabet, m_alphabet))
+        throw std::runtime_error("LSentence Incompatible with production alphabet");
+    combine(m_alphabet, sentence.m_alphabet);
+
+    LSentence newSentence;
+
+    LSentence *oldLSentence = &sentence.m_lsentence;
+    LSentence *newLSentence = &newSentence;
+
+    //match appropiate iteration 'type'
+    bool applyDecompositions = m_decompositionMap.size() > 0;
+    
+    for(unsigned int i = 0; i < n; ++i)
+    {
+        if(applyDecompositions)
+        {
+            LSentence tempSentence;
+            for(uint i = 0; i < oldLSentence->size(); i = oldLSentence->next(i))
+            {
+                applyCut(*oldLSentence, i);
+                if(i >= oldLSentence->size()) break;
+                tempSentence.clear();
+                applyProduct(*oldLSentence, tempSentence, i, m_productionMap, V, indiceHolder);
+                decompose(tempSentence, *newLSentence, V, indiceHolder);
+            }
+        }
+        else
+        for(uint i = 0; i < oldLSentence->size(); i = oldLSentence->next(i))
+        {
+            applyCut(*oldLSentence, i);
+            if(i >= oldLSentence->size()) break;
+            applyProduct(*oldLSentence, *newLSentence, i, m_productionMap, V, indiceHolder);
+        }
+        oldLSentence->clear();
+        std::swap(oldLSentence, newLSentence);
+    }
+
+    if(n%2 == 1)
+    {
+        sentence.m_lsentence = std::move(newSentence);
     }
 
     delete[] V;
@@ -149,19 +202,12 @@ void LSystem::interpret(VLSentence &vlsentence, LSInterpreter &I)
     delete[] V;
 }
 
-void LSystem::contract(LSYSTEM::VLSentence &vlsentence)
-{
-    if(!compatible(m_alphabet, vlsentence.m_alphabet))
-        throw std::runtime_error("Incompatible alphabets");
-    combine(m_alphabet, vlsentence.m_alphabet);
-}
-
 Product* LSystem::findMatch(const unsigned int i, const LSentence &refLS, std::unordered_map<char, std::vector<BasicProduction*> > &productionMap,
                             float *V, unsigned int *indiceHolder)
 {
     char c = refLS[i].id;
 
-    auto it = productionMap.find(c);
+    auto it = productionMap.find(c);//still takes a while here
     if(it == productionMap.end())
     {
         return nullptr;

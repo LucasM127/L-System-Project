@@ -20,6 +20,17 @@ RPNToken::RPNToken(const RPNList &list)  : type(TYPE::COMPLEX), rpnList(new RPNL
 RPNToken::RPNToken(const RPNList &&list) : type(TYPE::COMPLEX), rpnList(new RPNList(list)) {}
 //this should work
 
+bool RPNToken::operator==(const RPNToken &other) const
+{
+    if(other.type != this->type)
+        return false;
+    if(other.type == TYPE::COMPLEX)
+    {
+        return *rpnList == *other.rpnList;
+    }
+    return rpnList == other.rpnList;
+}
+
 void destroy(RPNList &list)
 {
     for(auto &tok : list)
