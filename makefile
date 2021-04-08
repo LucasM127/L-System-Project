@@ -2,6 +2,7 @@ LF=InternalLib
 STATIC_LIBS=($LF)/LSystem.a ($LF)/EvalLib.a ($LF)/LSParser.a ($LF)/LSContainers.a
 
 all: $(STATIC_LIBS)
+	[ -d Lib ] || mkdir Lib
 	ar rvs Lib/lsystem.a Obj/*.o
 
 ($LF)/LSystem.a: ($LF)/EvalLib.a

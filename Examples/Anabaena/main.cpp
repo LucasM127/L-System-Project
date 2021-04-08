@@ -1,5 +1,4 @@
 #include <iostream>
-
 #include "../../ls.hpp"
 
 //Example from
@@ -44,8 +43,14 @@ int main(int argc, char **v)
 
     if(argc == 2)
     {
-        uint temp = std::stoul(v[1]);
-        if(temp != 0) terminalWidth = temp;
+        //uint temp;
+        try{
+        terminalWidth = std::stoul(v[1]);
+        }
+        catch(std::invalid_argument&)
+        {
+            terminalWidth = 80;
+        }
     }
 
     LSYSTEM::LSData lsData;
