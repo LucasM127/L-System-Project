@@ -11,7 +11,7 @@ test: main.o $(LF)/LSContainers.a
 main.o: main.cpp
 	$(GCC) main.cpp -c
 
-$(LF)/LSContainers.a: $(OBJS)
+$(LF)/LSContainers.a: $(OBJS) $(LF)
 	ar rvs $@ $(OBJS)
 
 $(OF)/OstreamOperators.o: OstreamOperators.cpp OstreamOperators.hpp\
@@ -24,8 +24,14 @@ $(OF)/LSentence.o: LSentence.cpp LSentence.hpp $(OF)/Alphabet.o
 $(OF)/RPNToken.o: RPNToken.cpp RPNToken.hpp
 	$(GCC) $< -c -o $@
 
-$(OF)/Alphabet.o: Alphabet.cpp Alphabet.hpp
+$(OF)/Alphabet.o: Alphabet.cpp Alphabet.hpp $(OF)
 	$(GCC) $< -c -o $@
+
+$(OF):
+	[ -d $@ ] || mkdir $@
+
+$(LF):
+	[ -d $@ ] || mkdir $@
 
 clean:
 	rm -f $(OBJS) test main.o $(LF)/LSContainers.a
