@@ -40,27 +40,33 @@ void OrthoCamera::handleEvent(const sf::Event &event)
     }
 }
 
+//fix me
 void OrthoCamera::setToBounds(const Bounds &bounds)
 {
-    //width height and ... aspectRatio! winSize! (figure that out later :/)
+    float winAspectRatio = (float)m_winSize.x / (float)m_winSize.y;
+
     float width = (bounds.max_x - bounds.min_x);
     float height = (bounds.max_y - bounds.min_y);
+    float boundAspectRatio = width / height;
 
-    if(width > height)
+//    if(width > height)
+    if(winAspectRatio < boundAspectRatio)
     {
         m_viewPos.x = bounds.min_x;
         m_viewSize.x = bounds.max_x - bounds.min_x;
-        float y_offset = (width - height) / 2.f;
+        m_viewSize.y = m_viewSize.x / winAspectRatio;
+        float y_offset = (m_viewSize.y - height) / 2.f;//(width - height) / 2.f;
         m_viewPos.y = bounds.min_y - y_offset;
-        m_viewSize.y = m_viewSize.x;//1:1
+//        m_viewSize.y = m_viewSize.x;//1:1
     }
     else
     {
         m_viewPos.y = bounds.min_y;
         m_viewSize.y = bounds.max_y - bounds.min_y;
-        float x_offset = (height - width) / 2.f;
+        m_viewSize.x = m_viewSize.y * winAspectRatio;
+        float x_offset = (m_viewSize.x - width) / 2.f;//(height - width) / 2.f;
         m_viewPos.x = bounds.min_x - x_offset;
-        m_viewSize.x = m_viewSize.y;//1:1
+        //m_viewSize.x = m_viewSize.y;//1:1
     }
     
     scale(1.1f);

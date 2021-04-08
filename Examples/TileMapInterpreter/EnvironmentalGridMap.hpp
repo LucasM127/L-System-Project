@@ -4,7 +4,6 @@
 #include "Grid.hpp"//mapper coord -> position
 #include "GridInterpreter.hpp"
 #include <random>
-//#include "../LSystem/LSInterpreter.hpp"
 
 class GridInterpreter;
 
@@ -20,8 +19,6 @@ private:
     const sf::Vector2i m_origin;//THINKING...
     std::vector<int> m_collisionMap;
 };
-
-#include "GridInterpreter.hpp"
 
 class EnviroProgram : public LSYSTEM::LSReinterpreter
 {

@@ -2,7 +2,7 @@ GLEW = /home/lucas/Headers/glew-2.1.0
 GLM=/home/lucas/Headers/glm/
 IMGUI=./IMGUI/
 SFML_DIR = /home/lucas/Headers/SFML-2.5.1
-LIBS=-ldl -lsfml-system -lsfml-window -lsfml-graphics -lGLEW -lGLU -lGL
+LIBS=-lsfml-system -lsfml-window -lsfml-graphics -lGLEW -lGLU -lGL
 LINK= -L $(SFML_DIR)/lib -L$(GLEW)/lib $(LIBS) -Wl,-rpath=$(SFML_DIR)/lib -Wl,-rpath=$(GLEW)/lib
 OBJS=main.o GLShaders.o TurtleInterpreter.o SFMLOrthoCamera.o SFMLSphericalCamera.o AppViewer.o
 
@@ -28,4 +28,4 @@ TurtleInterpreter.o: TurtleInterpreter.cpp TurtleInterpreter.hpp
 	g++ -g -Wall $< -c -o $@ -I $(GLM)
 
 clean:
-	rm *.o *.so test
+	rm -f *.o test

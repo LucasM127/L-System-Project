@@ -36,27 +36,6 @@ inline Orientation rotate(Orientation o, Orientation r)
 {
     return Orientation(o < 4 ? (o+r)%4 : (o+(4-r))%4+4);
 }
-/*
-{
-    switch (r)
-    {
-    case DEFAULT:
-        return o;
-        break;
-    case R90CCW:
-        return Orientation(o < 4 ? (o+1)%4 : (o+3)%4+4);
-        break;
-    case R180:
-        return Orientation(o < 4 ? (o+2)%4 : (o+2)%4+4);
-        break;
-    case R90CW:
-        return Orientation(o < 4 ? (o+3)%4 : (o+1)%4+4);
-        break;
-    default:
-        break;
-    }
-    return o;
-}*/
 
 typedef sf::Vector2f Vec2;
 

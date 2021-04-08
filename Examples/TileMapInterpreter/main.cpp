@@ -1,6 +1,4 @@
 //Test Building With Collision...
-#include "../ls.hpp"//"../Lib/AllLibs.hpp"
-#include "../Containers/OstreamOperators.hpp"
 #include "GridInterpreter.hpp"
 #include "EnvironmentalGridMap.hpp"
 #include "BuildingCoords.hpp"

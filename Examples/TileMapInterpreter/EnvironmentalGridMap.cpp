@@ -56,19 +56,7 @@ void EnviroProgram::reinterpret(const LSYSTEM::LSentence &sentence, const uint i
             modify(vlsentence, i, {'a'});
         else
             modify(vlsentence, i, {'d'});
-    }/*
-    if(sentence[i].id == 'I')
-    {
-        auto &h = I.queryTurtle().heading;
-        if(h.y == -1)
-            modify(vlsentence, i, {'w'});
-        else if(h.y == 1)
-            modify(vlsentence, i, {'s'});
-        else if(h.x == -1)
-            modify(vlsentence, i, {'a'});
-        else
-            modify(vlsentence, i, {'d'});
-    }*/
+    }
 }
 
 void EnviroProgram::apply()

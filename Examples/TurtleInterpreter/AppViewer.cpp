@@ -4,12 +4,14 @@
 #include "imgui-SFML.h"
 #include "imgui_impl_opengl3.h"
 
+#include <future>
+
 #include "GLShaders.hpp"
 
 #include <string>
 
 AppViewer::AppViewer() : m_camera(nullptr), amRunning(true), amShowingIMGUI(true),
-                         amLockingCamera(true), m_lsystem(nullptr)
+                         m_lsystem(nullptr)
 {
     setup();
 }
@@ -83,6 +85,18 @@ void AppViewer::setup()
     LSYSTEM::LSData LS;
     LS.productions =
     {
+        "Y=>X-Y-X",
+        "X=>Y+X+Y"
+    };
+    LS.homomorphisms = 
+    {
+        "X=>F",
+        "Y=>F"
+    };
+    A = "Y";
+    /*
+    LS.productions =
+    {
         "6 => 81++91----71[-81----61]++",
         "7 => +81--91[---61--71]+",
         "8 => -61++71[+++81++91]-",
@@ -97,12 +111,21 @@ void AppViewer::setup()
         "9=>F",//~(1,0,0)F"
     };
     m_lsystem = new LSYSTEM::LSystem(LS);
-    A = "[7]++[7]++[7]++[7]++[7]";
+    A = "[7]++[7]++[7]++[7]++[7]";*/
+    m_lsystem = new LSYSTEM::LSystem(LS);
+    LS.productions.clear();
+    LS.homomorphisms.clear();
+    LS.productions = 
+    {
+        "Y=>Y+Y--Y+Y",
+        "X=>X+X--X+X"
+    };
+    m_lsystem2 = new LSYSTEM::LSystem(LS);
     oldSentence = &A;
     newSentence = &B;
     
     LineTurtleIntData data;
-    data.turnAngle = 36.f;
+    data.turnAngle = 60.f;//25.f;
     m_lsInterpreter.setDefaults(data);
     interpret();
 }
@@ -124,10 +147,19 @@ void AppViewer::render()
         ImGui::NewFrame();
         ImGui::Begin("Hello");
         ImGui::Text("Press 'H' to show/hide");
-        ImGui::Checkbox("Lock Camera", &amLockingCamera);
+        //ImGui::
+        //ImGui::Checkbox("Lock Camera", &amLockingCamera);
         if(ImGui::Button("Reset"))
         {
-            (*oldSentence) = "[7]++[7]++[7]++[7]++[7]";
+            (*oldSentence) = "Y";//"[7]++[7]++[7]++[7]++[7]";
+            interpret();
+        }
+        if(ImGui::Button("iterate"))
+        {
+            m_lsystem2->iterate(*oldSentence, *newSentence);
+            oldSentence->clear();
+            std::swap(oldSentence, newSentence);
+            m_lsystem->interpret(*oldSentence,m_lsInterpreter);//?
             interpret();
         }
         ImGui::End();
@@ -141,6 +173,8 @@ void AppViewer::render()
 //doing dual duty with update(float dt) - event based
 void AppViewer::handleEvents(const sf::Event &event)
 {
+    ImGuiIO &imguiIO = ImGui::GetIO();
+
     switch (event.type)
     {
     case sf::Event::Closed:
@@ -151,18 +185,16 @@ void AppViewer::handleEvents(const sf::Event &event)
         if(event.key.code == sf::Keyboard::Key::H)
             amShowingIMGUI = !amShowingIMGUI;
         if(event.key.code == sf::Keyboard::Key::C)
-            amLockingCamera = !amLockingCamera;
+            m_camera->setToBounds(m_lsInterpreter.getBounds());
         if(event.key.code == sf::Keyboard::Key::Space)
             iterate();
     }
     default:
         break;
     }
-    //convoluted logic
-    if(!amLockingCamera && m_camera != nullptr)
+    
+    if(!imguiIO.WantCaptureMouse)//OOH!
     {
-        SphericalCamera C({10,10});
-        C.getMatrix();
         m_camera->handleEvent(event);
     }//it is what it is
     if(m_camera)
@@ -188,6 +220,7 @@ void AppViewer::iterate()
     m_lsystem->iterate(*oldSentence, *newSentence);
     oldSentence->clear();
     std::swap(oldSentence, newSentence);
+    m_lsystem->interpret(*oldSentence,m_lsInterpreter);//?
     interpret();
 }
 

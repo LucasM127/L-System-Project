@@ -33,11 +33,11 @@ private:
     Camera *m_camera;
     bool amRunning;
     bool amShowingIMGUI;
-    bool amLockingCamera;
 
     GLData m_glData;
     LineTurtleInterpreter m_lsInterpreter;
     LSYSTEM::LSystem *m_lsystem;
+    LSYSTEM::LSystem *m_lsystem2;
     LSYSTEM::VLSentence A,B;
     LSYSTEM::VLSentence *oldSentence, *newSentence;
 

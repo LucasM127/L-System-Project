@@ -10,18 +10,22 @@ S => A
 A => IA
 
 ;up can only branch right
+w => I
 w => B : 2
 w => B[+A] :1
 
 ;shouldn't be heading down can only branch left
+s => I
 s => B :2
 s => B[-A]:1
 
 ;left only can branch right to go up
+a => I
 a => B:2
 a => B[+A]:1
 
 ;right only can branch left
+d => I
 d => B:2
 d => B[-A]:1
 

@@ -2,7 +2,6 @@
 #include <stack>
 #include <iostream>
 #include "../../ls.hpp"
-#include "../../Parsing/LSFileParser.hpp"
 
 const float thickness = 1.f;
 
@@ -130,7 +129,7 @@ int main()
 
     Bounds outerBounds;
     outerBounds.pos = {0,0};
-    outerBounds.size = {sz,sz};
+    outerBounds.size = {(float)sz,(float)sz};
 
     BoundsInterpreter BI(outerBounds);
 

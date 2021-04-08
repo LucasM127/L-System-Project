@@ -2,10 +2,6 @@
 
 #include "../../ls.hpp"
 
-#include "../../Containers/LSFileData.hpp"
-#include "../../Parsing/LSFileParser.hpp"
-#include "../../Containers/OstreamOperators.hpp"
-
 //Example from
 //pdf "Modeling plant development with L-systems" pg 5
 //"L-system modeling the development of a vegetative segment ofAnabaena"

@@ -24,7 +24,6 @@ void GridInterpreter::reset()
     m_turtleStack.push(m_startTurtle);
     m_lastTurtleHeadingStack.push(m_startTurtle.heading);
     m_data.clear();
-    //rename these so i know what they do.
     
     amFirstAfterBranch = false;
     m_skipBranchType = SkipBranchType::NO_BRANCH;

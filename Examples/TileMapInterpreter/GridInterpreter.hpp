@@ -1,7 +1,7 @@
 #ifndef GRID_INTERPRETER_HPP
 #define GRID_INTERPRETER_HPP
 
-#include "../LSystem/LSInterpreter.hpp"
+#include "../../ls.hpp"
 #include "EnvironmentalGridMap.hpp"
 
 #include "Grid.hpp"

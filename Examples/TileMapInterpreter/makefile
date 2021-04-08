@@ -1,18 +1,11 @@
 GCC = g++ -g -Wall
-#THIS ORDER IS IMPORTANT
 SFML_DIR = /home/lucas/Headers/SFML-2.5.1
-STATIC_LIBS=../Lib/LSystem.a ../Lib/EvalLib.a ../Lib/LSParser.a ../Lib/LSContainers.a
-LINK= -L $(SFML_DIR)/lib -ldl -lsfml-system -lsfml-window -lsfml-graphics -Wl,-rpath=$(SFML_DIR)/lib
+STATIC_LIBS=../../Lib/lsystem.a
+LINK= -L $(SFML_DIR)/lib -lsfml-system -lsfml-window -lsfml-graphics -Wl,-rpath=$(SFML_DIR)/lib
 OBJS=GridInterpreter.o Grid.o EnvironmentalGridMap.o main.o
 
-building: BuildingTileMap.o Grid.o
-	$(GCC) BuildingTileMap.o Grid.o ../Lib/lsystem.a -o $@ $(LINK)
-
-BuildingTileMap.o: BuildingTileMap.cpp
-	$(GCC) $< -c -o $@ -I $(SFML_DIR)/include
-
 test: $(OBJS)
-	$(GCC) $(OBJS) ../Lib/lsystem.a -o test $(LINK)
+	$(GCC) $(OBJS) $(STATIC_LIBS) -o test $(LINK)
 
 main.o: main.cpp
 	$(GCC) main.cpp -c -I $(SFML_DIR)/include -I ../Logger/
@@ -27,4 +20,4 @@ Grid.o: Grid.hpp Grid.cpp
 	$(GCC) Grid.cpp -c -I $(SFML_DIR)/include
 
 clean:
-	rm *.o test
+	rm -f *.o test
