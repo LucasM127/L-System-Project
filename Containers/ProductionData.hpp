@@ -23,6 +23,7 @@ struct LSData;//and remove LSystemData as loaded in house, validated with the fu
 //Fine, 'user-friendly' one
 struct LSData
 {//global mapping//constants??? defines???
+    std::string label;
     std::vector<std::string> productions;
     std::vector<std::string> decompositions;
     std::vector<std::string> homomorphisms;

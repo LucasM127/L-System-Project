@@ -30,6 +30,7 @@ std::ostream& operator<<(std::ostream &os, const LSYSTEM::LSFileData &fd)
 
 std::ostream& operator<<(std::ostream &os, const LSYSTEM::LSData &ld)
 {
+    os<<"LSData: "<<ld.label<<"\n";
     os<<"Productions: \n";
     for(const auto &string : ld.productions)
         os<<string<<"\n";
