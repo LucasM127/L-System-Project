@@ -48,7 +48,7 @@ struct RPNToken
         char token;
         unsigned int index;
         float value;//I need these two
-        RPNList *rpnList;    
+        RPNList *rpnList;
 	};
 
     bool operator==(const RPNToken &other) const;

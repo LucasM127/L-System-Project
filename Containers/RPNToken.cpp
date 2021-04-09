@@ -24,11 +24,22 @@ bool RPNToken::operator==(const RPNToken &other) const
 {
     if(other.type != this->type)
         return false;
-    if(other.type == TYPE::COMPLEX)
+    switch(type)
     {
-        return *rpnList == *other.rpnList;
+        case TYPE::COMPLEX:
+            return *rpnList == *other.rpnList;
+        case TYPE::VAR:
+            return index == other.index;
+        case TYPE::CONST:
+            return value == other.value;//floats
+        case TYPE::SYMBOL:
+        case TYPE::GLOBAL:
+        case TYPE::OP:
+            return token == other.token;
+        default:
+            return false;
     }
-    return rpnList == other.rpnList;
+    return false;
 }
 
 void destroy(RPNList &list)
