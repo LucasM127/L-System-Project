@@ -10,6 +10,7 @@ struct LSDataParser
     void parse(const LSYSTEM::LSData &lsData);
     LSYSTEM::LSystemData data;
 private:
+    void loadSkippableLetters(const std::string &skippableString, std::set<char> &skippableLetters);
     void decomposeProductionString(const std::string &productionString, LSYSTEM::ProductionData &pd);
     void loadProductionDatas(const std::vector<std::string> &productionStrings, std::vector<LSYSTEM::ProductionData> &productionDatas,
                                 LSYSTEM::Alphabet &abc);

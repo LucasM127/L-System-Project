@@ -5,6 +5,11 @@
 namespace LSPARSE
 {
 
+bool isWhiteSpace(const char c)
+{
+    return c <= char(32);
+}
+
 //reads next character if next character can be read
 bool next(const std::string &string, const unsigned int index, char &c)
 {

@@ -5,8 +5,8 @@
 
 void LSDataParser::parse(const LSYSTEM::LSData &lsData)
 {
-    data.skippableLetters = std::move(lsData.skippableLetters);
-    data.globalMap = std::move(lsData.globalMap);
+    loadSkippableLetters(lsData.skippableLetters, data.skippableLetters);
+    data.globalMap = lsData.globalMap;
     loadProductionDatas(lsData.productions,    data.productionDatas,              data.abc);
     loadProductionDatas(lsData.decompositions, data.decompositionProductionDatas, data.abc);
     loadProductionDatas(lsData.homomorphisms,  data.homomorphicProductionDatas,   data.abc);
@@ -87,16 +87,14 @@ void LSDataParser::sortProductions(std::vector<LSYSTEM::ProductionData>& product
     //for(auto &pd : productions) std::cout<<pd<<"\n";
 }
 
-
-/*
 void LSDataParser::loadSkippableLetters(const std::string &skippableString, std::set<char> &skippableLetters)
 {
     for(char c: skippableString)
     {
-        if(c == ' ') continue;
+        if(LSPARSE::isWhiteSpace(c)) continue;
         skippableLetters.insert(c);
     }
-}*/
+}
 
 bool LSDataParser::stochasticMatch(std::vector<LSYSTEM::ProductionData>& productions, LSYSTEM::ProductionData& p)
 {

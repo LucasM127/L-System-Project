@@ -27,7 +27,7 @@ struct LSData
     std::vector<std::string> productions;
     std::vector<std::string> decompositions;
     std::vector<std::string> homomorphisms;
-    std::set<char> skippableLetters;
+    std::string skippableLetters;
     std::unordered_map<char, float> globalMap;
     //std::vector<std::pair<std::string, float> > globals;
 };
