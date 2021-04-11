@@ -78,7 +78,7 @@ void LSystem::iterate(const VLSentence &oldSentence, VLSentence &newSentence)
     if(applyDecompositions)
     {
         LSentence tempSentence;
-        for(uint i = 0; i < oldLSentence.size(); i = oldLSentence.next(i))
+        for(unsigned int i = 0; i < oldLSentence.size(); i = oldLSentence.next(i))
         {
             applyCut(oldLSentence, i);
             if(i >= oldLSentence.size()) break;
@@ -88,7 +88,7 @@ void LSystem::iterate(const VLSentence &oldSentence, VLSentence &newSentence)
         }
         return;
     }
-    for(uint i = 0; i < oldLSentence.size(); i = oldLSentence.next(i))
+    for(unsigned int i = 0; i < oldLSentence.size(); i = oldLSentence.next(i))
     {
         applyCut(oldLSentence, i);
         if(i >= oldLSentence.size()) break;
@@ -122,7 +122,7 @@ void LSystem::iterate(VLSentence &sentence, unsigned int n)
         if(applyDecompositions)
         {
             LSentence tempSentence;
-            for(uint i = 0; i < oldLSentence->size(); i = oldLSentence->next(i))
+            for(unsigned int i = 0; i < oldLSentence->size(); i = oldLSentence->next(i))
             {
                 applyCut(*oldLSentence, i);
                 if(i >= oldLSentence->size()) break;
@@ -132,7 +132,7 @@ void LSystem::iterate(VLSentence &sentence, unsigned int n)
             }
         }
         else
-        for(uint i = 0; i < oldLSentence->size(); i = oldLSentence->next(i))
+        for(unsigned int i = 0; i < oldLSentence->size(); i = oldLSentence->next(i))
         {
             applyCut(*oldLSentence, i);
             if(i >= oldLSentence->size()) break;
@@ -166,11 +166,11 @@ void LSystem::interpret(VLSentence &vlsentence, LSInterpreter &I, LSReinterprete
     LSentence &lsentence = vlsentence.m_lsentence;
     LSentence tempLSentence;
 
-    for(uint i = 0; i < lsentence.size(); i = lsentence.next(i))
+    for(unsigned int i = 0; i < lsentence.size(); i = lsentence.next(i))
     {
         tempLSentence.clear();
         applyProductionRecursively(lsentence, i, tempLSentence, m_homomorphismMap, V, nullptr);
-        for(uint j = 0; j < tempLSentence.size(); j = tempLSentence.next(j))
+        for(unsigned int j = 0; j < tempLSentence.size(); j = tempLSentence.next(j))
             I.interpret({tempLSentence, j});//tempLSentence, j);
         R.reinterpret(lsentence, i, vlsentence);
     }
@@ -191,11 +191,11 @@ void LSystem::interpret(VLSentence &vlsentence, LSInterpreter &I)
     LSentence &lsentence = vlsentence.m_lsentence;
     LSentence tempLSentence;
 
-    for(uint i = 0; i < lsentence.size(); i = lsentence.next(i))
+    for(unsigned int i = 0; i < lsentence.size(); i = lsentence.next(i))
     {
         tempLSentence.clear();
         applyProductionRecursively(lsentence, i, tempLSentence, m_homomorphismMap, V, nullptr);
-        for(uint j = 0; j < tempLSentence.size(); j = tempLSentence.next(j))
+        for(unsigned int j = 0; j < tempLSentence.size(); j = tempLSentence.next(j))
             I.interpret({tempLSentence, j});//tempLSentence, j);
     }
 
@@ -227,7 +227,7 @@ Product* LSystem::findMatch(const unsigned int i, const LSentence &refLS, std::u
 void LSystem::applyBasicProduct(const LSentence &oldSentence, LSentence &newSentence, const unsigned int curIndex)
 {
     newSentence.push_back(oldSentence[curIndex].id, oldSentence[curIndex].numParams);
-    for(uint i = 0; i < oldSentence[curIndex].numParams; ++i)
+    for(unsigned int i = 0; i < oldSentence[curIndex].numParams; ++i)
     {
         newSentence.push_back(oldSentence[curIndex+i+1].value);
     }
@@ -266,7 +266,7 @@ void LSystem::applyCut(const LSentence &oldLSentence, unsigned int &curIndex)
 
 void LSystem::decompose(const LSentence &undecomposedSentence, LSentence &newSentence, float *V, unsigned int *indiceHolder)
 {
-    for(uint i = 0; i < undecomposedSentence.size(); i = undecomposedSentence.next(i))
+    for(unsigned int i = 0; i < undecomposedSentence.size(); i = undecomposedSentence.next(i))
     {
         applyProductionRecursively(undecomposedSentence, i, newSentence, m_decompositionMap, V, indiceHolder);
     }
@@ -284,7 +284,7 @@ void LSystem::applyProductionRecursively(const LSentence &lsentence, const unsig
     }
     
     P->apply(tempSentence, V);
-    for(uint j = 0; j < tempSentence.size(); j = tempSentence.next(j))
+    for(unsigned int j = 0; j < tempSentence.size(); j = tempSentence.next(j))
     {
         applyProductionRecursively(tempSentence,j, newLSentence, pm, V, indiceHolder);
     }

@@ -24,7 +24,7 @@ void VLSentence::operator=(const std::string &string)
     validate();
 }
 
-const L32 &VLSentence::operator[](const uint i) const
+const L32 &VLSentence::operator[](const unsigned int i) const
 {
     return m_lsentence[i];
 }
@@ -41,7 +41,7 @@ const LSentence &VLSentence::getLSentence() const {return m_lsentence;}
 void VLSentence::validate()
 {
     m_alphabet.clear();
-    for(uint i = 0; i < m_lsentence.size(); i = m_lsentence.next(i))
+    for(unsigned int i = 0; i < m_lsentence.size(); i = m_lsentence.next(i))
     {
         LModule M(m_lsentence, i);
         if(m_alphabet.find(M.id) != m_alphabet.end() && m_alphabet.at(M.id) != M.numVals)

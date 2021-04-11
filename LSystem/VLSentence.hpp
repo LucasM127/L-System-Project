@@ -16,7 +16,7 @@ public:
     VLSentence();
     VLSentence(const std::string &string);
     void operator=(const std::string &string);
-    const L32 &operator[](const uint i) const;
+    const L32 &operator[](const unsigned int i) const;
     void clear();
     const Alphabet &getAlphabet() const;
     const LSentence &getLSentence() const;

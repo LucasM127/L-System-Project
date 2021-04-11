@@ -25,10 +25,10 @@ public:
     LSReinterpreter(const LSYSTEM::Alphabet a);
     const LSYSTEM::Alphabet alphabet;
     void contract(LSYSTEM::VLSentence &vlsentence);//update the lsentence
-    virtual void reinterpret(const LSYSTEM::LSentence &sentence, const uint i, LSYSTEM::VLSentence &vlsentence) = 0;
+    virtual void reinterpret(const LSYSTEM::LSentence &sentence, const unsigned int i, LSYSTEM::VLSentence &vlsentence) = 0;
 protected:
-    void modify(LSYSTEM::VLSentence &vlsentence, const uint i, const LModule &&M);
-    void modifyParams(LSYSTEM::VLSentence &vlsentence, const uint i, float * newVals, const uint numVals);
+    void modify(LSYSTEM::VLSentence &vlsentence, const unsigned int i, const LModule &&M);
+    void modifyParams(LSYSTEM::VLSentence &vlsentence, const unsigned int i, float * newVals, const unsigned int numVals);
 };
 
 } //namespace LSYSTEM

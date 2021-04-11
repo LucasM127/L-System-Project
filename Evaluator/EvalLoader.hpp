@@ -52,16 +52,16 @@ public:
     RuntimeLoader();
     //Evaluator* load(const std::string &expression, const RPNList &tokenizedExp, const std::string &comment) override;
     Evaluator* load(const std::string &expression, const VarIndiceMap &varMap, int maxVarDepth, const std::string &comment) override;
-    void setOffset(uint offset);
+    void setOffset(unsigned int offset);
     void setGlobalMap(const std::unordered_map<char,float> &globalMap);
     //call each ...
     void update();//update for global map
-    uint getMaxStackSz();
+    unsigned int getMaxStackSz();
 private:
-    uint m_offset;
-    uint m_maxStackSz;
+    unsigned int m_offset;
+    unsigned int m_maxStackSz;
 
-    uint getMaxStackSz(const RPNList &rpnlist);
+    unsigned int getMaxStackSz(const RPNList &rpnlist);
 
     const std::unordered_map<char,float> *globalMapPtr;
 };

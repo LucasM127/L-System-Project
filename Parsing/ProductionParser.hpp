@@ -17,7 +17,7 @@ private:
     bool stochasticMatch(std::vector<LSYSTEM::ProductionData>&, LSYSTEM::ProductionData&);
     void sortProductions(std::vector<LSYSTEM::ProductionData>& productions);
 
-    std::string parseContextString(const std::string &contextString, uint &varIndex, VarIndiceMap& varIndiceMap, LSYSTEM::Alphabet &abc);
+    std::string parseContextString(const std::string &contextString, unsigned int&varIndex, VarIndiceMap& varIndiceMap, LSYSTEM::Alphabet &abc);
     std::string getProductEvalStrings(const std::string& rawProductString,std::vector<std::vector<std::string> >&, LSYSTEM::Alphabet &abc);
 
     void assertAlphabet(const LSYSTEM::Alphabet &abc);

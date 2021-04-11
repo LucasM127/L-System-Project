@@ -9,7 +9,7 @@
 namespace EVALPARSE
 {
 
-EVAL::RPNList tokenize(const std::string &expression, const VarIndiceMap &varMap, const uint varDepth,
+EVAL::RPNList tokenize(const std::string &expression, const VarIndiceMap &varMap, const unsigned int varDepth,
                         const std::unordered_map<char,float> &globalMap);
 
 }//namespace EVALPARSE

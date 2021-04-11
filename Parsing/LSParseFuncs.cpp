@@ -19,7 +19,7 @@ float loadNumber(const std::string &s)
     return std::stof(s);
 }
 
-std::vector<float> loadParams(const std::string &s, uint &i)
+std::vector<float> loadParams(const std::string &s, unsigned int&i)
 {
     std::vector<float> vals;
     std::string param;
@@ -41,21 +41,23 @@ std::vector<float> loadParams(const std::string &s, uint &i)
 }
 
 //A or B(x,y,z)
-LSYSTEM::LModule loadModule(const std::string &s, uint &i, std::vector<float> &vals)
+LSYSTEM::LModule loadModule(const std::string &s, unsigned int &i, std::vector<float> &vals)
 {
     vals.clear();
     char id = s[i];
     //char c_next;
     //if(LSPARSE::next(s,i,c_next) && c_next == '(')
         vals = std::move(loadParams(s,i));//++i));
-    return LSYSTEM::LModule(id, &vals[0], vals.size());//vals is destroyed
+    if(vals.size() > 0)
+        return LSYSTEM::LModule(id, &vals[0], vals.size());//vals is destroyed
+    return LSYSTEM::LModule(id, nullptr, 0);
 }
 
 LSYSTEM::LSentence loadLSentence(const std::string &s)
 {
     std::vector<float> vals;
     LSYSTEM::LSentence L;
-    for(uint i = 0; i < s.size(); ++i)
+    for(unsigned int i = 0; i < s.size(); ++i)
     {
         L.push_back(loadModule(s,i,vals));
     }

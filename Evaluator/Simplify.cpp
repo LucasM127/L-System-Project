@@ -80,7 +80,7 @@ void Simplify::simplifyUnary(RPNList& rpnList)
     if(numToken.type != RPNToken::TYPE::CONST)//!numToken.isConst)
         return;
 
-    uint top = 0;
+    unsigned int top = 0;
     m_floatStack[top++] = numToken.value;//.push(numToken.value);
     size_t i = 1;
     for(; i < rpnList.size(); ++i)
@@ -106,10 +106,10 @@ void Simplify::simplifyFunc(RPNList& rpnList)
     LOG("");
     assert(rpnList.size()==3);//2 args and function call
 
-    uint constArgCtr = 0;
-    uint numArgs = 2;
+    unsigned int constArgCtr = 0;
+    unsigned int numArgs = 2;
 
-    for(uint i = 0; i < numArgs; ++i)
+    for(unsigned int i = 0; i < numArgs; ++i)
     {
         RPNToken &token = rpnList[i];
         if(token.type == RPNToken::TYPE::COMPLEX)
@@ -131,7 +131,7 @@ void Simplify::simplifyFunc(RPNList& rpnList)
     opFnPtr fnPtr = funcOpMap.at(rpnList[2].token);
     float lhs = rpnList[0].value;
     float rhs = rpnList[1].value;
-    uint top = 0;
+    unsigned int top = 0;
     m_floatStack[top++] = lhs;
     m_floatStack[top++] = rhs;
     fnPtr(m_floatStack, top);
@@ -175,7 +175,7 @@ void Simplify::simplifyBinary(RPNList& rpnList)
         {
             rhsIt = lhsIt+1;
             rhsNumPtr = &nextToken;
-            uint top = 0;
+            unsigned int top = 0;
             m_floatStack[top++] = lhsNumPtr->value;
             m_floatStack[top++] = rhsNumPtr->value;
             //int opIt = rpnList.size() - rhsIt;//but as all are ^ no matter
@@ -197,7 +197,7 @@ void Simplify::simplifyBinary(RPNList& rpnList)
             return;
         //can simplify!
         rhsNumPtr = &rpnList[rhsIt];
-        uint top = 0;
+        unsigned int top = 0;
         m_floatStack[top++] = lhsNumPtr->value;
         m_floatStack[top++] = rhsNumPtr->value;
         char op = rpnList[rhsIt+1].token;

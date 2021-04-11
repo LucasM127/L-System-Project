@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{92d5351e-ea36-48c8-83b8-cfe80cedfc31}</ProjectGuid>
+    <RootNamespace>LSystemProject</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <TargetName>lsystem</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Containers\Alphabet.cpp" />
+    <ClCompile Include="..\Containers\LSentence.cpp" />
+    <ClCompile Include="..\Containers\OstreamOperators.cpp" />
+    <ClCompile Include="..\Containers\RPNToken.cpp" />
+    <ClCompile Include="..\Evaluator\EvalLoader.cpp" />
+    <ClCompile Include="..\Evaluator\EvalOpMap.cpp" />
+    <ClCompile Include="..\Evaluator\Evaluator.cpp" />
+    <ClCompile Include="..\Evaluator\LibEvalLoader.cpp" />
+    <ClCompile Include="..\Evaluator\LSYSTEM_FUNCS.cpp" />
+    <ClCompile Include="..\Evaluator\RPNListFuncs.cpp" />
+    <ClCompile Include="..\Evaluator\ShuntYardAlgorithm.cpp" />
+    <ClCompile Include="..\Evaluator\Simplify.cpp" />
+    <ClCompile Include="..\LSystem\ContextTest.cpp" />
+    <ClCompile Include="..\LSystem\LSInterpreter.cpp" />
+    <ClCompile Include="..\LSystem\LSystem.cpp" />
+    <ClCompile Include="..\LSystem\ParametricProduction.cpp" />
+    <ClCompile Include="..\LSystem\Product.cpp" />
+    <ClCompile Include="..\LSystem\ProductChooser.cpp" />
+    <ClCompile Include="..\LSystem\Production.cpp" />
+    <ClCompile Include="..\LSystem\VLSentence.cpp" />
+    <ClCompile Include="..\Parsing\LSFileParser.cpp" />
+    <ClCompile Include="..\Parsing\LSParseFuncs.cpp" />
+    <ClCompile Include="..\Parsing\ParsingFuncs.cpp" />
+    <ClCompile Include="..\Parsing\ProductionParser.cpp" />
+    <ClCompile Include="..\Parsing\RPNTokenize.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Containers\Alphabet.hpp" />
+    <ClInclude Include="..\Containers\InterpreterData.hpp" />
+    <ClInclude Include="..\Containers\LSentence.hpp" />
+    <ClInclude Include="..\Containers\LSFileData.hpp" />
+    <ClInclude Include="..\Containers\OstreamOperators.hpp" />
+    <ClInclude Include="..\Containers\ProductionData.hpp" />
+    <ClInclude Include="..\Containers\RPNToken.hpp" />
+    <ClInclude Include="..\Containers\VarIndice.hpp" />
+    <ClInclude Include="..\Evaluator\EvalLoader.hpp" />
+    <ClInclude Include="..\Evaluator\Evaluator.hpp" />
+    <ClInclude Include="..\Evaluator\LibEvalLoader.hpp" />
+    <ClInclude Include="..\Evaluator\RPNListFuncs.hpp" />
+    <ClInclude Include="..\Evaluator\ShuntYardAlgorithm.hpp" />
+    <ClInclude Include="..\Evaluator\Simplify.hpp" />
+    <ClInclude Include="..\Logger\Logger.hpp" />
+    <ClInclude Include="..\LSystem\LSInterpreter.hpp" />
+    <ClInclude Include="..\LSystem\LSystem.hpp" />
+    <ClInclude Include="..\LSystem\LSystemRef.hpp" />
+    <ClInclude Include="..\LSystem\ParametricProduction.hpp" />
+    <ClInclude Include="..\LSystem\Product.hpp" />
+    <ClInclude Include="..\LSystem\ProductChooser.hpp" />
+    <ClInclude Include="..\LSystem\Production.hpp" />
+    <ClInclude Include="..\LSystem\VLSentence.hpp" />
+    <ClInclude Include="..\Parsing\LSFileParser.hpp" />
+    <ClInclude Include="..\Parsing\LSParseFuncs.hpp" />
+    <ClInclude Include="..\Parsing\ParsingFuncs.hpp" />
+    <ClInclude Include="..\Parsing\ProductionParser.hpp" />
+    <ClInclude Include="..\Parsing\RPNTokenize.hpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

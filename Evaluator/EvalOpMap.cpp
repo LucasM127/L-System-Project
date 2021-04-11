@@ -10,7 +10,7 @@
 namespace EVAL
 {
 
-const float DegToRad = 0.01745329252;
+const float DegToRad = 0.01745329252f;
 
 //Shunting Yard
 std::map<char, int> opPriorityMap
@@ -103,7 +103,7 @@ std::map<char,opFnPtr> funcOpMap =
 };
 //Map reverse map??? Function -> opPrority
 
-void Evaluator::add(float *stackVals, uint &top)// '+'
+void Evaluator::add(float *stackVals, unsigned int &top)// '+'
 {
     --top;
     float rhs = stackVals[top];
@@ -112,7 +112,7 @@ void Evaluator::add(float *stackVals, uint &top)// '+'
     stackVals[top-1] = lhs + rhs;
 }
 
-void Evaluator::subtract(float *stackVals, uint &top)//-
+void Evaluator::subtract(float *stackVals, unsigned int &top)//-
 {
     --top;
     float rhs = stackVals[top];
@@ -121,7 +121,7 @@ void Evaluator::subtract(float *stackVals, uint &top)//-
     stackVals[top-1] = lhs - rhs;
 }
 
-void Evaluator::multiply(float *stackVals, uint &top)//*
+void Evaluator::multiply(float *stackVals, unsigned int &top)//*
 {//it should be a zero...
     --top;
     float rhs = stackVals[top];
@@ -130,7 +130,7 @@ void Evaluator::multiply(float *stackVals, uint &top)//*
     stackVals[top-1] = lhs * rhs;
 }
 
-void Evaluator::divide(float *stackVals, uint &top)// /
+void Evaluator::divide(float *stackVals, unsigned int &top)// /
 {
     --top;
     float rhs = stackVals[top];
@@ -140,7 +140,7 @@ void Evaluator::divide(float *stackVals, uint &top)// /
     stackVals[top-1] = lhs / rhs;
 }
 
-void Evaluator::raiseByExponent(float *stackVals, uint &top)//^
+void Evaluator::raiseByExponent(float *stackVals, unsigned int &top)//^
 {
     --top;
     float rhs = stackVals[top];
@@ -149,28 +149,28 @@ void Evaluator::raiseByExponent(float *stackVals, uint &top)//^
     stackVals[top-1] = powf(lhs,rhs);
 }
 
-void Evaluator::sin(float *stackVals, uint &top)//S
+void Evaluator::sin(float *stackVals, unsigned int &top)//S
 {
     float num = stackVals[top-1];
     LOG("Taking the sin of ", num);
     stackVals[top-1] = sinf(num * DegToRad);
 }
 
-void Evaluator::cos(float *stackVals, uint &top)//C
+void Evaluator::cos(float *stackVals, unsigned int &top)//C
 {
     float num = stackVals[top-1];
     LOG("Taking the cos of ", num);
     stackVals[top-1] = cosf(num * DegToRad);
 }
 
-void Evaluator::tan(float *stackVals, uint &top)//T
+void Evaluator::tan(float *stackVals, unsigned int &top)//T
 {
     float num = stackVals[top-1];
     LOG("Taking the tan of ", num);
     stackVals[top-1] = tanf(num * DegToRad);
 }//use op ... command style ?
 
-void Evaluator::cosecant(float *stackVals, uint &top)//S
+void Evaluator::cosecant(float *stackVals, unsigned int &top)//S
 {
     float num = stackVals[top-1];
     LOG("Taking the cosecant of ", num);
@@ -178,21 +178,21 @@ void Evaluator::cosecant(float *stackVals, uint &top)//S
 }
 //abs() |x|
 
-void Evaluator::secant(float *stackVals, uint &top)//C
+void Evaluator::secant(float *stackVals, unsigned int &top)//C
 {
     float num = stackVals[top-1];
     LOG("Taking the secant of ", num);
     stackVals[top-1] = acosf(num * DegToRad);
 }
 
-void Evaluator::cotangent(float *stackVals, uint &top)//T
+void Evaluator::cotangent(float *stackVals, unsigned int &top)//T
 {
     float num = stackVals[top-1];
     LOG("Taking the cotangent of ", num);
     stackVals[top-1] = atanf(num * DegToRad);
 }
 
-void Evaluator::random(float *stackVals, uint &top)//R
+void Evaluator::random(float *stackVals, unsigned int &top)//R
 {
     float num = stackVals[top-1];
     LOG("Rand ", num);
@@ -201,7 +201,7 @@ void Evaluator::random(float *stackVals, uint &top)//R
 }
 
 
-void Evaluator::negate(float *stackVals, uint &top)// _0
+void Evaluator::negate(float *stackVals, unsigned int &top)// _0
 {
     float num = stackVals[top-1];
     LOG("Negating ", num);
@@ -209,7 +209,7 @@ void Evaluator::negate(float *stackVals, uint &top)// _0
 }
 
 //fix with more float friendly functions later
-void Evaluator::testIfEqual(float *stackVals, uint &top)//=
+void Evaluator::testIfEqual(float *stackVals, unsigned int &top)//=
 {
     --top;
     float rhs = stackVals[top];
@@ -218,7 +218,7 @@ void Evaluator::testIfEqual(float *stackVals, uint &top)//=
     stackVals[top-1] = (roundf(lhs) == roundf(rhs)) ? 1 : 0;
 }
 
-void Evaluator::testIfGreaterThan(float *stackVals, uint &top)//>
+void Evaluator::testIfGreaterThan(float *stackVals, unsigned int &top)//>
 {
     --top;
     float rhs = stackVals[top];
@@ -227,7 +227,7 @@ void Evaluator::testIfGreaterThan(float *stackVals, uint &top)//>
     stackVals[top-1] = (roundf(lhs) > roundf(rhs)) ? 1 : 0;
 }
 
-void Evaluator::testIfLessThan(float *stackVals, uint &top)//<
+void Evaluator::testIfLessThan(float *stackVals, unsigned int &top)//<
 {
     --top;
     float rhs = stackVals[top];
@@ -236,7 +236,7 @@ void Evaluator::testIfLessThan(float *stackVals, uint &top)//<
     stackVals[top-1] = (roundf(lhs) < roundf(rhs)) ? 1 : 0;
 }
 
-void Evaluator::testIfGreaterOrEqualThan(float *stackVals, uint &top)
+void Evaluator::testIfGreaterOrEqualThan(float *stackVals, unsigned int &top)
 {
     --top;
     float rhs = stackVals[top];
@@ -245,7 +245,7 @@ void Evaluator::testIfGreaterOrEqualThan(float *stackVals, uint &top)
     stackVals[top-1] = (roundf(lhs) >= roundf(rhs)) ? 1 : 0;
 }
 
-void Evaluator::testIfLessThanOrEqual(float *stackVals, uint &top)
+void Evaluator::testIfLessThanOrEqual(float *stackVals, unsigned int &top)
 {
     --top;
     float rhs = stackVals[top];
@@ -254,7 +254,7 @@ void Evaluator::testIfLessThanOrEqual(float *stackVals, uint &top)
     stackVals[top-1] = (roundf(lhs) <= roundf(rhs)) ? 1 : 0;
 }
 
-void Evaluator::testAnd(float *stackVals, uint &top)
+void Evaluator::testAnd(float *stackVals, unsigned int &top)
 {
     --top;
     float rhs = stackVals[top];
@@ -263,7 +263,7 @@ void Evaluator::testAnd(float *stackVals, uint &top)
     stackVals[top-1] = (roundf(lhs) && roundf(rhs)) ? 1 : 0;
 }
 
-void Evaluator::testOr(float *stackVals, uint &top)
+void Evaluator::testOr(float *stackVals, unsigned int &top)
 {
     --top;
     float rhs = stackVals[top];
@@ -272,7 +272,7 @@ void Evaluator::testOr(float *stackVals, uint &top)
     stackVals[top-1] = (roundf(lhs) || roundf(rhs)) ? 1 : 0;
 }
 
-void Evaluator::maxFn(float *stackVals, uint &top)
+void Evaluator::maxFn(float *stackVals, unsigned int &top)
 {
     --top;
     float rhs = stackVals[top];

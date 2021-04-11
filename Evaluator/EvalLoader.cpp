@@ -26,7 +26,7 @@ Evaluator* RuntimeLoader::load(const std::string &expression, const VarIndiceMap
     RPNList tokenizedExp = EVALPARSE::tokenize(expression, varMap, maxVarDepth, *globalMapPtr);
 
     //go through the tokenized list and see what type it resolves to...
-    uint numVars = 0;
+    unsigned int numVars = 0;
     bool hasGlobals = false;
     bool hasRand = false;
     for(auto &tok : tokenizedExp)
@@ -64,7 +64,7 @@ Loader::~Loader()
 //kinda ties it to the lsystem, but that's ok, they are not too expensive
 RuntimeLoader::RuntimeLoader():Loader(), m_offset(0), m_maxStackSz(0), globalMapPtr(nullptr){}
 
-void RuntimeLoader::setOffset(uint offset)
+void RuntimeLoader::setOffset(unsigned int offset)
 {
     m_offset = offset;
 }
@@ -74,7 +74,7 @@ void RuntimeLoader::setGlobalMap(const std::unordered_map<char,float> &globalMap
     globalMapPtr = &globalMap;
 }
 
-uint RuntimeLoader::getMaxStackSz()
+unsigned int RuntimeLoader::getMaxStackSz()
 {
     return m_maxStackSz;
 }
@@ -85,7 +85,7 @@ void RuntimeLoader::update()
     for(auto eval : m_evaluators)
     {
         eval->update(*globalMapPtr);
-        uint stackSz = eval->maxStackSz();
+        unsigned int stackSz = eval->maxStackSz();
         if(stackSz > m_maxStackSz) m_maxStackSz = stackSz;
     }
 }

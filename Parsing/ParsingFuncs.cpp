@@ -133,7 +133,7 @@ unsigned int readFromDictionary(const std::string &string, const unsigned int i,
 }
 
 //http://bits.mdminhazulhaque.io/cpp/find-and-replace-all-occurrences-in-cpp-string.html
-void findAndReplace(std::string& source, const std::unordered_map<std::string, std::string> &replacementStrings)
+void findAndReplace(std::string &source, const std::unordered_map<std::string, std::string> &replacementStrings)
 {
     std::string findString;
     std::string replaceString;
@@ -149,7 +149,7 @@ void findAndReplace(std::string& source, const std::unordered_map<std::string, s
     }
 }
 
-void findAndReplace(std::string& source, const std::unordered_map<std::string, char> &stringReplacementChars)
+void findAndReplace(std::string &source, const std::unordered_map<std::string, char> &stringReplacementChars)
 {
     std::string findString;
     char replaceChar;
@@ -165,7 +165,7 @@ void findAndReplace(std::string& source, const std::unordered_map<std::string, c
     }
 }
 
-void findAndReplace(std::string& source, const std::vector<std::pair<std::string, char> > &stringReplacementChars)
+void findAndReplace(std::string &source, const std::vector<std::pair<std::string, char> > &stringReplacementChars)
 {
     std::string findString;
     char replaceChar;
@@ -181,7 +181,7 @@ void findAndReplace(std::string& source, const std::vector<std::pair<std::string
     }
 }//this is starting to look funny but what'evs
 
-void removeSpaces(std::string& s)
+void removeSpaces(std::string &s)
 {
     s.erase(remove_if(s.begin(), s.end(), isspace), s.end());
 }
@@ -206,7 +206,7 @@ int getNumParams(const std::string &string, const unsigned int index, int &lastI
     return -1;//error
 }
 
-bool ensureBracketsMatch(const std::string& string)
+bool ensureBracketsMatch(const std::string &string)
 {
     int numCurvedBrackets = 0;
     int numSquareBrackets = 0;
@@ -221,7 +221,7 @@ bool ensureBracketsMatch(const std::string& string)
     return !(numCurvedBrackets || numSquareBrackets);
 }
 
-std::string getLetters(const std::string& sentence)//not used anymore
+std::string getLetters(const std::string &sentence)//not used anymore
 {
     std::string output;
     char c;
@@ -247,7 +247,7 @@ std::string getLetters(const std::string& sentence)//not used anymore
     return output;
 }
 
-bool bracketsMatch(const std::string& sentence)//not work for ([)]
+bool bracketsMatch(const std::string &sentence)//not work for ([)]
 {
     int numCurvedBrackets = 0;
     int numSquareBrackets = 0;
@@ -263,7 +263,7 @@ bool bracketsMatch(const std::string& sentence)//not work for ([)]
 }
 
 //For use in a while loop.  Loads next param in 'param' while a parameter exists after current letter.
-bool getNextParam(const std::string &s, uint &i, std::string &param)
+bool getNextParam(const std::string &s, unsigned int &i, std::string &param)
 {
     char c_next;
     if(!LSPARSE::next(s,i,c_next))
@@ -277,7 +277,7 @@ bool getNextParam(const std::string &s, uint &i, std::string &param)
         return false;
 
     ++i;
-    uint curLvl = 0;
+    unsigned int curLvl = 0;
     while(LSPARSE::next(s,i,c_next))
     {
         if(c_next == '(') ++curLvl;

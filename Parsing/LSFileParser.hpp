@@ -27,7 +27,6 @@ private:
     void loadDefines();
     void applyDefines();
     void convert();
-    void loadSkippableLetters();
     void loadGlobals();
 };
 
