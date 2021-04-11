@@ -4,11 +4,13 @@
 #include "imgui-SFML.h"
 #include "imgui_impl_opengl3.h"
 
-#include <future>
-
 #include "GLShaders.hpp"
 
 #include <string>
+
+float c_val = 1.f;
+float z_val = 0.3f;
+bool isIncreasing = true;
 
 AppViewer::AppViewer() : m_camera(nullptr), amRunning(true), amShowingIMGUI(true),
                          m_lsystem(nullptr)
@@ -81,51 +83,29 @@ void AppViewer::setup()
 
     //LSystem
 {
-    //Have a default LSystem to point to...
     LSYSTEM::LSData LS;
+    LS.globalMap = 
+    {
+        {'c', c_val},
+        {'z', z_val}
+    };
     LS.productions =
     {
-        "Y=>X-Y-X",
-        "X=>Y+X+Y"
+        "A(x,t) : t==0 => A(x*z,2)+A(x*(z*(c-z))^0.5,1)--A(x*(z*(c-z))^0.5,1)+A(x*(c-z),0)",
+        "A(x,t) : t >0 => A(x,t-1)"
     };
     LS.homomorphisms = 
     {
-        "X=>F",
-        "Y=>F"
+        "A(x,)=>F(x)"
     };
-    A = "Y";
-    /*
-    LS.productions =
-    {
-        "6 => 81++91----71[-81----61]++",
-        "7 => +81--91[---61--71]+",
-        "8 => -61++71[+++81++91]-",
-        "9 => --81++++61[+91++++71]--71",
-        "1 =>"
-    };
-    LS.homomorphisms =
-    {
-        "6=>F",//~(1,0,0)F",
-        "7=>F",//~(1,1,0)F",
-        "8=>F",//~(1,0,1)F",
-        "9=>F",//~(1,0,0)F"
-    };
+    axiom = "A(5,0)";
+    A = axiom;
     m_lsystem = new LSYSTEM::LSystem(LS);
-    A = "[7]++[7]++[7]++[7]++[7]";*/
-    m_lsystem = new LSYSTEM::LSystem(LS);
-    LS.productions.clear();
-    LS.homomorphisms.clear();
-    LS.productions = 
-    {
-        "Y=>Y+Y--Y+Y",
-        "X=>X+X--X+X"
-    };
-    m_lsystem2 = new LSYSTEM::LSystem(LS);
     oldSentence = &A;
     newSentence = &B;
     
     LineTurtleIntData data;
-    data.turnAngle = 60.f;//25.f;
+    data.turnAngle = 88.f;//25.f;
     m_lsInterpreter.setDefaults(data);
     interpret();
 }
@@ -147,21 +127,19 @@ void AppViewer::render()
         ImGui::NewFrame();
         ImGui::Begin("Hello");
         ImGui::Text("Press 'H' to show/hide");
-        //ImGui::
-        //ImGui::Checkbox("Lock Camera", &amLockingCamera);
         if(ImGui::Button("Reset"))
         {
-            (*oldSentence) = "Y";//"[7]++[7]++[7]++[7]++[7]";
+            (*oldSentence) = axiom;
             interpret();
         }
-        if(ImGui::Button("iterate"))
+        /*if(ImGui::Button("iterate"))
         {
             m_lsystem2->iterate(*oldSentence, *newSentence);
             oldSentence->clear();
             std::swap(oldSentence, newSentence);
             m_lsystem->interpret(*oldSentence,m_lsInterpreter);//?
             interpret();
-        }
+        }*/
         ImGui::End();
 
         ImGui::Render();
@@ -222,6 +200,23 @@ void AppViewer::iterate()
     std::swap(oldSentence, newSentence);
     m_lsystem->interpret(*oldSentence,m_lsInterpreter);//?
     interpret();
+
+    if(isIncreasing)
+    {
+        if(z_val < 0.8f)
+            z_val += 0.1f;
+        else isIncreasing = false;
+    }
+    else
+    {
+        if(z_val > 0.2f)
+            z_val -= 0.1f;
+        else
+            isIncreasing = true;
+    }
+    
+    m_lsystem->updateGlobal('z',z_val);
+    m_lsystem->update();
 }
 
 void AppViewer::interpret()

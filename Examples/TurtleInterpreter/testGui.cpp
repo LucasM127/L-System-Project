@@ -1,11 +1,23 @@
 #include <SFML/Window.hpp>
 #include <GL/glew.h>
 #include "TurtleInterpreter.hpp"
-
+#include <iostream>
 #include "imgui.h"
 #include "imgui-SFML.h"
 #include "imgui_impl_opengl3.h"
 #include "GLShaders.hpp"
+
+void imguiErrorPopUpBox(const char * errorString)
+{
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui::NewFrame();
+    ImGui::Begin("Error");
+    ImGui::Text(errorString);
+    ImGui::End();
+}
+
+LSYSTEM::LSystem *lsystem = nullptr;
+std::string errorString;
 
 struct LSBufferData//for ImGui
 {
@@ -22,22 +34,41 @@ struct LSBufferData//for ImGui
     std::array<char, maxNumProductions * maxBufferLength> productionCharData;
     std::array<char, maxNumProductions * maxBufferLength> decompositionCharData;
     std::array<char, maxNumProductions * maxBufferLength> homomorphismCharData;
+
+    void clear()
+    {
+        productionCharData.fill(0);
+        decompositionCharData.fill(0);
+        homomorphismCharData.fill(0);
+        numProductions = 0;
+        numHomomorphisms = 0;
+        numGlobals = 0;
+        numDecompositions = 0;
+    }
 } buffer;
 
-LSYSTEM::LSData convert(LSBufferData &B)
+LSYSTEM::LSData convert(const LSBufferData &B)
 {
     LSYSTEM::LSData L;
+    
+    for(unsigned int i = 0; i < B.numProductions; ++i)
+    {
+        L.productions.emplace_back(&B.productionCharData[128*i]);
+    }
+    for(unsigned int i = 0; i < B.numDecompositions; ++i)
+    {
+        L.productions.emplace_back(&B.productionCharData[128*i]);
+    }
+    for(unsigned int i = 0; i < B.numHomomorphisms; ++i)
+    {
+        L.productions.emplace_back(&B.productionCharData[128*i]);
+    }
+    for(unsigned int i = 0; i < B.numGlobals; ++i)
+        L.globalMap[B.globals[i].first] = B.globals[i].second;
     return L;
-    //for(auto i : B.productions)
-    //    L.productions.emplace_back(&B.data[i]);
-    //for(auto i : B.decompositions)
-    //    L.decompositions.emplace_back(&B.data[i]);
-    //for(auto i : B.homomorphisms)
-    //    L.homomorphisms.emplace_back(&B.data[i]);
 }
 
-//No validation or anything yet
-//Living on the edge lol
+//PopUpModal this???
 void imguiLSDataEditor(LSBufferData &B)
 {
     ImGui_ImplOpenGL3_NewFrame();
@@ -47,6 +78,8 @@ void imguiLSDataEditor(LSBufferData &B)
     ImGui::Text("Globals");
     for(unsigned int i = 0; i <= B.numGlobals; ++i)
     {
+        if(i == B.numGlobals)
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor(0.7f,0.2f,0.2f));
         ImGui::PushItemWidth(16.f);
         ImGui::PushID(i);
         ImGui::InputText("id", &B.globals[i].first, 2);
@@ -56,6 +89,8 @@ void imguiLSDataEditor(LSBufferData &B)
         ImGui::InputFloat("f", &B.globals[i].second);
         ImGui::PopID();
         ImGui::PopItemWidth();
+        if(i == B.numGlobals)
+            ImGui::PopStyleColor();
     }
     ImGui::SameLine();
     if(ImGui::Button("add##G")) ++B.numGlobals;
@@ -64,9 +99,13 @@ void imguiLSDataEditor(LSBufferData &B)
     ImGui::Text("Productions:");
     for(unsigned int i = 0; i <= B.numProductions; ++i)
     {
+        if(i == B.numProductions)
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor(0.7f,0.2f,0.2f));
         ImGui::PushID(i+8);
         ImGui::InputText(std::to_string(i).c_str(), &B.productionCharData[128*i], 128);
         ImGui::PopID();
+        if(i == B.numProductions)
+            ImGui::PopStyleColor();
     }
     ImGui::SameLine();
     if(ImGui::Button("add##P")) ++B.numProductions;
@@ -74,9 +113,13 @@ void imguiLSDataEditor(LSBufferData &B)
     ImGui::Text("Decompositions:");
     for(unsigned int i = 0; i <= B.numDecompositions; ++i)
     {
+        if(i == B.numDecompositions)
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor(0.7f,0.2f,0.2f));
         ImGui::PushID(i+16);
         ImGui::InputText(std::to_string(i).c_str(), &B.decompositionCharData[128 * i], 128);
         ImGui::PopID();
+        if(i == B.numDecompositions)
+            ImGui::PopStyleColor();
     }
     ImGui::SameLine();
     if(ImGui::Button("add##D")) ++B.numDecompositions;
@@ -84,13 +127,41 @@ void imguiLSDataEditor(LSBufferData &B)
     ImGui::Text("Homomorphisms:");
     for(unsigned int i = 0; i <= B.numHomomorphisms; ++i)
     {
+        if(i == B.numHomomorphisms)
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor(0.7f,0.2f,0.2f));
         ImGui::PushID(i+24);
         ImGui::InputText(std::to_string(i).c_str(), &B.homomorphismCharData[128 * i], 128);
         ImGui::PopID();
+        if(i == B.numHomomorphisms)
+            ImGui::PopStyleColor();
     }
     ImGui::SameLine();
     if(ImGui::Button("add##H")) ++B.numHomomorphisms;
     ImGui::PopItemWidth();
+    
+    if(ImGui::Button("Create"))
+    {
+        LSYSTEM::LSData L = convert(B);
+        try{
+            std::cout<<"CREATING\n";
+            lsystem = new LSYSTEM::LSystem(L);
+        }
+        catch(std::exception &e)
+        {
+            ImGui::OpenPopup("Error");
+            errorString = e.what();
+//            imguiErrorPopUpBox(e.what());
+        }
+    }
+    if(ImGui::BeginPopupModal("Error"))
+            {
+                ImGui::Text(errorString.c_str());
+                if(lsystem == nullptr)
+                    ImGui::Text("is nullptr");
+                if(ImGui::Button("Close"))
+                    ImGui::CloseCurrentPopup();
+                ImGui::EndPopup();
+            }
     ImGui::End();
 }
 

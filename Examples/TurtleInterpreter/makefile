@@ -6,6 +6,13 @@ LIBS=-lsfml-system -lsfml-window -lsfml-graphics -lGLEW -lGLU -lGL
 LINK= -L $(SFML_DIR)/lib -L$(GLEW)/lib $(LIBS) -Wl,-rpath=$(SFML_DIR)/lib -Wl,-rpath=$(GLEW)/lib
 OBJS=main.o GLShaders.o TurtleInterpreter.o SFMLOrthoCamera.o SFMLSphericalCamera.o AppViewer.o
 
+imguiTest: $(OBJS) testGui.o
+	g++ -g -Wall GLShaders.o TurtleInterpreter.o SFMLOrthoCamera.o SFMLSphericalCamera.o AppViewer.o testGui.o\
+	 ../../Lib/lsystem.a imguiSFML.a -o imguiTest $(LINK)
+
+testGui.o: testGui.cpp
+	g++ -g -Wall $< -c -o $@ -I $(GLEW)/include -I $(SFML_DIR)/include -I $(GLM) -I $(IMGUI)
+
 test: $(OBJS)
 	g++ -g -Wall $(OBJS) ../../Lib/lsystem.a imguiSFML.a -o test $(LINK)
 

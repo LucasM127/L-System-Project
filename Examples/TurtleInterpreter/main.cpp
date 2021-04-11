@@ -2,7 +2,7 @@
 #include <iostream>
 
 int main()
-{
+{//FUCK THIS
     try
     {
         AppViewer app;

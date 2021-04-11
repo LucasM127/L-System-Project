@@ -39,6 +39,7 @@ private:
     LSYSTEM::LSystem *m_lsystem;
     LSYSTEM::LSystem *m_lsystem2;
     LSYSTEM::VLSentence A,B;
+    LSYSTEM::VLSentence axiom;
     LSYSTEM::VLSentence *oldSentence, *newSentence;
 
     void iterate();
