@@ -17,7 +17,6 @@ public:
     void loadFile(const std::string &fileName);//fills filedata from a file
     const LSYSTEM::LSData &lsData();
     const std::string &axiom();
-    const std::vector<std::string> &interpreterStrings;
     void clear();
 private:
     LSYSTEM::LSFileData m_fileData;
