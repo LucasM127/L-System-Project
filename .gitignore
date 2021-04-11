@@ -6,3 +6,7 @@ test
 LSYSTEM_FUNCS.cpp
 Parsing/test.ls
 TEST
+Debug
+.vs
+*.filters
+*.user

@@ -27,7 +27,7 @@ void LSFile::loadFile(const std::string &fileName)
     //separate into 'sections', predetermined order mandatory(?)
     bool passed = true;
     std::string errorString;
-    uint curTagIndex = 0;
+    unsigned int curTagIndex = 0;
     std::string curLine;
     curLineCtr = 0;
 
@@ -35,7 +35,7 @@ void LSFile::loadFile(const std::string &fileName)
     ifstream.open(fileName);
     if(!ifstream) throw std::runtime_error("Unable to open " + fileName);
 
-    auto getNextLine = [&](std::istream &istream, std::string &nextLine, uint &curIndex)->bool
+    auto getNextLine = [&](std::istream &istream, std::string &nextLine, unsigned int &curIndex)->bool
     {
         do
         {
@@ -43,7 +43,7 @@ void LSFile::loadFile(const std::string &fileName)
             ++curLineCtr;
             if(nextLine.size() && nextLine.at(nextLine.size()-1) == '\r')
                 nextLine.pop_back();
-            for(uint i = 0; i < tagLines.size(); ++i)
+            for(unsigned int i = 0; i < tagLines.size(); ++i)
                 if(nextLine == tagLines[i])
                 {
                     //???
@@ -187,7 +187,6 @@ void LSFile::applyDefines()
 
 void LSFile::convert()
 {
-    loadSkippableLetters();
     loadGlobals();
     m_lsData.productions = std::move(m_fileData.productions);
     m_lsData.decompositions = std::move(m_fileData.decompositions);
@@ -203,15 +202,6 @@ const std::string &LSFile::axiom()
 const LSYSTEM::LSData &LSFile::lsData()
 {
     return m_lsData;
-}
-
-void LSFile::loadSkippableLetters()
-{
-    for(char c: m_fileData.skippableLetters)
-    {
-        if(c == ' ') continue;
-        m_lsData.skippableLetters.insert(c);
-    }
 }
 
 void LSFile::loadGlobals()

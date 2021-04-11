@@ -12,7 +12,7 @@ const RPNToken::TYPE OP  = RPNToken::TYPE::OP;
 const RPNToken::TYPE SYM = RPNToken::TYPE::SYMBOL;
 const RPNToken::TYPE GLB = RPNToken::TYPE::GLOBAL;
 
-RPNToken::RPNToken(){}//le sigh
+RPNToken::RPNToken() : type(TYPE::CONST), value(0.f) {}//le sigh
 RPNToken::RPNToken(char c, TYPE _type)   : type(_type),         token(c) {}
 RPNToken::RPNToken(float v)              : type(TYPE::CONST),   value(v) {}
 RPNToken::RPNToken(unsigned int i)       : type(TYPE::VAR),     index(i) {}

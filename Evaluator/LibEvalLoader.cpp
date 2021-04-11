@@ -1,6 +1,6 @@
 //Linux only unless can figure out how to use existing msvc compiler
 #include "LibEvalLoader.hpp"
-#include <dlfcn.h>//dlopen -ldl linkage
+//#include <dlfcn.h>//dlopen -ldl linkage
 /*****
 namespace EVAL
 {

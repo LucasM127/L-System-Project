@@ -114,13 +114,13 @@ std::ostream &operator<<(std::ostream &os, const LSYSTEM::Alphabet &alphabet)
 
 std::ostream &operator<<(std::ostream &os, const LSYSTEM::LSentence &lsentence)
 {
-    for(uint i = 0; i < lsentence.size(); ++i)
+    for(unsigned int i = 0; i < lsentence.size(); ++i)
     {
         os<<lsentence[i].id;
         if(lsentence[i].numParams)
         {
             os<<"("<<lsentence[i+1].value;
-            for(uint j = 1; j < lsentence[i].numParams; ++j)
+            for(unsigned int j = 1; j < lsentence[i].numParams; ++j)
             {
                 os<<","<<lsentence[i+j+1].value;
             }
@@ -187,7 +187,7 @@ std::ostream & operator<<(Letters const &q, Rhs const &rhs)
 
 std::ostream & operator<<(Letters const &q, LSYSTEM::LSentence const &lsentence)
 {
-    for(uint i = 0; i < lsentence.size(); i = lsentence.next(i))
+    for(unsigned int i = 0; i < lsentence.size(); i = lsentence.next(i))
     {
         q.os<<lsentence[i].id;
     }

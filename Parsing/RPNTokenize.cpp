@@ -43,7 +43,7 @@ static const std::unordered_set<char> opSet =
 };
 
 //Just support 'single' char globals for now.
-EVAL::RPNList tokenize(const std::string &expression, const VarIndiceMap &varMap, const uint varDepth,
+EVAL::RPNList tokenize(const std::string &expression, const VarIndiceMap &varMap, const unsigned int varDepth,
                         const std::unordered_map<char,float> &globalMap)
 {
     std::string exp = expression;
@@ -62,7 +62,7 @@ EVAL::RPNList tokenize(const std::string &expression, const VarIndiceMap &varMap
 
     std::vector<EVAL::RPNToken> tokens;
     //just digits left
-    uint i = -1;
+    unsigned int i = -1;
     char c_next;
     while(LSPARSE::next(exp, i, c_next))
     {
@@ -74,7 +74,7 @@ EVAL::RPNList tokenize(const std::string &expression, const VarIndiceMap &varMap
             tokens.emplace_back(c_next, EVAL::OP);
         else if(varMap.find(c_next) != varMap.end())
         {
-            uint index = varMap.at(c_next).letterNum * varDepth + varMap.at(c_next).paramNum;
+            unsigned int index = varMap.at(c_next).letterNum * varDepth + varMap.at(c_next).paramNum;
             tokens.emplace_back(index);
         }
         else if(isAGlob(c_next))

@@ -14,17 +14,19 @@ public:
     {
         std::cout<<"LContext : "<<lContext<<"\n";
         std::cout<<"           ";
-        for(uint i = 0; i < lContext.size(); i++)
+        for(unsigned int i = 0; i < lContext.size(); i++)
             std::cout<<i%10;
         std::cout<<"\n";
         std::cout<<"RContext : "<<rContext<<"\n";
         std::cout<<"           ";
-        for(uint i = 0; i < rContext.size(); i++)
+        for(unsigned int i = 0; i < rContext.size(); i++)
             std::cout<<i%10;
         std::cout<<"\n";
         
-        bool passL = passLContext(lsentence, loc);
-        bool passR = passRContext(lsentence, loc);
+        std::vector<unsigned int> lContextIndices(lContext.size());
+        std::vector<unsigned int> rContextIndices(rContext.size());
+        bool passL = passLContext(lsentence, loc, lContextIndices.data());
+        bool passR = passRContext(lsentence, loc, rContextIndices.data());
         if(passL) std::cout<<"Passes L Context"<<"\n";
         if(passR) std::cout<<"Passes R Context"<<"\n";
 
@@ -33,10 +35,10 @@ public:
         std::cout<<"\n";
         if(passL && lContext.size())
         {
-            uint k = 0;
-            for(uint i = 0; i < loc; i++)
+            unsigned int k = 0;
+            for(unsigned int i = 0; i < loc; i++)
             {
-                uint nextIndex = lContextIndices[k];
+                unsigned int nextIndex = lContextIndices[k];
                 if(i == nextIndex)
                 {
                     std::cout<<i%10;
@@ -46,14 +48,14 @@ public:
             }
         }
         else
-            for(uint i = 0; i < loc; i++) std::cout<<" ";
+            for(unsigned int i = 0; i < loc; i++) std::cout<<" ";
         std::cout<<"^";
         if(passR && rContext.size())
         {
-            uint k = 0;
-            for(uint i = loc+1; i < lsentence.size(); i++)
+            unsigned int k = 0;
+            for(unsigned int i = loc+1; i < lsentence.size(); i++)
             {
-                uint nextIndex = rContextIndices[k];
+                unsigned int nextIndex = rContextIndices[k];
                 if(i == nextIndex)
                 {
                     std::cout<<i%10;
@@ -63,12 +65,12 @@ public:
             }
         }
         else
-            for(uint i = 0; i < loc; i++) std::cout<<" ";
+            for(unsigned int i = 0; i < loc; i++) std::cout<<" ";
         std::cout<<std::endl;
 
-        for(uint i = 0; i < lContext.size(); ++i) std::cout<<lContextIndices[i]<<" ";
+        for(unsigned int i = 0; i < lContext.size(); ++i) std::cout<<lContextIndices[i]<<" ";
         std::cout<<std::endl;
-        for(uint i = 0; i < rContext.size(); ++i) std::cout<<rContextIndices[i]<<" ";
+        for(unsigned int i = 0; i < rContext.size(); ++i) std::cout<<rContextIndices[i]<<" ";
         std::cout<<std::endl;
     }
 };

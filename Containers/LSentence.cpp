@@ -21,23 +21,23 @@ LSentence::~LSentence(){}
 
 LSentence::LSentence() : m_lastNumParams(0), m_paramCtr(0) {}
 
-uint LSentence::next(const uint i) const
+unsigned int LSentence::next(const unsigned int i) const
 {
     return i + m_lstring[i].numParams + 1;
 }
 
-uint LSentence::last(const uint i) const
+unsigned int LSentence::last(const unsigned int i) const
 {
     return i - m_lstring[i].lastNumParams - 1;
 }
 
-uint LSentence::back() const
+unsigned int LSentence::back() const
 {
     return m_lstring.size() - m_lastNumParams - 1;
 }
 
 //pass by r reference?
-void LSentence::push_back(char c, uint numParams)
+void LSentence::push_back(char c, unsigned int numParams)
 {
 //#ifdef DEBUG
     assert(m_paramCtr == m_lastNumParams);
@@ -59,13 +59,13 @@ void LSentence::push_back(float f)
 void LSentence::push_back(LModule &&module)
 {
     push_back(module.id, module.numVals);
-    for(uint i = 0; i < module.numVals; ++i)
+    for(unsigned int i = 0; i < module.numVals; ++i)
         push_back(module.vals[i]);
 }
 
-L32 &LSentence::operator[](const uint i){return m_lstring[i];}
+L32 &LSentence::operator[](const unsigned int i){return m_lstring[i];}
 
-const L32 &LSentence::operator[](const uint i) const {return m_lstring[i];}
+const L32 &LSentence::operator[](const unsigned int i) const {return m_lstring[i];}
 
 std::size_t LSentence::size() const
 {
@@ -79,13 +79,13 @@ void LSentence::clear()
     m_paramCtr = 0;
 }
 
-LModule::LModule(LSentence &sentence, uint i) : id(sentence[i].id), vals(reinterpret_cast<float*>(&sentence[i+1])), numVals(sentence[i].numParams)
+LModule::LModule(LSentence &sentence, unsigned int i) : id(sentence[i].id), vals(sentence[i].numParams > 0 ? reinterpret_cast<float*>(&sentence[i+1]) : nullptr), numVals(sentence[i].numParams)
 {}
 
 LModule::LModule(char id_) : id(id_), vals(nullptr), numVals(0)
 {}
 
-LModule::LModule(char id_, float *vals_, uint numVals_) : id(id_), vals(vals_), numVals(numVals_)
+LModule::LModule(char id_, float *vals_, unsigned int numVals_) : id(id_), vals(vals_), numVals(numVals_)
 {}
 
 } //namespace LSYSTEM

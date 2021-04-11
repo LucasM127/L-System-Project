@@ -7,9 +7,9 @@
 //these Throw exceptions!
 float loadNumber(const std::string &string);
 
-std::vector<float> loadParams(const std::string &s, uint &i);
+std::vector<float> loadParams(const std::string &s, unsigned int &i);
 
-LSYSTEM::LModule loadModule(const std::string &s, uint &i, std::vector<float> &vals);
+LSYSTEM::LModule loadModule(const std::string &s, unsigned int &i, std::vector<float> &vals);
 
 LSYSTEM::LSentence loadLSentence(const std::string &s);
 

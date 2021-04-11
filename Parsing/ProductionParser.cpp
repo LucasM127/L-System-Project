@@ -25,7 +25,7 @@ try
 {
         decomposeProductionString(productionString, pd);
 
-        uint index = 0;
+        unsigned int index = 0;
         
         pd.lContext = parseContextString(pd.lContext, index, pd.products[0].varIndiceMap, abc);
         pd.letter   = parseContextString(pd.letter  , index, pd.products[0].varIndiceMap, abc);
@@ -62,10 +62,10 @@ void LSDataParser::sortProductions(std::vector<LSYSTEM::ProductionData>& product
         if((*it).lContext.size()&&(*it).rContext.size())
         {
             sortedProductions.push_back(*it);
-            productions.erase(it);
-            --it;
+            it = productions.erase(it);
+            //--it;
         }
-        ++it;
+        else ++it;
     }
     //only one of the contexts exist?
     it = productions.begin();
@@ -74,10 +74,10 @@ void LSDataParser::sortProductions(std::vector<LSYSTEM::ProductionData>& product
         if((*it).lContext.size()||(*it).rContext.size())
         {
             sortedProductions.push_back(*it);
-            productions.erase(it);
-            --it;
+            it = productions.erase(it);
+            //--it;
         }
-        ++it;
+        else ++it;
     }
 
     for(auto &pd : productions) sortedProductions.push_back(pd);
@@ -195,11 +195,11 @@ void LSDataParser::decomposeProductionString(const std::string &productionString
         throw std::runtime_error("Mismatching brackets.");//?
 }
 
-std::string LSDataParser::parseContextString(const std::string &contextString, uint &varIndex, VarIndiceMap& varIndiceMap, LSYSTEM::Alphabet &abc)
+std::string LSDataParser::parseContextString(const std::string &contextString, unsigned int &varIndex, VarIndiceMap& varIndiceMap, LSYSTEM::Alphabet &abc)
 {
     std::string letters;
     std::string paramString;
-    uint i = -1;
+    unsigned int i = -1;
     char c_next;
     while(LSPARSE::next(contextString, i, c_next))
     {
@@ -207,7 +207,7 @@ std::string LSDataParser::parseContextString(const std::string &contextString, u
         char cur_letter = c_next;
         letters.push_back(c_next);
 
-        uint paramNum = 0;
+        unsigned int paramNum = 0;
         while(LSPARSE::getNextParam(contextString, i, paramString))
         {
             if(paramString.size() == 0);//maybe intentional A(,x) only care about the second variable
@@ -243,7 +243,7 @@ std::string LSDataParser::getProductEvalStrings(const std::string &rawProductStr
 {
     std::string letters;
     std::string paramString;
-    uint i = -1;
+    unsigned int i = -1;
     char c_next;
     while(LSPARSE::next(rawProductString, i, c_next))
     {
@@ -251,7 +251,7 @@ std::string LSDataParser::getProductEvalStrings(const std::string &rawProductStr
         evalStrings.push_back(std::vector<std::string>());
         char cur_letter = c_next;
         letters.push_back(c_next);
-        uint paramNum = 0;
+        unsigned int paramNum = 0;
         while(LSPARSE::getNextParam(rawProductString, i, paramString))
         {
             if(paramString.size() == 0)
@@ -279,21 +279,21 @@ void LSDataParser::assertAlphabet(const LSYSTEM::Alphabet &abc)
 {
     for(auto &ppd : data.productionDatas)
         for(auto &pd : ppd.products)
-            for(uint i = 0; i < pd.product.size(); ++i)
+            for(unsigned int i = 0; i < pd.product.size(); ++i)
             {
                 if(abc.at(pd.product[i]) != pd.evalStrings[i].size())
                     throw std::runtime_error("Wrong number of parameters for letter '" + std::string(&pd.product[i],1) + "' in production " + pd.rawStatement);
             }
     for(auto &ppd : data.decompositionProductionDatas)
         for(auto &pd : ppd.products)
-            for(uint i = 0; i < pd.product.size(); ++i)
+            for(unsigned int i = 0; i < pd.product.size(); ++i)
             {
                 if(abc.at(pd.product[i]) != pd.evalStrings[i].size())
                     throw std::runtime_error("Wrong number of parameters for letter '" + std::string(&pd.product[i],1) + "' in production " + pd.rawStatement);
             }
     for(auto &ppd : data.homomorphicProductionDatas)
         for(auto &pd : ppd.products)
-            for(uint i = 0; i < pd.product.size(); ++i)
+            for(unsigned int i = 0; i < pd.product.size(); ++i)
             {
                 if(abc.at(pd.product[i]) != pd.evalStrings[i].size())
                     throw std::runtime_error("Wrong number of parameters for letter '" + std::string(&pd.product[i],1) + "' in production " + pd.rawStatement);

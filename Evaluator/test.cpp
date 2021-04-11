@@ -78,7 +78,7 @@ int main()
     std::string exp="xcz";//"x*(z*(c-z))^0.5";//rowoftrees example algorithm
     EVAL::RPNList tokenizedExp = 
     {
-        {(uint)0},//'x' mapped
+        {(unsigned int)0},//'x' mapped
         {'*',EVAL::OP},
         {'(',EVAL::SYM},
         {'z',EVAL::GLB},
@@ -93,7 +93,7 @@ int main()
         {0.5f}
     };
 
-    uint numVals = 1;
+    unsigned int numVals = 1;
     float x_val = 4.f;
     
     EVAL::RuntimeLoader evR;
@@ -108,7 +108,7 @@ int main()
 
     evR.update();
 
-    uint stackSz = evR.getMaxStackSz();
+    unsigned int stackSz = evR.getMaxStackSz();
     float *V = new float[numVals + stackSz];
     V[0] = x_val;
 
@@ -117,7 +117,7 @@ int main()
 //    V[0] = rand()%100;
 //while(true){
     float n;
-    for(uint i = 0; i < 100000; ++i)
+    for(unsigned int i = 0; i < 100000; ++i)
     n = evalR->evaluate(V);
 //}
 //    while(true)

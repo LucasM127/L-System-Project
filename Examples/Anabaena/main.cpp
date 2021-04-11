@@ -10,7 +10,7 @@
 class CellTurtle : public LSYSTEM::LSInterpreter
 {
 public:
-    const std::string getString() {return m_string;}
+    std::string &getString() {return m_string;}
     void reset() override
     {
         m_string.clear();
@@ -38,8 +38,8 @@ private:
 
 int main(int argc, char **v)
 {
-    uint n = 10;
-    uint terminalWidth = 80;
+    unsigned int n = 10;
+    unsigned int terminalWidth = 80;
 
     if(argc == 2)
     {
@@ -74,7 +74,7 @@ int main(int argc, char **v)
 
     ls.interpret(A[0],C);
     S.emplace_back(std::move(C.getString()));
-    for(uint i = 1; i < n; ++i)
+    for(unsigned int i = 1; i < n; ++i)
     {
         ls.iterate(A[i-1],A[i]);
         ls.interpret(A[i],C);
@@ -90,9 +90,9 @@ int main(int argc, char **v)
 
     for(auto &string : S)
     {
-        uint offset = (terminalWidth - string.size()) / 2;
+        unsigned int offset = (terminalWidth - string.size()) / 2;
         if(string.size() > terminalWidth) break;
-        for(uint i = 0; i < offset; ++i)
+        for(unsigned int i = 0; i < offset; ++i)
             std::cout<<" ";
         std::cout<<string<<"\n";
     }

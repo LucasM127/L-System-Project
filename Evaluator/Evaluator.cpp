@@ -29,9 +29,9 @@ void Evaluator::update(const std::unordered_map<char,float> &globalMap)
     updateLocal();
 }
 
-uint Evaluator::maxStackSz(){return 1;}
+unsigned int Evaluator::maxStackSz(){return 1;}
 
-ConstEvaluator::ConstEvaluator(const std::string &exp, RPNList &&refList, bool global) : Evaluator(exp, true, global, std::move(refList)) {}
+ConstEvaluator::ConstEvaluator(const std::string &exp, RPNList &&refList, bool global) : Evaluator(exp, true, global, std::move(refList)), m_val(0) {}
 float ConstEvaluator::evaluate(float *v) {return m_val;}
 
 
@@ -41,7 +41,7 @@ void ConstEvaluator::updateLocal()
     m_val = m_tempList[0].value;
 }
 
-SimpleEvaluator::SimpleEvaluator(const std::string &exp, RPNList &&refList) : Evaluator(exp, false, false, std::move(refList)) {}
+SimpleEvaluator::SimpleEvaluator(const std::string &exp, RPNList &&refList) : Evaluator(exp, false, false, std::move(refList)), m_index(0) {}
 float SimpleEvaluator::evaluate(float *v) {return v[m_index];}
 
 void SimpleEvaluator::updateLocal()
@@ -50,14 +50,14 @@ void SimpleEvaluator::updateLocal()
     m_index = m_tempList[0].index;
 }
 
-ComplexEvaluator::ComplexEvaluator(const std::string &exp, RPNList &&refList, bool global, uint offset)
+ComplexEvaluator::ComplexEvaluator(const std::string &exp, RPNList &&refList, bool global, unsigned int offset)
                     : Evaluator(exp, false, global, std::move(refList)), m_offset(offset)
 {
 }
 
 float ComplexEvaluator::evaluate(float *v)
 {
-    uint top = m_offset;
+    unsigned int top = m_offset;
     for(auto &T : m_rpnList)
     {
         switch(T.type)
@@ -106,10 +106,10 @@ void ComplexEvaluator::updateLocal()
 }
 
 //after update() call so templist is valid.
-uint ComplexEvaluator::maxStackSz()
+unsigned int ComplexEvaluator::maxStackSz()
 {
-    uint maxSz = 0;
-    uint curSz = 0;
+    unsigned int maxSz = 0;
+    unsigned int curSz = 0;
     for(auto T : m_tempList)
     {
         if(T.type == RPNToken::TYPE::OP)
