@@ -6,10 +6,7 @@
 namespace LSYSTEM
 {
 
-//need to add if can't find...????
-//should I pass it an evalLoader?  Particularly if is making a 'file'
-LSystem::LSystem(const LSData &lsData)// : alphabet(lsData.abc), skippableLetters(lsData.skippableLetters),
-                                        //        m_evalLoader(nullptr), 
+LSystem::LSystem(const LSData &lsData)
                                         : m_maxDepth(0), m_maxWidth(0), amSimple(true)
 {
     LSDataParser lsdp;

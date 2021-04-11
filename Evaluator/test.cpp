@@ -1,17 +1,61 @@
-#include "EvalLoader.hpp"
+//#include "EvalLoader.hpp"
 #include "../Containers/RPNToken.hpp"
+#include "../Containers/OstreamOperators.hpp"
 #include <iostream>
 #include <string>
 #include <cmath>
+#include "ShuntYardAlgorithm.hpp"
+#include "../Parsing/RPNTokenize.hpp"
 
 #include <chrono>
-//#define VAR false,false
-//#define OP  true,false
-//#define NUM false,true
 
-//WILL HAVE TO UPDATE ... at the end.
+void findAndReplace(const EVAL::RPNList &subList, EVAL::RPNList &list)
+{
+//    EVAL::RPNList::const_iterator it = subList.begin();
+    //next...? Tree iterator...
+}
 
+int main()
+{
+    VarIndiceMap varMap = 
+    {
+        {'x',{0,0}},
+        {'y',{1,0}}
+    };
 
+    //std::unordered_map<char,fl
+
+    const std::string A = "5x^2+36";
+    const std::string B = "2y+36(x^2)y";//try and find x^2 is a common 'substring'
+    const std::string C = "x^2";
+
+    EVAL::RPNList TokenAList = EVALPARSE::tokenize(A, varMap, 1, {});
+    EVAL::RPNList TokenBList = EVALPARSE::tokenize(B, varMap, 1, {});
+    EVAL::RPNList TokenCList = EVALPARSE::tokenize(C, varMap, 1, {});
+
+    std::cout<<TokenAList<<"\n";
+    std::cout<<TokenBList<<"\n\n";
+
+    EVAL::ShuntYardAlgorithm SYA;
+    EVAL::RPNList Atree = SYA.apply(TokenAList);
+    EVAL::RPNList Btree = SYA.apply(TokenBList);
+
+    EVAL::RPNList Afinal, Bfinal;
+
+    std::cout<<Atree<<"\n";
+    std::cout<<Btree<<"\n\n";
+
+    EVAL::expand(Atree,Afinal);//calls delete..
+    EVAL::expand(Btree,Bfinal);//maybe should have separate
+//should be able to find matching 'substrings'
+//next is next in the list.
+    std::cout<<Afinal<<"\n";
+    std::cout<<Bfinal<<"\n";
+
+    return 0;
+}
+
+/*
 int main()
 {
     srand(time(NULL));
@@ -107,7 +151,7 @@ int main()
 
     return 0;
 }
-
+*/
 /*
     //5x+4sin(30x)
     RPNList rpnList = 
