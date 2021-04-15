@@ -3,6 +3,7 @@
 #include "../Parsing/LSFileParser.hpp"//hmm
 
 #include <chrono>
+#include <thread>
 //Sentence has its own 'local' alphabet
 //Each LSystem Production algorithm set has its own 'local' alphabet
 //if they speak the same language they can work together, if not they can't
@@ -12,10 +13,28 @@
 //Decompose recursivity is painful to performance
 using namespace LSYSTEM;
 
+std::chrono::duration<int64_t,std::milli> runTime;
+bool cont()
+{
+    return runTime.count()<1000;
+}
+
+void longFunction(LSystem &L, VLSentence &A, VLSentence &B)
+{
+    VLSentence *oldSentence = &A;
+    VLSentence *newSentence = &B;
+    for(int i = 0; i < 100; ++i)//15 iterations
+    {
+        L.iterate(*oldSentence,*newSentence, cont);
+        oldSentence->clear();
+        std::swap(oldSentence,newSentence);
+    }
+}
+
 int main()
 {//Fix the MakeFiles now
-    //LSFile lsfile;
-    //lsfile.loadFile("../Examples/TurtleInterpreter/PineConeIdea.ls");
+    LSFile lsfile;
+    lsfile.loadFile("../LSFiles/rowoftrees.ls");
     LSData lsd;
     lsd.productions = 
     {
@@ -26,39 +45,24 @@ int main()
         "A(x) : x > 0 => A(x-1)A(x-1)"
     };
     
-    LSystem L(lsd);
+    LSystem L(lsfile.lsData());
 srand(time(NULL));
-    VLSentence axiom("A(2)");//"F");
+    VLSentence axiom(lsfile.axiom());//"A()");//"F");
     VLSentence A,B;
-    VLSentence *oldSentence = &axiom;
-    VLSentence *newSentence = &A;
-    //std::cout<<*oldSentence<<"\n";
-//see the time difference for 13 iterations
-    //while (true)
+    A = axiom;
+//THIS WORKS FINE
+//NOW TO DO THIS IN THE INTERPRETER FUNCTION TOO
+    std::thread th(longFunction, std::ref(L), std::ref(A), std::ref(B));
+    runTime = std::chrono::milliseconds(0);
+    auto start = std::chrono::high_resolution_clock::now();
+    while(cont())
     {
-        A = axiom;
-        oldSentence = &A;
-        newSentence = &B;
-        auto start = std::chrono::high_resolution_clock::now();
-        //for(int i = 0; i < 3; ++i)//15 iterations
-        {
-//            std::cout<<A<<"\n";
-            //L.iterate(*oldSentence,*newSentence);
-            //oldSentence->clear();
-            //std::swap(oldSentence,newSentence);
-            //std::cout<<*oldSentence<<"\n";
-            L.iterate(A,3);
-            std::cout<<A<<"\n";
-        }
-        auto end = std::chrono::high_resolution_clock::now();
-        auto duration = end - start;
-        std::cout<<"Duration "<<duration.count()<<"\n";
-        //std::cout<<*oldSentence<<"\n";
-        A.clear();
-        B.clear();
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        auto duration = std::chrono::high_resolution_clock::now() - start;
+        runTime = std::chrono::duration_cast<std::chrono::milliseconds>(duration);
     }
-
-    //where is the time getting taken up by?
+        
+    th.join();
 
     return 0;
 };

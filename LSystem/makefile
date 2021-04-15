@@ -7,7 +7,7 @@ OBJS = $(OF)/VLSentence.o $(OF)/Production.o $(OF)/ParametricProduction.o\
 STATIC_LIBS = $(LF)/LSystem.a $(LF)/EvalLib.a $(LF)/LSParser.a $(LF)/LSContainers.a
 
 test:  main.o $(STATIC_LIBS)
-	$(GCC) main.o $(STATIC_LIBS) -o test -ldl
+	$(GCC) main.o $(STATIC_LIBS) -o test -lpthread
 
 main.o: main.cpp
 	$(GCC) -Wall main.cpp -c
