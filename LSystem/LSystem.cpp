@@ -55,16 +55,68 @@ LSystem::LSystem(const LSData &lsData)
 LSystem::~LSystem()
 {}//YAY is empty
 
-//iterate once from old -> new
-void LSystem::iterate(const VLSentence &oldSentence, VLSentence &newSentence)
+//May refactor one day but is ok for now.
+void LSystem::iterate(const VLSentence &oldSentence, VLSentence &newSentence, bool(*fcont)())
 {
-    float *V = new float[m_maxWidth*m_maxDepth+m_maxStackSz];
-    unsigned int *indiceHolder = new unsigned int[m_maxWidth];
+    std::vector<float> V(m_maxWidth*m_maxDepth+m_maxStackSz);
+    std::vector<unsigned int> indiceHolder(m_maxWidth);
 
     if(!compatible(oldSentence.m_alphabet, m_alphabet))
         throw std::runtime_error("LSentence Incompatible with production alphabet");
     combine(m_alphabet, newSentence.m_alphabet);
-    combine(oldSentence.m_alphabet, newSentence.m_alphabet);
+    newSentence.m_alphabet = oldSentence.m_alphabet;
+
+    const LSentence &oldLSentence = oldSentence.m_lsentence;
+    LSentence &newLSentence = newSentence.m_lsentence;
+
+    //match appropiate iteration 'type'
+    bool applyDecompositions = m_decompositionMap.size() > 0;
+    //unsigned int ctr = 0;
+    if(applyDecompositions)
+    {
+        LSentence tempSentence;
+        for(unsigned int i = 0; i < oldLSentence.size(); i = oldLSentence.next(i))
+        {
+            applyCut(oldLSentence, i);
+            if(i >= oldLSentence.size()) break;
+            tempSentence.clear();
+            applyProduct(oldLSentence, tempSentence, i, m_productionMap, V.data(), indiceHolder.data());
+            decompose(tempSentence, newLSentence, V.data(), indiceHolder.data());
+            //++ctr;
+            //if(ctr > 1000)
+            {
+                //ctr = 0;
+                if(!fcont())
+                    return;
+            }
+        }
+        return;
+    }
+    for(unsigned int i = 0; i < oldLSentence.size(); i = oldLSentence.next(i))
+    {
+        applyCut(oldLSentence, i);
+        if(i >= oldLSentence.size()) break;
+        applyProduct(oldLSentence, newLSentence, i, m_productionMap, V.data(), indiceHolder.data());
+        //++ctr;
+        //if(ctr > 1000)
+        {
+            //ctr = 0;
+            if(!fcont())
+                return;
+        }
+    }
+}
+
+//iterate once from old -> new
+void LSystem::iterate(const VLSentence &oldSentence, VLSentence &newSentence)
+{
+    std::vector<float> V(m_maxWidth*m_maxDepth+m_maxStackSz);
+    std::vector<unsigned int> indiceHolder(m_maxWidth);
+
+    if(!compatible(oldSentence.m_alphabet, m_alphabet))
+        throw std::runtime_error("LSentence Incompatible with production alphabet");
+    combine(m_alphabet, newSentence.m_alphabet);
+    newSentence.m_alphabet = oldSentence.m_alphabet;
 
     const LSentence &oldLSentence = oldSentence.m_lsentence;
     LSentence &newLSentence = newSentence.m_lsentence;
@@ -80,8 +132,8 @@ void LSystem::iterate(const VLSentence &oldSentence, VLSentence &newSentence)
             applyCut(oldLSentence, i);
             if(i >= oldLSentence.size()) break;
             tempSentence.clear();
-            applyProduct(oldLSentence, tempSentence, i, m_productionMap, V, indiceHolder);
-            decompose(tempSentence, newLSentence, V, indiceHolder);
+            applyProduct(oldLSentence, tempSentence, i, m_productionMap, V.data(), indiceHolder.data());
+            decompose(tempSentence, newLSentence, V.data(), indiceHolder.data());
         }
         return;
     }
@@ -89,11 +141,8 @@ void LSystem::iterate(const VLSentence &oldSentence, VLSentence &newSentence)
     {
         applyCut(oldLSentence, i);
         if(i >= oldLSentence.size()) break;
-        applyProduct(oldLSentence, newLSentence, i, m_productionMap, V, indiceHolder);
+        applyProduct(oldLSentence, newLSentence, i, m_productionMap, V.data(), indiceHolder.data());
     }
-
-    delete[] V;
-    delete[] indiceHolder;
 }
 
 //iterate many times into the same sentence
@@ -150,7 +199,7 @@ void LSystem::iterate(VLSentence &sentence, unsigned int n)
 
 void LSystem::interpret(VLSentence &vlsentence, LSInterpreter &I, LSReinterpreter &R)
 {
-    float *V = new float[m_maxWidth*m_maxDepth+m_maxStackSz];
+    std::vector<float> V(m_maxWidth*m_maxDepth+m_maxStackSz);
 
     if(!compatible(vlsentence.m_alphabet, m_alphabet))
         throw;
@@ -166,18 +215,46 @@ void LSystem::interpret(VLSentence &vlsentence, LSInterpreter &I, LSReinterprete
     for(unsigned int i = 0; i < lsentence.size(); i = lsentence.next(i))
     {
         tempLSentence.clear();
-        applyProductionRecursively(lsentence, i, tempLSentence, m_homomorphismMap, V, nullptr);
+        applyProductionRecursively(lsentence, i, tempLSentence, m_homomorphismMap, V.data(), nullptr);
         for(unsigned int j = 0; j < tempLSentence.size(); j = tempLSentence.next(j))
             I.interpret({tempLSentence, j});//tempLSentence, j);
         R.reinterpret(lsentence, i, vlsentence);
     }
+}
 
-    delete[] V;
+void LSystem::interpret(VLSentence &vlsentence, LSInterpreter &I, bool(*fcont)())
+{
+    std::vector<float> V(m_maxWidth*m_maxDepth+m_maxStackSz);
+
+    if(!compatible(vlsentence.m_alphabet, m_alphabet))
+        throw;
+    combine(m_alphabet, vlsentence.m_alphabet);
+
+    I.reset();
+
+    LSentence &lsentence = vlsentence.m_lsentence;
+    LSentence tempLSentence;
+
+    //unsigned int ctr = 0;
+    for(unsigned int i = 0; i < lsentence.size(); i = lsentence.next(i))
+    {
+        tempLSentence.clear();
+        applyProductionRecursively(lsentence, i, tempLSentence, m_homomorphismMap, V.data(), nullptr);
+        for(unsigned int j = 0; j < tempLSentence.size(); j = tempLSentence.next(j))
+            I.interpret({tempLSentence, j});//tempLSentence, j);
+        //++ctr;
+        //if(ctr > 1000)
+        {
+            //ctr = 0;
+            if(!fcont())
+                return;
+        }
+    }
 }
 
 void LSystem::interpret(VLSentence &vlsentence, LSInterpreter &I)
 {
-    float *V = new float[m_maxWidth*m_maxDepth+m_maxStackSz];
+    std::vector<float> V(m_maxWidth*m_maxDepth+m_maxStackSz);
 
     if(!compatible(vlsentence.m_alphabet, m_alphabet))
         throw;
@@ -191,14 +268,13 @@ void LSystem::interpret(VLSentence &vlsentence, LSInterpreter &I)
     for(unsigned int i = 0; i < lsentence.size(); i = lsentence.next(i))
     {
         tempLSentence.clear();
-        applyProductionRecursively(lsentence, i, tempLSentence, m_homomorphismMap, V, nullptr);
+        applyProductionRecursively(lsentence, i, tempLSentence, m_homomorphismMap, V.data(), nullptr);
         for(unsigned int j = 0; j < tempLSentence.size(); j = tempLSentence.next(j))
             I.interpret({tempLSentence, j});//tempLSentence, j);
     }
-
-    delete[] V;
 }
 
+//SLOW POINT is modulus of the hash function (i think)
 Product* LSystem::findMatch(const unsigned int i, const LSentence &refLS, std::unordered_map<char, std::vector<BasicProduction*> > &productionMap,
                             float *V, unsigned int *indiceHolder)
 {

@@ -22,9 +22,12 @@ class LSystem
 public:
     LSystem(const LSData &lsData);
     ~LSystem();
+    //stepped iterate?
+    void iterate(const VLSentence &sentence, VLSentence &newSentence, bool(*fcont)());
     void iterate(const VLSentence &sentence, VLSentence &newSentence);
     void iterate(VLSentence &sentence, unsigned int n = 1);
     void interpret(VLSentence &sentence, LSInterpreter &I, LSReinterpreter &R);
+    void interpret(VLSentence &sentence, LSInterpreter &I, bool(*fcont)());
     void interpret(VLSentence &sentence, LSInterpreter &I);
 
     void updateGlobal(char id, const float val);
