@@ -1,3 +1,4 @@
+//#define __cplusplus 201703L
 #include <SFML/Window.hpp>
 #include <GL/glew.h>
 #include "TurtleInterpreter.hpp"
@@ -6,6 +7,11 @@
 #include "imgui-SFML.h"
 #include "imgui_impl_opengl3.h"
 #include "GLShaders.hpp"
+
+#include <filesystem>
+std::filesystem::path path(".");
+std::filesystem::directory_iterator dir_it(path);
+std::vector<std::string> fileNames;
 
 void imguiErrorPopUpBox(const char * errorString)
 {
@@ -152,6 +158,11 @@ void imguiLSDataEditor(LSBufferData &B)
             errorString = e.what();
 //            imguiErrorPopUpBox(e.what());
         }
+    }
+    //all .ls files here...
+    for(auto &s : fileNames)
+    {
+        ImGui::Text(s.c_str());
     }
     if(ImGui::BeginPopupModal("Error"))
             {
@@ -328,6 +339,15 @@ void handleEvents()
 
 int main()
 {
+    //convert to c_string format for imgui to display
+    for(auto &item : dir_it)
+    {
+        if(item.path().extension() == ".ls")
+            fileNames.push_back(item.path().filename());
+    }
+ //   item.path().filename().c_str()
+
+
     //I DONT LIKE IT :!
     lsData.label = "Sierpinski Triangle";
     lsData.globalMap = 

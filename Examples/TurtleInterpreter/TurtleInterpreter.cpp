@@ -5,6 +5,12 @@ LineTurtleInterpreter::LineTurtleInterpreter(Turtle3D start) : m_startTurtle(sta
     reset();
 }
 
+void LineTurtleInterpreter::setStartTurtle(Turtle3D start)
+{
+    m_startTurtle = start;
+    reset();
+}
+
 const std::vector<LineTurtleInterpreter::Vertex> &LineTurtleInterpreter::data() const
 {
     return m_data;

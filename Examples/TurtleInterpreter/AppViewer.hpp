@@ -7,6 +7,9 @@
 #include "SFMLCameraController.hpp"
 #include "TurtleInterpreter.hpp"
 
+#include <atomic>
+#include <thread>
+
 struct GLData
 {
     GLuint programID;
@@ -28,19 +31,29 @@ private:
     void setup();
     void render();
     void handleEvents(const sf::Event &event);
+    void updateGLBuffers();
     void cleanup();
     sf::Window m_window;
     Camera *m_camera;
     bool amRunning;
     bool amShowingIMGUI;
 
+    //OGL STUFF
     GLData m_glData;
+
+    //LSYSTEM STUFFS
     LineTurtleInterpreter m_lsInterpreter;
     LSYSTEM::LSystem *m_lsystem;
     LSYSTEM::LSystem *m_lsystem2;
     LSYSTEM::VLSentence A,B;
     LSYSTEM::VLSentence axiom;
     LSYSTEM::VLSentence *oldSentence, *newSentence;
+
+    //THREAD STATES
+    std::atomic_bool updateMe;//thread is finished
+    std::atomic_bool threadStarted;//thread is off. don 't iterate again pls
+    static std::atomic_bool killMe;
+    std::thread *m_threadPtr;
 
     void iterate();
     void interpret();

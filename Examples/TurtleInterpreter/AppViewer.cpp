@@ -10,7 +10,8 @@
 
 float c_val = 1.f;
 float z_val = 0.3f;
-bool isIncreasing = true;
+
+std::atomic_bool AppViewer::killMe(false);
 
 AppViewer::AppViewer() : m_camera(nullptr), amRunning(true), amShowingIMGUI(true),
                          m_lsystem(nullptr)
@@ -37,6 +38,8 @@ void AppViewer::run()
 
 void AppViewer::setup()
 {
+    threadStarted = false;
+    killMe = false;
     //Window Context
 {
     unsigned int width = 640;
@@ -101,11 +104,15 @@ void AppViewer::setup()
     axiom = "A(5,0)";
     A = axiom;
     m_lsystem = new LSYSTEM::LSystem(LS);
+    m_lsystem->iterate(A,18);
     oldSentence = &A;
     newSentence = &B;
     
     LineTurtleIntData data;
     data.turnAngle = 88.f;//25.f;
+    Turtle3D start;
+    start.rotate(90,{0,0,1});
+    m_lsInterpreter.setStartTurtle(start);
     m_lsInterpreter.setDefaults(data);
     interpret();
 }
@@ -116,7 +123,7 @@ void AppViewer::render()
 {
     glClear(GL_COLOR_BUFFER_BIT);
     glClear(GL_DEPTH_BUFFER_BIT);
-    //display
+    
     glBindVertexArray(m_glData.vaoID);
     glDrawArrays(GL_LINES, 0, m_glData.numVertices);
     glBindVertexArray(0);
@@ -129,28 +136,49 @@ void AppViewer::render()
         ImGui::Text("Press 'H' to show/hide");
         if(ImGui::Button("Reset"))
         {
+            if(threadStarted)
+            {//kill running thread signal.
+                threadStarted = false;
+                killMe = true;//signal
+                m_threadPtr->join();
+                delete m_threadPtr;
+                killMe = false;
+            }
             (*oldSentence) = axiom;
             interpret();
         }
-        /*if(ImGui::Button("iterate"))
+        if(ImGui::Button("iterate"))
         {
-            m_lsystem2->iterate(*oldSentence, *newSentence);
-            oldSentence->clear();
-            std::swap(oldSentence, newSentence);
-            m_lsystem->interpret(*oldSentence,m_lsInterpreter);//?
-            interpret();
-        }*/
+            if(!threadStarted)
+            {
+                threadStarted = true;
+                m_threadPtr = new std::thread(&AppViewer::iterate, this);
+            }
+        }
+        if(threadStarted)
+            ImGui::Text("Iterating...");
         ImGui::End();
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
+
     m_window.display();
 }
 
 //doing dual duty with update(float dt) - event based
 void AppViewer::handleEvents(const sf::Event &event)
 {
+    if(updateMe)
+    {
+        if(threadStarted){
+        m_threadPtr->join();
+        delete m_threadPtr;}
+        threadStarted = false;
+        updateMe = false;
+        updateGLBuffers();
+    }
+
     ImGuiIO &imguiIO = ImGui::GetIO();
 
     switch (event.type)
@@ -165,7 +193,13 @@ void AppViewer::handleEvents(const sf::Event &event)
         if(event.key.code == sf::Keyboard::Key::C)
             m_camera->setToBounds(m_lsInterpreter.getBounds());
         if(event.key.code == sf::Keyboard::Key::Space)
-            iterate();
+        {
+            if(!threadStarted)
+            {
+                threadStarted = true;
+                m_threadPtr = new std::thread(&AppViewer::iterate, this);
+            }
+        }
     }
     default:
         break;
@@ -195,39 +229,35 @@ void AppViewer::iterate()
     if(m_lsystem == nullptr)
         return;
     
-    m_lsystem->iterate(*oldSentence, *newSentence);
+    auto fcont = []()->bool
+    {
+        return !AppViewer::killMe;
+    };
+
+    m_lsystem->iterate(*oldSentence, *newSentence,fcont);
     oldSentence->clear();
     std::swap(oldSentence, newSentence);
-    m_lsystem->interpret(*oldSentence,m_lsInterpreter);//?
+    //m_lsystem->interpret(*oldSentence,m_lsInterpreter,fcont);//?
     interpret();
-
-    if(isIncreasing)
-    {
-        if(z_val < 0.8f)
-            z_val += 0.1f;
-        else isIncreasing = false;
-    }
-    else
-    {
-        if(z_val > 0.2f)
-            z_val -= 0.1f;
-        else
-            isIncreasing = true;
-    }
-    
-    m_lsystem->updateGlobal('z',z_val);
-    m_lsystem->update();
 }
 
 void AppViewer::interpret()
 {
     if(m_lsystem == nullptr)
         return;
-    m_lsystem->interpret(*oldSentence,m_lsInterpreter);
+    
+    m_lsystem->interpret(*oldSentence,m_lsInterpreter,[](){return !AppViewer::killMe;});
     //update VAO
     //SHOULD RETURN A STANDARD FORMAT!
+    updateMe = true;
+}
+
+//some way to notify is done
+void AppViewer::updateGLBuffers()
+{
     auto &data = m_lsInterpreter.data();
     m_glData.numVertices = data.size();
+
     glBindVertexArray(m_glData.vaoID);
     glBindBuffer(GL_ARRAY_BUFFER, m_glData.vertexBufferID);
     glBufferData(GL_ARRAY_BUFFER, data.size() * 2 * sizeof(glm::vec3), &data[0].pos[0], GL_STATIC_DRAW);
@@ -237,14 +267,22 @@ void AppViewer::interpret()
     glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,2*sizeof(glm::vec3),(void*)0);//pos
     glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,2*sizeof(glm::vec3),(void*)offsetof(LineTurtleInterpreter::Vertex, color));
 
+    //glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
-
+    
     if(m_camera)
         m_camera->setToBounds(m_lsInterpreter.getBounds());
 }
 
 void AppViewer::cleanup()
 {
+    if(threadStarted)
+    {
+        killMe = true;//signal
+        m_threadPtr->join();
+        delete m_threadPtr;
+    }
+
     glDeleteProgram(m_glData.programID);
     glDeleteVertexArrays(1, &m_glData.vaoID);//hope the order doesn't matter
     glDeleteBuffers(1, &m_glData.vertexBufferID);

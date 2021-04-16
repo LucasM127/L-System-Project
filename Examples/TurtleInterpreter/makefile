@@ -7,14 +7,14 @@ LINK= -L $(SFML_DIR)/lib -L$(GLEW)/lib $(LIBS) -Wl,-rpath=$(SFML_DIR)/lib -Wl,-r
 OBJS=main.o GLShaders.o TurtleInterpreter.o SFMLOrthoCamera.o SFMLSphericalCamera.o AppViewer.o
 
 imguiTest: $(OBJS) testGui.o
-	g++ -g -Wall GLShaders.o TurtleInterpreter.o SFMLOrthoCamera.o SFMLSphericalCamera.o AppViewer.o testGui.o\
+	g++ -g -Wall GLShaders.o TurtleInterpreter.o SFMLOrthoCamera.o SFMLSphericalCamera.o testGui.o\
 	 ../../Lib/lsystem.a imguiSFML.a -o imguiTest $(LINK)
 
 testGui.o: testGui.cpp
-	g++ -g -Wall $< -c -o $@ -I $(GLEW)/include -I $(SFML_DIR)/include -I $(GLM) -I $(IMGUI)
+	g++ -g -Wall -std=c++17 $< -c -o $@ -I $(GLEW)/include -I $(SFML_DIR)/include -I $(GLM) -I $(IMGUI)
 
 test: $(OBJS)
-	g++ -g -Wall $(OBJS) ../../Lib/lsystem.a imguiSFML.a -o test $(LINK)
+	g++ -g -Wall $(OBJS) ../../Lib/lsystem.a imguiSFML.a -o test $(LINK) -lpthread -lX11
 
 main.o: main.cpp
 	g++ -g -Wall main.cpp -c -I $(SFML_DIR)/include -I $(GLM) -I $(GLEW)/include $(INCIMGUI)

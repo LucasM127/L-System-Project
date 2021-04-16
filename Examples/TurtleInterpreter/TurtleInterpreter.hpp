@@ -31,7 +31,7 @@ public:
 public:
     LineTurtleInterpreter(Turtle3D Start = Turtle3D());
     const std::vector<Vertex> &data() const;
-
+    void setStartTurtle(Turtle3D start);
     void setDefaults(const LineTurtleIntData &data);
     const Bounds &getBounds() const;
 private:

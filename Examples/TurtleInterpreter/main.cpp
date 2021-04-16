@@ -1,8 +1,11 @@
 #include "AppViewer.hpp"
 #include <iostream>
 
+#include <X11/Xlib.h>
+
 int main()
-{//FUCK THIS
+{//GAH
+    XInitThreads();
     try
     {
         AppViewer app;
